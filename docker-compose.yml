@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  cardsserver.api:
+    image: ${DOCKER_REGISTRY-}cardsserverapi
+    build:
+      context: .
+      dockerfile: CardsServer.API/Dockerfile
