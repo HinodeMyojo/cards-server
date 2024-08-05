@@ -1,6 +1,8 @@
-﻿namespace CardsServer.BLL.Services.User
+﻿using CardsServer.BLL.Abstractions;
+
+namespace CardsServer.BLL.Services.User
 {
-    public class UserService
+    public class UserService : IUserService
     {
     }
 }

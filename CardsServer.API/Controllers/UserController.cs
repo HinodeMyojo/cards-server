@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CardsServer.BLL.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
 {
+    [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;
@@ -16,7 +20,7 @@ namespace CardsServer.API.Controllers
 
 
             return Ok();
-           
+
         }
     }
 }
