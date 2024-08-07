@@ -2,7 +2,8 @@
 {
     public class JwtOptions
     {
-        public string? SecretKey { get; set; }
+        public required string SecretKey { get; set; }
+        public required string Issuer { get; set; }
         public int ExpiresHours { get; set; }
     }
 }

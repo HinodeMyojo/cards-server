@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CardsServer.BLL\CardsServer.BLL.csproj" />
+    <ProjectReference Include="..\CardsServer.DAL\CardsServer.DAL.csproj" />
   </ItemGroup>
 
 </Project>

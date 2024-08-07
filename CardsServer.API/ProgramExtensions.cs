@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
+﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Services.User;
+using CardsServer.DAL.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -9,27 +12,29 @@ namespace CardsServer.API
     {
         public static IServiceCollection RegisterService(this IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddTransient<ILoginService, LoginService>();
+            services.AddTransient<IUserService, UserService>();
+
+            services.AddTransient<ILoginRepository, LoginRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+
             return services;
         }
 
         public static IServiceCollection AuthService(this IServiceCollection services, IConfiguration configuration) 
         {
-            JwtOptions? jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
+            JwtOptions jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
-                    opt.RequireHttpsMetadata = true;
-                    opt.SaveToken = true;
                     opt.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidateAudience = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "",
-                        ValidAudience = "",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions!.SecretKey))
+                        ValidIssuer = jwtOptions.Issuer,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                        ValidateLifetime = true,
                     };
                 });
 
