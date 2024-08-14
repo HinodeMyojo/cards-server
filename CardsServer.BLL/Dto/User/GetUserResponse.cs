@@ -8,6 +8,6 @@
         public bool IsEmailConfirmed { get; set; }
         public int StatusId { get; set; }
         public int RoleId { get; set; }
-        public required GetAvatarResponse Avatar { get; set; }
+        public int AvatarId { get; set; }
     }
 }

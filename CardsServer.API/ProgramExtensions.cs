@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Services.User;
+using CardsServer.DAL;
 using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,8 @@ namespace CardsServer.API
     {
         public static IServiceCollection RegisterService(this IServiceCollection services)
         {
+            services.AddDbContext<ApplicationContext>();
+
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
 

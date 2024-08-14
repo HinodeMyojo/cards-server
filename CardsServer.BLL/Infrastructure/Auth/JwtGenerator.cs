@@ -1,6 +1,4 @@
 ﻿using CardsServer.BLL.Entity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -21,8 +19,8 @@ namespace CardsServer.BLL.Infrastructure.Auth
         {
             var claims = new List<Claim>
             {
-                new Claim( ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email )
+                new( ClaimTypes.Name, user.UserName ),
+                new( ClaimTypes.Email, user.Email )
             };
 
             var signingCredentials = new SigningCredentials(

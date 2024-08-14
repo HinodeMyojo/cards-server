@@ -1,5 +1,8 @@
 ﻿namespace CardsServer.BLL.Entity
 {
+    /// <summary>
+    /// Действует, заблокирован, удален
+    /// </summary>
     public class StatusEntity
     {
         public int Id { get; set; }

@@ -1,5 +1,6 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.User;
+using CardsServer.BLL.Entity;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -15,7 +16,21 @@ namespace CardsServer.BLL.Services.User
 
         public async Task<GetUserResponse> GetUser(int userId, CancellationToken cancellationToken)
         {
-            return await _repository.GetUser(userId, cancellationToken);
+            UserEntity res = await _repository.GetUser(userId, cancellationToken);
+
+            GetUserResponse result = new()
+            {
+                Id = res.Id,
+                Email = res.Email,
+                StatusId = res.StatusId,
+                AvatarId = res.Avatar.Id,
+                UserName = res.UserName,
+                IsEmailConfirmed = res.IsEmailConfirmed,
+                RoleId = res.RoleId,
+            };
+
+            return result;
+
         }
     }
 }

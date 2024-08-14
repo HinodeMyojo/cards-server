@@ -2,12 +2,14 @@
 {
     public class AssertModel
     {
-        public async T? CheckNull(T? model)
+        public static T CheckNull<T>(T? model) where T : class
         {
             if (model == null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
+
+            return model;
         }
     }
 }
