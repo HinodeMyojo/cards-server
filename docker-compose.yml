@@ -6,3 +6,24 @@ services:
     build:
       context: .
       dockerfile: CardsServer.API/Dockerfile
+#     environment:
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#       - POSTGRES_DB=cardsdb
+#       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5433;Database=cardsdb;Username=postgres;Password=postgres
+#     depends_on:
+#       - postgres
+
+#   postgres:
+#     image: postgres:14
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: cardsdb
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_data:

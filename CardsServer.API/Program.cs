@@ -1,5 +1,7 @@
 using CardsServer.API;
 using CardsServer.API.Middlewares;
+using CardsServer.DAL;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -28,5 +30,13 @@ app.UseAuthorization();
 app.UseAuthentication();
 
 app.MapControllers();
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext =
+//        scope.ServiceProvider
+//            .GetRequiredService<ApplicationContext>();
+//    dbContext.Database.Migrate();
+//}
 
 app.Run();
