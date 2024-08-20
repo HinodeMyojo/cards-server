@@ -1,5 +1,6 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto;
+using CardsServer.BLL.Dto.Login;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
@@ -13,14 +14,22 @@ namespace CardsServer.API.Controllers
             _service = service;
         }
 
-        [HttpPost("login")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterUser(
             RegisterUser model, CancellationToken cancellationToken)
         {
             await _service.RegisterUser(model, cancellationToken);
 
             return Ok();
+        }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUser(
+            LoginUser user, CancellationToken cancellationToken)
+        {
+            string result = await _service.LoginUser(user, cancellationToken);
+
+            return Ok(result);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto;
+using CardsServer.BLL.Dto.Login;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -11,6 +13,16 @@ namespace CardsServer.BLL.Services.User
         public LoginService(ILoginRepository loginRepository)
         {
             _loginRepository = loginRepository;
+        }
+
+        public async Task<string> LoginUser(LoginUser user, CancellationToken cancellationToken)
+        {
+            UserEntity? res = await _loginRepository.GetUser(user, cancellationToken);
+            if (PasswordExtension.CheckPassword(res.Password, user.Password))
+            {
+                
+            }
+            AssertModel.CheckNull(res);
         }
 
         public async Task RegisterUser(RegisterUser model, CancellationToken cancellationToken)
