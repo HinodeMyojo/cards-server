@@ -1,15 +1,18 @@
-﻿namespace CardsServer.BLL.Infrastructure
+﻿using CardsServer.BLL.Infrastructure.Result;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace CardsServer.BLL.Infrastructure
 {
     public class AssertModel
     {
-        public static T CheckNull<T>(T? model) where T : class
+        public static Result<T> CheckNull<T>(T? model) where T : class
         {
             if (model == null)
             {
-                throw new ArgumentNullException(nameof(model));
+                return Result<T>.Failure($"Объект {nameof(model)} равен null!");
             }
 
-            return model;
+            return Result<T>.Success(model);
         }
     }
 }

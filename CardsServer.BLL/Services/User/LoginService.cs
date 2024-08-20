@@ -3,35 +3,47 @@ using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure;
+using CardsServer.BLL.Infrastructure.Result;
 
 namespace CardsServer.BLL.Services.User
 {
     public class LoginService : ILoginService
     {
         private readonly ILoginRepository _loginRepository;
+        private readonly IJwtGenerator _jwtGenerator;
 
-        public LoginService(ILoginRepository loginRepository)
+        public LoginService(ILoginRepository loginRepository, IJwtGenerator jwtGenerator)
         {
             _loginRepository = loginRepository;
+            _jwtGenerator = jwtGenerator;
         }
 
-        public async Task<string> LoginUser(LoginUser user, CancellationToken cancellationToken)
+        public async Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken)
         {
-            UserEntity? res = await _loginRepository.GetUser(user, cancellationToken);
-            if (PasswordExtension.CheckPassword(res.Password, user.Password))
-            {
-                
-            }
-            AssertModel.CheckNull(res);
-        }
 
+            UserEntity? res = await _loginRepository.GetUser(user, cancellationToken);
+            Result<UserEntity> userResult = AssertModel.CheckNull(res);
+
+            if (!userResult.IsSuccess)
+            {
+                return Result<string>.Failure(userResult.Error, userResult.StatusCode);
+            }
+
+            if (!PasswordExtension.CheckPassword(res.Password, user.Password))
+            {
+                return Result<string>.Failure("Пароли не сопадают.");
+            }
+
+            string token = _jwtGenerator.GenerateToken(res);
+            return Result<string>.Success(token);
+        }
         public async Task RegisterUser(RegisterUser model, CancellationToken cancellationToken)
         {
 
             UserEntity user = new()
             {
                 Email = model.Email,
-                Password = model.Password,
+                Password = PasswordExtension.HashPassword(model.Password),
                 IsEmailConfirmed = false,
                 RoleId = 1,
                 StatusId = 1,

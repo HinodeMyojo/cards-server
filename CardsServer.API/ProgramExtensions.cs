@@ -15,6 +15,8 @@ namespace CardsServer.API
         {
             services.AddDbContext<ApplicationContext>();
 
+            services.AddTransient<IJwtGenerator, JwtGenerator>();
+
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
 

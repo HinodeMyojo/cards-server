@@ -8,8 +8,7 @@ namespace CardsServer.BLL.Services.User
     {
         private readonly IUserRepository _repository;
 
-        public UserService(IUserRepository repository
-            )
+        public UserService(IUserRepository repository)
         {
             _repository = repository;
         }
