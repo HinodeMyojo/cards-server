@@ -8,6 +8,18 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<RoleEntity> builder)
         {
+            builder
+                .HasMany(x => x.Users)
+                .WithOne(x => x.Role)
+                .HasForeignKey(x => x.RoleId)
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.Permissions)
+                .WithMany(x => x.Roles)
+                .UsingEntity( y => y.ToTable("RolesPermissions"));
+
+
             builder.HasData(
                 new RoleEntity()
                 {

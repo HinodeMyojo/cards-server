@@ -23,7 +23,8 @@ namespace CardsServer.BLL.Infrastructure.Auth
             var claims = new List<Claim>
             {
                 new( ClaimTypes.Name, user.UserName ),
-                new( ClaimTypes.Email, user.Email )
+                new( ClaimTypes.Email, user.Email ),
+                new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
             };
 
             var signingCredentials = new SigningCredentials(

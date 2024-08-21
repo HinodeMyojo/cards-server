@@ -8,6 +8,10 @@ namespace CardsServer.DAL
     {
         private readonly IConfiguration _configuration;
         public DbSet<UserEntity> Users { get; set; }
+        public DbSet<AvatarEntity> Avatars { get; set; }
+        public DbSet<RoleEntity> Roles { get; set; }
+        public DbSet<StatusEntity> Statuses { get; set; }
+        public DbSet<PermissionEntity> Permissions { get; set; }
         public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
@@ -21,6 +25,7 @@ namespace CardsServer.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new AvatarConfiguration());
             modelBuilder.ApplyConfiguration(new StatusConfiguration());

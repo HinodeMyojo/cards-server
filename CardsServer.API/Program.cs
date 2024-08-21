@@ -1,5 +1,6 @@
 using CardsServer.API;
 using CardsServer.API.Middlewares;
+using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.DAL;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.RegisterService();
 builder.Services.AuthService(configuration);
+builder.Services.Configure<JwtOptions>(
+    configuration.GetSection(nameof(JwtOptions)));
 
 var app = builder.Build();
 

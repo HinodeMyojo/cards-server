@@ -4,6 +4,7 @@ using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -16,6 +17,7 @@ namespace CardsServer.API
             services.AddDbContext<ApplicationContext>();
 
             services.AddTransient<IJwtGenerator, JwtGenerator>();
+
 
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
@@ -42,6 +44,14 @@ namespace CardsServer.API
                         ValidateLifetime = true,
                     };
                 });
+
+            //services.AddAuthorization(opt =>
+            //{
+            //    opt.AddPolicy("Admin", policy =>
+            //    {
+            //        policy.AddRequirements.Add()
+            //    })
+            //})
 
             return services;
         }

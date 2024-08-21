@@ -8,6 +8,12 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<StatusEntity> builder)
         {
+            builder
+                .HasMany(x => x.Users)
+                .WithOne(x => x.Status)
+                .HasForeignKey(x => x.StatusId)
+                .IsRequired();
+
             builder.HasData(new StatusEntity()
             {
                 Id = 1,

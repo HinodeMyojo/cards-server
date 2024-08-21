@@ -8,7 +8,7 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<UserEntity> builder)
         {
-            
+            builder.HasKey(x => x.Id);
         }
     }
 }
