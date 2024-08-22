@@ -19,9 +19,9 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> RegisterUser(
             RegisterUser model, CancellationToken cancellationToken)
         {
-            await _service.RegisterUser(model, cancellationToken);
+            Result result = await _service.RegisterUser(model, cancellationToken);
 
-            return Ok();
+            return result.ToActionResult();
         }
 
         [HttpPost("login")]
@@ -30,7 +30,7 @@ namespace CardsServer.API.Controllers
         {
             Result<string> result = await _service.LoginUser(user, cancellationToken);
 
-            return result.ToActionResult();;
+            return result.ToActionResult();
         }
     }
 }

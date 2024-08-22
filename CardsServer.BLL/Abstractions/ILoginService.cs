@@ -7,8 +7,6 @@ namespace CardsServer.BLL.Abstractions
     public interface ILoginService
     {
         Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken);
-
-        //Task<string> LoginUser(LoginUser user, CancellationToken cancellationToken);
-        Task RegisterUser(RegisterUser model, CancellationToken cancellationToken);
+        Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken);
     }
 }

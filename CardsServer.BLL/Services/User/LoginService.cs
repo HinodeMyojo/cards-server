@@ -10,12 +10,14 @@ namespace CardsServer.BLL.Services.User
     public class LoginService : ILoginService
     {
         private readonly ILoginRepository _loginRepository;
+        private readonly IUserRepository _userRepository; 
         private readonly IJwtGenerator _jwtGenerator;
 
-        public LoginService(ILoginRepository loginRepository, IJwtGenerator jwtGenerator)
+        public LoginService(ILoginRepository loginRepository, IJwtGenerator jwtGenerator, IUserRepository userRepository)
         {
             _loginRepository = loginRepository;
             _jwtGenerator = jwtGenerator;
+            _userRepository = userRepository;
         }
 
         public async Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken)
@@ -37,8 +39,12 @@ namespace CardsServer.BLL.Services.User
             string token = _jwtGenerator.GenerateToken(res);
             return Result<string>.Success(token);
         }
-        public async Task RegisterUser(RegisterUser model, CancellationToken cancellationToken)
+        public async Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken)
         {
+            if (await IsEmailUsedAsync(model.Email))
+            {
+                return Result.Failure("Пользователь с таким Email уже зарегистрирован!");
+            }
 
             UserEntity user = new()
             {
@@ -51,6 +57,14 @@ namespace CardsServer.BLL.Services.User
             };
 
             await _loginRepository.RegisterUser(user, cancellationToken);
+
+            return Result.Success();
+        }
+
+        private async Task<bool> IsEmailUsedAsync(string email)
+        {
+            UserEntity? user = await _userRepository.GetUserByEmail(email, default);
+            return user != null;
         }
 
     }

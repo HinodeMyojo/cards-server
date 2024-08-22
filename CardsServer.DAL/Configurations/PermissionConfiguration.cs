@@ -24,7 +24,7 @@ namespace CardsServer.DAL.Configurations
                 {
                     Id = 3,
                     Title = "GetAllObject",
-                    Description = "Удаление всех записей",
+                    Description = "Получение всех записей",
                 },
                 new PermissionEntity()
                 {
@@ -35,8 +35,8 @@ namespace CardsServer.DAL.Configurations
                 new PermissionEntity()
                 {
                     Id = 5,
-                    Title = "CreateOwnObject",
-                    Description = "Создание своих записей",
+                    Title = "CreateObject",
+                    Description = "Создание записей",
                 },
                 new PermissionEntity()
                 {

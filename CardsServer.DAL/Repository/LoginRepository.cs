@@ -1,5 +1,4 @@
 ﻿using CardsServer.BLL.Abstractions;
-using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
 using CardsServer.BLL.Entity;
 using Microsoft.EntityFrameworkCore;

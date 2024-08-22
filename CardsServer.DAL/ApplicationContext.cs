@@ -29,6 +29,7 @@ namespace CardsServer.DAL
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new AvatarConfiguration());
             modelBuilder.ApplyConfiguration(new StatusConfiguration());
+            modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         }
 
 
