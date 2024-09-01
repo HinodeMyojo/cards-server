@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240822142704_AddPerm")]
-    partial class AddPerm
+    [Migration("20240901215510_addRoles")]
+    partial class addRoles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,50 +63,18 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Description = "Редактирование всех записей",
-                            Title = "EditAllObject"
+                            Title = "CreateObjects"
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Удаление всех записей",
-                            Title = "DeleteAllObject"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Получение всех записей",
-                            Title = "GetAllObject"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "Получение своих записей",
-                            Title = "GetOwnObject"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Description = "Создание своих записей",
-                            Title = "CreateOwnObject"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "Редактирование своих записей",
-                            Title = "EditOwnObject"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Description = "Удаление своих записей",
-                            Title = "DeleteOwnObject"
+                            Title = "ReadObjects"
                         });
                 });
 
@@ -124,23 +92,50 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Name = "Пользователь"
+                            Name = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Администратор"
+                            Name = "Moderator"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Модератор"
+                            Name = "User"
+                        });
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.RolePermissionEntity", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 1
                         });
                 });
 
@@ -164,17 +159,17 @@ namespace CardsServer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Title = "Действует"
+                            Title = "Active"
                         },
                         new
                         {
                             Id = 2,
-                            Title = "Заблокирован"
+                            Title = "Blocked"
                         },
                         new
                         {
                             Id = 3,
-                            Title = "Удален"
+                            Title = "Deleted"
                         });
                 });
 
@@ -219,21 +214,6 @@ namespace CardsServer.DAL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("PermissionEntityRoleEntity", b =>
-                {
-                    b.Property<int>("PermissionsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RolesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("PermissionsId", "RolesId");
-
-                    b.HasIndex("RolesId");
-
-                    b.ToTable("RolesPermissions", (string)null);
-                });
-
             modelBuilder.Entity("CardsServer.BLL.Entity.AvatarEntity", b =>
                 {
                     b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
@@ -243,6 +223,25 @@ namespace CardsServer.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.RolePermissionEntity", b =>
+                {
+                    b.HasOne("CardsServer.BLL.Entity.PermissionEntity", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CardsServer.BLL.Entity.RoleEntity", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.UserEntity", b =>
@@ -264,23 +263,15 @@ namespace CardsServer.DAL.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("PermissionEntityRoleEntity", b =>
+            modelBuilder.Entity("CardsServer.BLL.Entity.PermissionEntity", b =>
                 {
-                    b.HasOne("CardsServer.BLL.Entity.PermissionEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CardsServer.BLL.Entity.RoleEntity", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RoleEntity", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("Users");
                 });
 

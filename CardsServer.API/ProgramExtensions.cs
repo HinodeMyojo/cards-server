@@ -3,7 +3,9 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -45,13 +47,9 @@ namespace CardsServer.API
                     };
                 });
 
-            services.AddAuthorization(opt =>
-            {
-                opt.AddPolicy("DeleteAllObject", opt =>
-                {
-                    opt.RequireClaim("Permissions", "DeleteAllObject");
-                });
-            } );
+            services.AddAuthorization();
+            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             return services;
         }

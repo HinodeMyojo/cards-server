@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CardsServer.DAL.Configurations
 {
-    public class AvatarConfiguration : IEntityTypeConfiguration<AvatarEntity>
+    public sealed class AvatarConfiguration : IEntityTypeConfiguration<AvatarEntity>
     {
         public void Configure(EntityTypeBuilder<AvatarEntity> builder)
         {

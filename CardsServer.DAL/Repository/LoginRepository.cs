@@ -16,7 +16,10 @@ namespace CardsServer.DAL.Repository
 
         public async Task<UserEntity?> GetUser(LoginUser user, CancellationToken cancellationToken)
         {
-            UserEntity? result = await _context.Users.SingleOrDefaultAsync(x => x.UserName == user.UserName);
+            UserEntity? result = await _context.Users
+                .Include(u => u.Role)
+                .ThenInclude(x => x.Permissions)
+                .SingleOrDefaultAsync(x => x.UserName == user.UserName);
             return result;
         }
 

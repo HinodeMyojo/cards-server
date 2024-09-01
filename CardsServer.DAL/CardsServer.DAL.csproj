@@ -15,4 +15,8 @@
     <ProjectReference Include="..\CardsServer.BLL\CardsServer.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

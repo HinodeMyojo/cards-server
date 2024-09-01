@@ -2,9 +2,10 @@
 {
     public class PermissionEntity
     {
-        public int Id { get; set; }
-        public string? Title { get; set; }
+        public required int Id { get; init; }
+        public string? Title { get; init; }
         public string? Description { get; set; }
-        public ICollection<RoleEntity> Roles { get; set; } = [];
+        public ICollection<RoleEntity> Roles { get; init; } = [];
+        public ICollection<RolePermissionEntity> RolePermissions { get; init; } = [];
     }
 }

@@ -20,20 +20,31 @@ namespace CardsServer.BLL.Infrastructure.Auth
 
         public string GenerateToken(UserEntity user)
         {
-            var claims = new List<Claim>
+
+            List<Claim> claims;
+
+            try
             {
-                new( ClaimTypes.Name, user.UserName ),
-                new( ClaimTypes.Email, user.Email ),
-                new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
-            };
+                claims = new()
+                {
+                    new( ClaimTypes.Name, user.UserName ),
+                    new( ClaimTypes.Email, user.Email ),
+                    new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name),
+                    new( JwtRegisteredClaimNames.Sub, user.Id.ToString())
+                };
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
 
             claims.AddRange(user.Role.Permissions.Select(p => new Claim("Permissions", p.Title)));
 
-            var signingCredentials = new SigningCredentials(
+            SigningCredentials signingCredentials = new(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),
                 SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
+            JwtSecurityToken token = new(
                 claims: claims,
                 signingCredentials: signingCredentials,
                 expires: DateTime.UtcNow.AddHours(_options.ExpiresHours));

@@ -1,10 +1,11 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CardsServer.DAL.Configurations
 {
-    public class StatusConfiguration : IEntityTypeConfiguration<StatusEntity>
+    public sealed class StatusConfiguration : IEntityTypeConfiguration<StatusEntity>
     {
         public void Configure(EntityTypeBuilder<StatusEntity> builder)
         {
@@ -14,21 +15,15 @@ namespace CardsServer.DAL.Configurations
                 .HasForeignKey(x => x.StatusId)
                 .IsRequired();
 
-            builder.HasData(new StatusEntity()
-            {
-                Id = 1,
-                Title = "Действует",
-            },
-            new StatusEntity()
-            {
-                Id = 2,
-                Title = "Заблокирован",
-            },
-            new StatusEntity()
-            {
-                Id = 3,
-                Title = "Удален",
-            });
+            IEnumerable<StatusEntity> roles = Enum
+                .GetValues<Status>()
+                .Select(p => new StatusEntity
+                {
+                    Id = (int)p,
+                    Title = p.ToString(),
+                });
+
+            builder.HasData(roles);
         }
     }
 }

@@ -3,6 +3,7 @@ using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure;
+using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 
 namespace CardsServer.BLL.Services.User
@@ -25,7 +26,7 @@ namespace CardsServer.BLL.Services.User
 
             UserEntity? res = await _loginRepository.GetUser(user, cancellationToken);
             Result<UserEntity> userResult = AssertModel.CheckNull(res);
-
+            // спрятать в AssertModel
             if (!userResult.IsSuccess)
             {
                 return Result<string>.Failure(userResult.Error, userResult.StatusCode);
@@ -51,8 +52,8 @@ namespace CardsServer.BLL.Services.User
                 Email = model.Email,
                 Password = PasswordExtension.HashPassword(model.Password),
                 IsEmailConfirmed = false,
-                RoleId = 1,
-                StatusId = 1,
+                RoleId = (int)Role.User,
+                StatusId = (int)Status.Active,
                 UserName = model.UserName,
             };
 

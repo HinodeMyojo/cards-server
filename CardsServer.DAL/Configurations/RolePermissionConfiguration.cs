@@ -1,33 +1,30 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CardsServer.DAL.Configurations
 {
-    public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissionEntity>
+    public sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissionEntity>
     {
         public void Configure(EntityTypeBuilder<RolePermissionEntity> builder)
         {
             builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });
-            builder.ToTable("RolesPermissions");
 
             builder.HasData(
-            new RolePermissionEntity { RoleId = 1, PermissionId = 4 },  // Пользователь - GetOwnObject
-            new RolePermissionEntity { RoleId = 1, PermissionId = 5 },  // Пользователь - CreateObject
-            new RolePermissionEntity { RoleId = 1, PermissionId = 6 },  // Пользователь - EditOwnObject
-            new RolePermissionEntity { RoleId = 1, PermissionId = 7 },  // Пользователь - DeleteOwnObject
+                Create(Role.User, Permission.ReadObjects),
+                Create(Role.User, Permission.CreateObjects)
+                );
+        }
 
-            new RolePermissionEntity { RoleId = 2, PermissionId = 1 },  // Администратор - EditAllObject
-            new RolePermissionEntity { RoleId = 2, PermissionId = 2 },  // Администратор - DeleteAllObject
-            new RolePermissionEntity { RoleId = 2, PermissionId = 3 },  // Администратор - GetAllObject
-            new RolePermissionEntity { RoleId = 2, PermissionId = 5 },  // Администратор - CreateObject
-
-            new RolePermissionEntity { RoleId = 3, PermissionId = 3 },  // Модератор - GetAllObject
-            new RolePermissionEntity { RoleId = 3, PermissionId = 1 },  // Модератор - EditAllObject
-            new RolePermissionEntity { RoleId = 3, PermissionId = 5 },  // Модератор - CreateObject
-            new RolePermissionEntity { RoleId = 3, PermissionId = 7 }   // Модератор - DeleteOwnObject
-        );
-
+        private static RolePermissionEntity Create(
+            Role role, Permission permission)
+        {
+            return new RolePermissionEntity
+            {
+                RoleId = (int)role,
+                PermissionId = (int)permission
+            };
         }
     }
 }

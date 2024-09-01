@@ -1,55 +1,26 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace CardsServer.DAL.Configurations
 {
-    public class PermissionConfiguration : IEntityTypeConfiguration<PermissionEntity>
+    public sealed class PermissionConfiguration : IEntityTypeConfiguration<PermissionEntity>
     {
         public void Configure(EntityTypeBuilder<PermissionEntity> builder)
         {
-            builder.HasData(
-                new PermissionEntity()
+            builder.ToTable(TableNames.Permissions.ToString());
+
+            builder.HasKey(x => x.Id);
+
+            IEnumerable<PermissionEntity> permissions = Enum
+                .GetValues<Permission>()
+                .Select(p => new PermissionEntity
                 {
-                    Id = 1,
-                    Title = "EditAllObject",
-                    Description = "Редактирование всех записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 2,
-                    Title = "DeleteAllObject",
-                    Description = "Удаление всех записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 3,
-                    Title = "GetAllObject",
-                    Description = "Получение всех записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 4,
-                    Title = "GetOwnObject",
-                    Description = "Получение своих записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 5,
-                    Title = "CreateObject",
-                    Description = "Создание записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 6,
-                    Title = "EditOwnObject",
-                    Description = "Редактирование своих записей",
-                },
-                new PermissionEntity()
-                {
-                    Id = 7,
-                    Title = "DeleteOwnObject",
-                    Description = "Удаление своих записей",
+                    Id = (int)p,
+                    Title = p.ToString(),
                 });
+
+            builder.HasData(permissions);
         }
     }
 }

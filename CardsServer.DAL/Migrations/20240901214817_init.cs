@@ -8,13 +8,27 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "RoleEntity",
+                name: "Permissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -23,11 +37,11 @@ namespace CardsServer.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoleEntity", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "StatusEntity",
+                name: "Statuses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -36,7 +50,31 @@ namespace CardsServer.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StatusEntity", x => x.Id);
+                    table.PrimaryKey("PK_Statuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    PermissionId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermissions", x => new { x.RoleId, x.PermissionId });
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -56,21 +94,21 @@ namespace CardsServer.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_RoleEntity_RoleId",
+                        name: "FK_Users_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "RoleEntity",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Users_StatusEntity_StatusId",
+                        name: "FK_Users_Statuses_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "StatusEntity",
+                        principalTable: "Statuses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AvatarEntity",
+                name: "Avatars",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -80,9 +118,9 @@ namespace CardsServer.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AvatarEntity", x => x.Id);
+                    table.PrimaryKey("PK_Avatars", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AvatarEntity_Users_UserId",
+                        name: "FK_Avatars_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -90,29 +128,48 @@ namespace CardsServer.DAL.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "RoleEntity",
-                columns: new[] { "Id", "Name" },
+                table: "Permissions",
+                columns: new[] { "Id", "Description", "Title" },
                 values: new object[,]
                 {
-                    { 1, "Пользователь" },
-                    { 2, "Администратор" },
-                    { 3, "Модератор" }
+                    { 1, null, "CreateObjects" },
+                    { 2, null, "ReadObjects" }
                 });
 
             migrationBuilder.InsertData(
-                table: "StatusEntity",
-                columns: new[] { "Id", "Title" },
+                table: "Roles",
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Действует" },
-                    { 2, "Заблокирован" },
-                    { 3, "Удален" }
+                    { 1, "Admin" },
+                    { 2, "Moderator" },
+                    { 3, "User" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RolePermissions",
+                columns: new[] { "PermissionId", "RoleId" },
+                values: new object[,]
+                {
+                    { 1, 3 },
+                    { 2, 3 }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AvatarEntity_UserId",
-                table: "AvatarEntity",
+                name: "IX_Avatars_UserId",
+                table: "Avatars",
                 column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RolePermissions_PermissionId",
+                table: "RolePermissions",
+                column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -130,16 +187,22 @@ namespace CardsServer.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AvatarEntity");
+                name: "Avatars");
+
+            migrationBuilder.DropTable(
+                name: "RolePermissions");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "RoleEntity");
+                name: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "StatusEntity");
+                name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Statuses");
         }
     }
 }

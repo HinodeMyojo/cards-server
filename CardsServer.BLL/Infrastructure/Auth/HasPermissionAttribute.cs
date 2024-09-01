@@ -1,12 +1,13 @@
-﻿using System.Web.Http;
+﻿using CardsServer.BLL.Infrastructure.Auth.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CardsServer.BLL.Infrastructure.Auth
 {
     public sealed class HasPermissionAttribute : AuthorizeAttribute
     {
-        public HasPermissionAttribute(Permission permission)
+        public string POLICY_PREFIX = "HasPermission";
+        public HasPermissionAttribute(Permission permission) : base(permission.ToString())
         {
-            Policy = permission.ToString();
         }
     }
 }
