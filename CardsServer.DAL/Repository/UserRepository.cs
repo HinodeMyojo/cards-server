@@ -1,5 +1,6 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
@@ -26,5 +27,21 @@ namespace CardsServer.DAL.Repository
 
             return user;
         }
+
+        //public async Task<HashSet<Pe>> GetUserPermissions(int id)
+        //{
+        //    List<RoleEntity?> roles = await _context.Users
+        //        .AsNoTracking()
+        //        .Include(x => x.Role)
+        //        .ThenInclude(x => x.Permissions)
+        //        .Where(x => x.Id == id)
+        //        .Select(x => x.Role)
+        //        .ToListAsync();
+
+        //    return roles
+        //        .SelectMany(x => x.Permissions)
+        //        .Select(d => d.(Permission)d.Id)
+        //        .ToHashSet();
+        //}
 }
     }

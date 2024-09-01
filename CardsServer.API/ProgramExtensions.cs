@@ -5,6 +5,7 @@ using CardsServer.DAL;
 using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace CardsServer.API
@@ -44,13 +45,13 @@ namespace CardsServer.API
                     };
                 });
 
-            //services.AddAuthorization(opt =>
-            //{
-            //    opt.AddPolicy("Admin", policy =>
-            //    {
-            //        policy.AddRequirements.Add()
-            //    })
-            //})
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("DeleteAllObject", opt =>
+                {
+                    opt.RequireClaim("Permissions", "DeleteAllObject");
+                });
+            } );
 
             return services;
         }

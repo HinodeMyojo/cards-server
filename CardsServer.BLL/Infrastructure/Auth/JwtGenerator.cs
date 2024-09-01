@@ -27,6 +27,8 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name)
             };
 
+            claims.AddRange(user.Role.Permissions.Select(p => new Claim("Permissions", p.Title)));
+
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),
                 SecurityAlgorithms.HmacSha256);
