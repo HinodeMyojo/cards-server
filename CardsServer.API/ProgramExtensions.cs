@@ -23,9 +23,13 @@ namespace CardsServer.API
 
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IPermissionService, PermissionService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
+
+            
 
             return services;
         }
@@ -34,15 +38,28 @@ namespace CardsServer.API
         {
             JwtOptions jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader());
+            });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(opt =>
                 {
+                    // Чтобы claims токенов не переименовались (нужно для поиска id по claims JwtRegisteredClaimNames.Sub
+                    opt.MapInboundClaims = false;
                     opt.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtOptions.Issuer,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions!.SecretKey)),
                         ValidateLifetime = true,
                     };
                 });

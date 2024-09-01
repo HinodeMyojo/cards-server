@@ -25,13 +25,13 @@ namespace CardsServer.BLL.Infrastructure.Auth
 
             try
             {
-                claims = new()
-                {
+                claims =
+                [
                     new( ClaimTypes.Name, user.UserName ),
                     new( ClaimTypes.Email, user.Email ),
                     new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name),
                     new( JwtRegisteredClaimNames.Sub, user.Id.ToString())
-                };
+                ];
             }
             catch(Exception ex)
             {
@@ -64,28 +64,28 @@ namespace CardsServer.BLL.Infrastructure.Auth
             }
         }
 
-        //public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-        //{
-        //    var tokenValidationParameters = new TokenValidationParameters
-        //    {
-        //        ValidateAudience = false,
-        //        ValidateIssuer = false,
-        //        ValidateIssuerSigningKey = true,
-        //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
-        //        ValidateLifetime = false 
-        //    };
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
+                ValidateLifetime = false
+            };
 
-        //    JwtSecurityTokenHandler tokenHandler = new();
-        //    SecurityToken securityToken;
+            JwtSecurityTokenHandler tokenHandler = new();
+            SecurityToken securityToken;
 
-        //    ClaimsPrincipal principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            ClaimsPrincipal principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
 
-        //    JwtSecurityToken? jwtSecurityToken = securityToken as JwtSecurityToken;
+            JwtSecurityToken? jwtSecurityToken = securityToken as JwtSecurityToken;
 
-        //    if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-        //        throw new SecurityTokenException("Invalid token");
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
 
-        //    return principal;
-        //}
+            return principal;
+        }
     }
 }
