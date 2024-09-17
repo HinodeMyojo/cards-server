@@ -6,6 +6,9 @@ services:
     build:
       context: .
       dockerfile: CardsServer.API/Dockerfile
+    ports:
+        - "5070:8080"
+        - "5071:8081"
 #     environment:
 #       - POSTGRES_USER=postgres
 #       - POSTGRES_PASSWORD=postgres
