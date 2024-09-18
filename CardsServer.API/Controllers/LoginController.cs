@@ -15,6 +15,12 @@ namespace CardsServer.API.Controllers
             _service = service;
         }
 
+        [HttpGet("ping")]
+        public async Task<IActionResult> TestConnection()
+        {
+            return Ok("Hinode!");
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser(
             RegisterUser model, CancellationToken cancellationToken)
@@ -33,23 +39,26 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
-        //[HttpGet("email-confirm")]
-        //public async Task<IActionResult> ConfirmEmail(string userId, string code)
-        //{
-        //    if (userId == null || code == null)
-        //    {
-        //        return View("Error");
-        //    }
-        //    var user = await _userManager.FindByIdAsync(userId);
-        //    if (user == null)
-        //    {
-        //        return View("Error");
-        //    }
-        //    var result = await _userManager.ConfirmEmailAsync(user, code);
-        //    if (result.Succeeded)
-        //        return RedirectToAction("Index", "Home");
-        //    else
-        //        return View("Error");
-        //}
+        [HttpPost("email-send")]
+        public async Task<IActionResult> SendEmail()
+        {
+
+            return Ok("Сообщение на адрес: hinodem@mail.ru успешно отправлено! Введите код из письма");
+            //return BadRequest("Нет");
+            //if (userId == null || code == null)
+            //{
+            //    return View("Error");
+            //}
+            //var user = await _userManager.FindByIdAsync(userId);
+            //if (user == null)
+            //{
+            //    return View("Error");
+            //}
+            //var result = await _userManager.ConfirmEmailAsync(user, code);
+            //if (result.Succeeded)
+            //    return RedirectToAction("Index", "Home");
+            //else
+            //    return View("Error");
+        }
     }
 }
