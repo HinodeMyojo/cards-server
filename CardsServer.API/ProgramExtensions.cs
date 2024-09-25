@@ -21,7 +21,7 @@ namespace CardsServer.API
 
             services.AddTransient<IJwtGenerator, JwtGenerator>();
 
-            services.AddScoped<IRabbitMqService, RabbitMqService>();
+            services.AddScoped<IRabbitMQPublisher, RabbitMQPublisher>();
 
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();

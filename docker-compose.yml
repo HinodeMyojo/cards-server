@@ -25,7 +25,7 @@ services:
     # ”величиваем место на диске до 2гб
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq:/var/lib/rabbitmq/mnesia
     ports:
       - 15672:15672
        # публиковать порт нужно не всегда. Если консьюмеры и паблишеры находятся внутри docker-compose или подключены к его сети, в этом нет необходимости. 

@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
+using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +11,11 @@ namespace CardsServer.API.Controllers
     public class LoginController : ControllerBase
     {
         private readonly ILoginService _service;
-        public LoginController(ILoginService service)
+        private readonly IRabbitMQPublisher _publisher;
+        public LoginController(ILoginService service, IRabbitMQPublisher publisher)
         {
             _service = service;
+            _publisher = publisher;
         }
 
         [HttpGet("ping")]
@@ -40,10 +43,20 @@ namespace CardsServer.API.Controllers
         }
 
         [HttpPost("email-send")]
-        public async Task<IActionResult> SendEmail()
+        public async Task<IActionResult> SendEmail(
+            [FromForm] SendMailDto model, IFormFileCollection? file, CancellationToken cancellationToken)
         {
+            if (file != null && file.Any())
+            {
+                _publisher.SendEmailWithFiles(model, file);
+            }
+            else
+            {
+                _publisher.SendEmail(model);
+            }
 
-            return Ok("Сообщение на адрес: hinodem@mail.ru успешно отправлено! Введите код из письма");
+
+            return Ok($"Сообщение на адрес: {model.To} успешно отправлено! Введите код из письма");
             //return BadRequest("Нет");
             //if (userId == null || code == null)
             //{
