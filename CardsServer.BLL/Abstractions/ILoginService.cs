@@ -8,5 +8,6 @@ namespace CardsServer.BLL.Abstractions
     {
         Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken);
         Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken);
+        Task<Result> SendRecoveryCode(string to, CancellationToken cancellationToken);
     }
 }

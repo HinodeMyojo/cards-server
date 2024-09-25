@@ -42,36 +42,14 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("email-send")]
-        public async Task<IActionResult> SendEmail(
-            [FromForm] SendMailDto model, IFormFileCollection? file, CancellationToken cancellationToken)
+        [HttpGet("send-recovery-code")]
+        public async Task<IActionResult> SendRecoveryCode(
+            string to, CancellationToken cancellationToken)
         {
-            if (file != null && file.Any())
-            {
-                _publisher.SendEmailWithFiles(model, file);
-            }
-            else
-            {
-                _publisher.SendEmail(model);
-            }
 
+            await _service.SendRecoveryCode(to, cancellationToken);
 
-            return Ok($"Сообщение на адрес: {model.To} успешно отправлено! Введите код из письма");
-            //return BadRequest("Нет");
-            //if (userId == null || code == null)
-            //{
-            //    return View("Error");
-            //}
-            //var user = await _userManager.FindByIdAsync(userId);
-            //if (user == null)
-            //{
-            //    return View("Error");
-            //}
-            //var result = await _userManager.ConfirmEmailAsync(user, code);
-            //if (result.Succeeded)
-            //    return RedirectToAction("Index", "Home");
-            //else
-            //    return View("Error");
+            return Ok($"Сообщение на адрес: {to} успешно отправлено! Введите код из письма");
         }
     }
 }

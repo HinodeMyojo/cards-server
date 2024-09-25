@@ -6,5 +6,6 @@ namespace CardsServer.BLL.Abstractions
     {
         Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken);
         Task<UserEntity?> GetUserByEmail(string email, CancellationToken cancellationToken);
+        Task EditUser(UserEntity user, CancellationToken cancellationToken);
     }
 }
