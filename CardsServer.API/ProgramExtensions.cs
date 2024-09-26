@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services.User;
@@ -31,7 +32,7 @@ namespace CardsServer.API
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();
 
-            
+            services.AddTransient<IRedisCaching, RedisCaching>();
 
             return services;
         }

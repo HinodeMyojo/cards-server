@@ -3,10 +3,10 @@ namespace CardsServer.BLL.Infrastructure.Result
 {
     public static class ResultExtensions
     {
-        public static IActionResult ToActionResult(this Result result)
+        public static IActionResult ToActionResult(this Result result, string? message=null)
         {
             return result.IsSuccess
-                ? new ObjectResult( "Все ахуенно!" ) { StatusCode = result.StatusCode }
+                ? new ObjectResult(message ?? "Все работает") { StatusCode = result.StatusCode }
                 : new ObjectResult( result.Error ) { StatusCode = result.StatusCode };
         }
 

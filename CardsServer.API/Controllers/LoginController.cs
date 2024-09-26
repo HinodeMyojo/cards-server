@@ -46,10 +46,18 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> SendRecoveryCode(
             string to, CancellationToken cancellationToken)
         {
+            Result result = await _service.SendRecoveryCode(to, cancellationToken);
 
-            await _service.SendRecoveryCode(to, cancellationToken);
+            return result.ToActionResult($"Письмо отправлено на {to}");
+        }
 
-            return Ok($"Сообщение на адрес: {to} успешно отправлено! Введите код из письма");
+        [HttpGet("check-recovery-code")]
+        public async Task<IActionResult> CheckRecoveryCode(
+            string email, int code, CancellationToken cancellationToken)
+        {
+            Result result = await _service.CheckRecoveryCode(email, code, cancellationToken);
+
+            return result.ToActionResult("Все успешно! Введите новый пароль");
         }
     }
 }

@@ -6,6 +6,8 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
+using Microsoft.AspNetCore.Http;
+using StackExchange.Redis;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -15,19 +17,22 @@ namespace CardsServer.BLL.Services.User
         private readonly ILoginRepository _loginRepository;
         private readonly IJwtGenerator _jwtGenerator;
         private readonly IRabbitMQPublisher _publisher;
+        private readonly IRedisCaching _caching;
+
 
         public LoginService(
-            ILoginRepository loginRepository, 
-            IJwtGenerator jwtGenerator, 
-            IUserRepository userRepository, 
-            IRabbitMQPublisher publisher)
+            ILoginRepository loginRepository,
+            IJwtGenerator jwtGenerator,
+            IUserRepository userRepository,
+            IRabbitMQPublisher publisher,
+            IRedisCaching caching)
         {
             _loginRepository = loginRepository;
             _jwtGenerator = jwtGenerator;
             _userRepository = userRepository;
             _publisher = publisher;
+            _caching = caching;
         }
-
         public async Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken)
         {
 
@@ -59,7 +64,7 @@ namespace CardsServer.BLL.Services.User
                 Email = model.Email,
                 Password = PasswordExtension.HashPassword(model.Password),
                 IsEmailConfirmed = false,
-                RoleId = (int)Role.User,
+                RoleId = (int)Infrastructure.Auth.Enums.Role.User,
                 StatusId = (int)Status.Active,
                 UserName = model.UserName,
             };
@@ -76,22 +81,54 @@ namespace CardsServer.BLL.Services.User
                 return Result.Failure("Пользователя с таким Email не существует!");
             }
             UserEntity? user = await _userRepository.GetUserByEmail(to, cancellationToken);
-            
-            var recoveryCode = RandomExtension.GenerateRecoveryCode();
+
+            int recoveryCode = RandomExtension.GenerateRecoveryCode();
 
             user.RecoveryCode = recoveryCode;
-            await _userRepository.EditUser(user, cancellationToken);
+
+            try
+            {
+                await _caching.SetValueAsync(to, recoveryCode.ToString());
+            }
+            catch
+            {
+                return Result.Failure("Сервис кэширования не доступен");
+            }
+            //await _userRepository.EditUser(user, cancellationToken);
 
             SendMailDto mail = new()
             {
                 To = [to],
                 Subject = "Восстановление пароля pleiades.ru",
-                Content = recoveryCode.ToString()
+                Content = $"Ваш код восстановления к аккунту {recoveryCode.ToString()}."
             };
 
             _publisher.SendEmail(mail);
 
             return Result.Success();
+        }
+
+        public async Task<Result> CheckRecoveryCode(string email, int code, CancellationToken cancellationToken)
+        {
+            try
+            {
+                string? codeFromCache = await _caching.GetValueAsync(email);
+
+                if (codeFromCache == null)
+                {
+                    return Result.Failure("Код не найден в кэше", statusCode: 404);
+                }
+
+                if (codeFromCache != code.ToString())
+                {
+                    return Result.Failure("Коды не совпали", statusCode: 423);
+                }
+                return Result.Success();
+            }
+            catch
+            {
+                return Result.Failure("Внутренняя ошибка", statusCode: 500);
+            }
         }
 
         private async Task<bool> IsEmailUsedAsync(string email)

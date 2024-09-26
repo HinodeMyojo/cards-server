@@ -17,6 +17,8 @@ services:
         - "5071:8081"
   rabbitmq:
     image: rabbitmq:3-management
+    networks:
+      - app-tier
     hostname: rabbitmq
     restart: always
     environment:
@@ -30,3 +32,16 @@ services:
       - 15672:15672
        # публиковать порт нужно не всегда. Если консьюмеры и паблишеры находятся внутри docker-compose или подключены к его сети, в этом нет необходимости. 
       - 5672:5672
+  redis:
+    image: redis:latest
+    networks:
+      - app-tier
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_PORT=6379
