@@ -1,17 +1,13 @@
 using CardsServer.API;
 using CardsServer.API.Middlewares;
 using CardsServer.BLL.Infrastructure.Auth;
-using CardsServer.DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.Swagger;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -53,6 +49,25 @@ builder.Services.AuthService(configuration);
 builder.Services.Configure<JwtOptions>(
     configuration.GetSection(nameof(JwtOptions)));
 
+builder.Services.AddLogging();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "redis:6379,password=admin";
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,7 +77,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();

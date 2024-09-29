@@ -1,6 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
@@ -12,6 +11,12 @@ namespace CardsServer.DAL.Repository
         public UserRepository(ApplicationContext context)
         {
             _context = context;
+        }
+
+        public async Task EditUser(UserEntity user, CancellationToken cancellationToken)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken)

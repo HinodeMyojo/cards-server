@@ -1,5 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
@@ -20,6 +22,7 @@ namespace CardsServer.API
 
             services.AddTransient<IJwtGenerator, JwtGenerator>();
 
+            services.AddScoped<IRabbitMQPublisher, RabbitMQPublisher>();
 
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
@@ -29,7 +32,7 @@ namespace CardsServer.API
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();
 
-            
+            services.AddTransient<IRedisCaching, RedisCaching>();
 
             return services;
         }

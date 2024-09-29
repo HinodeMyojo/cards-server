@@ -1,29 +1,47 @@
 version: '3.4'
 
+networks:
+  app-tier:
+    driver: bridge
+
 services:
   cardsserver.api:
     image: ${DOCKER_REGISTRY-}cardsserverapi
+    networks:
+      - app-tier
     build:
       context: .
       dockerfile: CardsServer.API/Dockerfile
-#     environment:
-#       - POSTGRES_USER=postgres
-#       - POSTGRES_PASSWORD=postgres
-#       - POSTGRES_DB=cardsdb
-#       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5433;Database=cardsdb;Username=postgres;Password=postgres
-#     depends_on:
-#       - postgres
-
-#   postgres:
-#     image: postgres:14
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#       POSTGRES_DB: cardsdb
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-
-# volumes:
-#   postgres_data:
+    ports:
+        - "5070:8080"
+        - "5071:8081"
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - app-tier
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    # ”величиваем место на диске до 2гб
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq/mnesia
+    ports:
+      - 15672:15672
+       # публиковать порт нужно не всегда. Если консьюмеры и паблишеры находятся внутри docker-compose или подключены к его сети, в этом нет необходимости. 
+      - 5672:5672
+  redis:
+    image: redis:latest
+    networks:
+      - app-tier
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_PORT=6379
