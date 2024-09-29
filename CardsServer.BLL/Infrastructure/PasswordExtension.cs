@@ -2,7 +2,7 @@
 
 namespace CardsServer.BLL.Infrastructure
 {
-    public class PasswordExtension
+    public static class PasswordExtension
     {
         private const int _saltSize = 16; // 128 bits
         private const int _keySize = 32; // 256 bits

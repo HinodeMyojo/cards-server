@@ -49,6 +49,8 @@ builder.Services.AuthService(configuration);
 builder.Services.Configure<JwtOptions>(
     configuration.GetSection(nameof(JwtOptions)));
 
+builder.Services.AddLogging();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",

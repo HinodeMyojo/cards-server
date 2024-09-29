@@ -6,8 +6,7 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
-using Microsoft.AspNetCore.Http;
-using StackExchange.Redis;
+using Microsoft.Extensions.Logging;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -18,6 +17,7 @@ namespace CardsServer.BLL.Services.User
         private readonly IJwtGenerator _jwtGenerator;
         private readonly IRabbitMQPublisher _publisher;
         private readonly IRedisCaching _caching;
+        //private readonly ILogger _logger;
 
 
         public LoginService(
@@ -25,13 +25,16 @@ namespace CardsServer.BLL.Services.User
             IJwtGenerator jwtGenerator,
             IUserRepository userRepository,
             IRabbitMQPublisher publisher,
-            IRedisCaching caching)
+            IRedisCaching caching
+            //ILogger logger
+            )
         {
             _loginRepository = loginRepository;
             _jwtGenerator = jwtGenerator;
             _userRepository = userRepository;
             _publisher = publisher;
             _caching = caching;
+            //_logger = logger;
         }
         public async Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken)
         {
@@ -121,15 +124,53 @@ namespace CardsServer.BLL.Services.User
 
                 if (codeFromCache != code.ToString())
                 {
-                    return Result.Failure("Коды не совпали", statusCode: 423);
+                    return Result.Failure("Коды не совпали", statusCode: 400); // Лучше 400 Bad Request, чем 423
                 }
+
                 return Result.Success();
             }
-            catch
+            catch (Exception ex)
             {
+                // Логирование ошибки
+                //_logger.LogError(ex, "Ошибка при проверке кода восстановления");
                 return Result.Failure("Внутренняя ошибка", statusCode: 500);
             }
         }
+
+        public async Task<Result> UpdatePassword(string email, int code, string newPassword, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Проверка кода восстановления
+                var recoveryCodeCheck = await CheckRecoveryCode(email, code, cancellationToken);
+                if (!recoveryCodeCheck.IsSuccess)
+                {
+                    return recoveryCodeCheck; // Возвращаем сразу, если код не валидный
+                }
+
+                // Поиск пользователя
+                UserEntity? user = await _userRepository.GetUserByEmail(email, cancellationToken);
+                if (user == null)
+                {
+                    return Result.Failure("Пользователь с таким email не найден", statusCode: 404);
+                }
+
+                // Хеширование пароля (например, с использованием bcrypt)
+                user.Password = PasswordExtension.HashPassword(newPassword);
+
+                // Обновление пользователя в базе
+                await _userRepository.EditUser(user, cancellationToken);
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                //_logger.LogError(ex, "Ошибка при обновлении пароля для пользователя с email: {email}", email);
+                return Result.Failure("Не удалось обновить пароль. Внутренняя ошибка", statusCode: 500);
+            }
+        }
+
 
         private async Task<bool> IsEmailUsedAsync(string email)
         {
@@ -137,6 +178,6 @@ namespace CardsServer.BLL.Services.User
             return user != null;
         }
 
-
+        
     }
 }

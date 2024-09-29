@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
+using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +59,22 @@ namespace CardsServer.API.Controllers
             Result result = await _service.CheckRecoveryCode(email, code, cancellationToken);
 
             return result.ToActionResult("Все успешно! Введите новый пароль");
+        }
+
+        /// <summary>
+        /// Метод для изменениия пароля НЕавторизованным юзерам
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="code"></param>
+        /// <param name="password"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword(string email, int code, string password, CancellationToken cancellationToken)
+        {
+            Result result = await _service.UpdatePassword(email, code, password, cancellationToken);
+
+            return result.ToActionResult("Пароль изменен!");
         }
     }
 }

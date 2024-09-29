@@ -16,7 +16,7 @@ namespace CardsServer.DAL.Repository
         public async Task EditUser(UserEntity user, CancellationToken cancellationToken)
         {
             _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken)
