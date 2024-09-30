@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Auth.Attrubutes;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,18 +10,30 @@ namespace CardsServer.API.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        [HasPermission(Permission.ReadObjects)]
-        [HttpDelete("user/read/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HasRole(Role.Admin)]
+        [HttpDelete("user/delete/{id}")]
+        public async Task<IActionResult> DeleteUser()
         {
             return Ok();
         }
 
-        [HasPermission(Permission.CreateObjects)]
-        [HttpPost("user/create/{id}")]
-        public async Task<IActionResult> BlockUser(int id)
+        [HttpDelete("user/deletee/{id}")]
+        public async Task<IActionResult> Biba()
         {
             return Ok();
         }
+
+        [HttpDelete("user/deletehbe/{id}")]
+        public async Task<IActionResult> BiFfba()
+        {
+            return Ok();
+        }
+
+        //[HasPermission(Permission.CreateObjects)]
+        //[HttpPost("user/block/{id}")]
+        //public async Task<IActionResult> BlockUser()
+        //{
+        //    return Ok();
+        //}
     }
 }

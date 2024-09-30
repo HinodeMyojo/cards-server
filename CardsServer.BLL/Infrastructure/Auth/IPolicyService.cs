@@ -1,7 +1,8 @@
 ﻿namespace CardsServer.BLL.Infrastructure.Auth
 {
-    public interface IPermissionService
+    public interface IPolicyService
     {
         Task<HashSet<string>> GetPermissionsAsync(int userId);
+        Task<HashSet<string>> GetRolesAsync(int userId);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Auth.Permissions;
+using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
@@ -26,11 +28,11 @@ namespace CardsServer.API
 
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IPermissionService, PermissionService>();
+            services.AddTransient<IPolicyService, PolicyService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IPermissionRepository, PermissionRepository>();
+            services.AddTransient<IPolicyRepository, PolicyRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
@@ -68,8 +70,10 @@ namespace CardsServer.API
                 });
 
             services.AddAuthorization();
-            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            //services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            //services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationPolicyProvider, RoleAuthorizationPolicyProvider>();
 
             return services;
         }

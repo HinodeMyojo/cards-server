@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
 {
-    public class PermissionRepository : IPermissionRepository
+    public class PolicyRepository : IPolicyRepository
     {
         private readonly ApplicationContext _context;
 
-        public PermissionRepository(ApplicationContext context)
+        public PolicyRepository(ApplicationContext context)
         {
             _context = context;
         }
 
-        public async Task<RoleEntity[]> GetPermissionsAsync(int userId)
+        public async Task<RoleEntity[]> GetRolesAsync(int userId)
         {
             return await _context.Set<UserEntity>()
                 .Include(x => x.Role)

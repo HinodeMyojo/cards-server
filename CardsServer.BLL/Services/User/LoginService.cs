@@ -6,7 +6,6 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
-using Microsoft.Extensions.Logging;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -155,7 +154,6 @@ namespace CardsServer.BLL.Services.User
                     return Result.Failure("Пользователь с таким email не найден", statusCode: 404);
                 }
 
-                // Хеширование пароля (например, с использованием bcrypt)
                 user.Password = PasswordExtension.HashPassword(newPassword);
 
                 // Обновление пользователя в базе

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System.IdentityModel.Tokens.Jwt;
-namespace CardsServer.BLL.Infrastructure.Auth
+namespace CardsServer.BLL.Infrastructure.Auth.Permissions
 {
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {
@@ -13,26 +13,26 @@ namespace CardsServer.BLL.Infrastructure.Auth
         }
 
         protected override async Task HandleRequirementAsync(
-            AuthorizationHandlerContext context, 
+            AuthorizationHandlerContext context,
             PermissionRequirement requirement)
         {
             string? userId = context.User.Claims.FirstOrDefault(
                 x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
-            if (!Int32.TryParse(userId, out int parsedUserId))
+            if (!int.TryParse(userId, out int parsedUserId))
             {
                 return;
             }
 
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
 
-            IPermissionService permissionService = scope.ServiceProvider
-                .GetRequiredService<IPermissionService>();
+            IPolicyService permissionService = scope.ServiceProvider
+                .GetRequiredService<IPolicyService>();
 
             HashSet<string> permissions = await permissionService
                 .GetPermissionsAsync(parsedUserId);
 
-            if(permissions.Contains(requirement.Permission))
+            if (permissions.Contains(requirement.Permission))
             {
                 context.Succeed(requirement);
             }

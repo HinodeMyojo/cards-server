@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CardsServer.BLL.Infrastructure.Auth
+namespace CardsServer.BLL.Infrastructure.Auth.Permissions
 {
     public class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
     {
         public PermissionAuthorizationPolicyProvider(
-            IOptions<AuthorizationOptions> options) 
+            IOptions<AuthorizationOptions> options)
             : base(options)
         {
         }
@@ -20,7 +15,7 @@ namespace CardsServer.BLL.Infrastructure.Auth
         {
             AuthorizationPolicy policy = await base.GetPolicyAsync(policyName);
 
-            if(policy is not null)
+            if (policy is not null)
             {
                 return policy;
             }
