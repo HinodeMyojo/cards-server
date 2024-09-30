@@ -1,7 +1,9 @@
-﻿using CardsServer.BLL.Infrastructure.Auth;
+﻿using CardsServer.BLL.Dto.User;
+using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Attrubutes;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
@@ -10,30 +12,15 @@ namespace CardsServer.API.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        [HasRole(Role.Admin)]
-        [HttpDelete("user/delete/{id}")]
-        public async Task<IActionResult> DeleteUser()
+        [HttpPatch("user/edit")]
+        public async Task<IActionResult> EditUser(int id, [FromBody] JsonPatchDocument<PatchUser> patchDoc)
         {
+            if (patchDoc == null)
+            {
+                return BadRequest();
+            }
+
             return Ok();
         }
-
-        [HttpDelete("user/deletee/{id}")]
-        public async Task<IActionResult> Biba()
-        {
-            return Ok();
-        }
-
-        [HttpDelete("user/deletehbe/{id}")]
-        public async Task<IActionResult> BiFfba()
-        {
-            return Ok();
-        }
-
-        //[HasPermission(Permission.CreateObjects)]
-        //[HttpPost("user/block/{id}")]
-        //public async Task<IActionResult> BlockUser()
-        //{
-        //    return Ok();
-        //}
     }
 }
