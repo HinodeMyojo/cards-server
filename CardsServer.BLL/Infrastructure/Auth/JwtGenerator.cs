@@ -29,8 +29,9 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 [
                     new( ClaimTypes.Name, user.UserName ),
                     new( ClaimTypes.Email, user.Email ),
+                    new( ClaimTypes.NameIdentifier, user.Id.ToString() ),
                     new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name),
-                    new( JwtRegisteredClaimNames.Sub, user.Id.ToString())
+                    //new( JwtRegisteredClaimNames.Sub, user.Id.ToString())
                 ];
             }
             catch(Exception ex)

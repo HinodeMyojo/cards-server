@@ -1,8 +1,12 @@
-﻿using CardsServer.BLL.Infrastructure.Auth;
-using CardsServer.BLL.Infrastructure.Auth.Attrubutes;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.User;
+using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CardsServer.API.Controllers
 {
@@ -10,30 +14,66 @@ namespace CardsServer.API.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        [HasRole(Role.Admin)]
-        [HttpDelete("user/delete/{id}")]
-        public async Task<IActionResult> DeleteUser()
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        /// <summary>
+        /// Позволяет получить пользователя по его Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("user/get")]
+        public async Task<IActionResult> GetUser(int id)
         {
             return Ok();
         }
 
-        [HttpDelete("user/deletee/{id}")]
-        public async Task<IActionResult> Biba()
-        {
-            return Ok();
-        }
+        /// <summary>
+        /// <para>Позволяет изменить (пока что) email и username пользователя.</para>
+        /// Отправлять запрос в формате:
+        /// <code>
+        /// [
+        ///    { 
+        ///        "op": "replace", 
+        ///        "path": "/username", 
+        ///        "value": "новое_значение"
+        ///    },
+        ///    { 
+        ///        "op": "replace", 
+        ///        "path": "/email", 
+        ///        "value": "новый_email@example.com"
+        ///    }
+        /// ]
+        /// </code>
+        /// <para>Состояние подтверждения email после изменения сохраняется.</para>
+        /// </summary>
+        /// <param name="patchDoc">Документ с операциями изменения (JSON Patch Document).</param>
+        /// <param name="cancellationToken">Токен отмены операции.</param>
+        /// <returns>Результат выполнения операции.</returns>
 
-        [HttpDelete("user/deletehbe/{id}")]
-        public async Task<IActionResult> BiFfba()
+        [HttpPatch("user/edit/{id}")]
+        public async Task<IActionResult> EditUser(int id, [FromBody] JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
-            return Ok();
-        }
+            int userFromTokenId = AuthExtension.GetId(User);
 
-        //[HasPermission(Permission.CreateObjects)]
-        //[HttpPost("user/block/{id}")]
-        //public async Task<IActionResult> BlockUser()
-        //{
-        //    return Ok();
-        //}
+            if (patchDoc == null)
+            {
+                return BadRequest(new { message = "Patch document cannot be null." });
+            }
+
+            // Проверяем, что пользователь редактирует свой профиль
+            if (id != userFromTokenId)
+            {
+                return Forbid();
+            }
+
+            Result result = await _userService.EditUser(id, patchDoc, cancellationToken);
+
+            return result.ToActionResult();
+        }
     }
 }

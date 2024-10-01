@@ -43,7 +43,7 @@ namespace CardsServer.BLL.Services.User
             // спрятать в AssertModel
             if (!userResult.IsSuccess)
             {
-                return Result<string>.Failure(userResult.Error, userResult.StatusCode);
+                return Result<string>.Failure(userResult.Error);
             }
 
             if (!PasswordExtension.CheckPassword(res.Password, user.Password))
@@ -69,6 +69,7 @@ namespace CardsServer.BLL.Services.User
                 RoleId = (int)Infrastructure.Auth.Enums.Role.User,
                 StatusId = (int)Status.Active,
                 UserName = model.UserName,
+                AvatarId = 1 
             };
 
             await _loginRepository.RegisterUser(user, cancellationToken);
@@ -118,12 +119,12 @@ namespace CardsServer.BLL.Services.User
 
                 if (codeFromCache == null)
                 {
-                    return Result.Failure("Код не найден в кэше", statusCode: 404);
+                    return Result.Failure(new Error("Код не найден в кэше", statusCode: 404));
                 }
 
                 if (codeFromCache != code.ToString())
                 {
-                    return Result.Failure("Коды не совпали", statusCode: 400); // Лучше 400 Bad Request, чем 423
+                    return Result.Failure(new Error("Коды не совпали", statusCode: 400)); // Лучше 400 Bad Request, чем 423
                 }
 
                 return Result.Success();
@@ -132,7 +133,7 @@ namespace CardsServer.BLL.Services.User
             {
                 // Логирование ошибки
                 //_logger.LogError(ex, "Ошибка при проверке кода восстановления");
-                return Result.Failure("Внутренняя ошибка", statusCode: 500);
+                return Result.Failure(new Error("Внутренняя ошибка", statusCode: 500));
             }
         }
 
@@ -151,7 +152,7 @@ namespace CardsServer.BLL.Services.User
                 UserEntity? user = await _userRepository.GetUserByEmail(email, cancellationToken);
                 if (user == null)
                 {
-                    return Result.Failure("Пользователь с таким email не найден", statusCode: 404);
+                    return Result.Failure(new Error("Пользователь с таким email не найден", statusCode: 404));
                 }
 
                 user.Password = PasswordExtension.HashPassword(newPassword);
@@ -165,7 +166,7 @@ namespace CardsServer.BLL.Services.User
             {
                 // Логирование ошибки
                 //_logger.LogError(ex, "Ошибка при обновлении пароля для пользователя с email: {email}", email);
-                return Result.Failure("Не удалось обновить пароль. Внутренняя ошибка", statusCode: 500);
+                return Result.Failure(new Error("Не удалось обновить пароль. Внутренняя ошибка", statusCode: 500));
             }
         }
 
