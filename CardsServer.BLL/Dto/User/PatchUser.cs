@@ -17,7 +17,6 @@ namespace CardsServer.BLL.Dto.User
         /// Почта пользователя
         /// </summary>
         public required string Email { get; set; }
-        public required string Password { get; set; }
         public AvatarEntity? Avatar { get; set; }
     }
 }

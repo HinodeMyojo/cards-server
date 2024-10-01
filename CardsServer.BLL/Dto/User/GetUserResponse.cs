@@ -1,4 +1,6 @@
-﻿namespace CardsServer.BLL.Dto.User
+﻿using CardsServer.BLL.Entity;
+
+namespace CardsServer.BLL.Dto.User
 {
     public class GetUserResponse
     {
@@ -9,5 +11,6 @@
         public int StatusId { get; set; }
         public int RoleId { get; set; }
         public int AvatarId { get; set; }
+        public AvatarEntity? Avatar { get; set; }
     }
 }

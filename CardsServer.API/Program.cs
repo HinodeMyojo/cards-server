@@ -1,4 +1,5 @@
 using CardsServer.API;
+using CardsServer.API.Extension;
 using CardsServer.API.Middlewares;
 using CardsServer.BLL.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // ƒобавл€ем возможность использовани€ Patch запросов
+    options.InputFormatters.Insert(0, MyJPIF.GetJsonPatchInputFormatter());
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -64,7 +69,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "redis:6379,password=admin";
+    options.Configuration = "redis:6390,password=admin";
 });
 
 
