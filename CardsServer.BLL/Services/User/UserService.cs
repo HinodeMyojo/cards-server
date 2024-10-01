@@ -24,6 +24,7 @@ namespace CardsServer.BLL.Services.User
             {
                 return Result<GetUserResponse>.Failure(ErrorAdditional.NotFound);
             }
+
             var userToPatch = new PatchUser()
             {
                 UserName = user.UserName,

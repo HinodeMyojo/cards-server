@@ -1,13 +1,17 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.User;
+using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CardsServer.API.Controllers
 {
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -15,6 +19,17 @@ namespace CardsServer.API.Controllers
         public UserController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        /// <summary>
+        /// Позволяет получить пользователя по его Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("user/get")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            return Ok();
         }
 
         /// <summary>
@@ -40,20 +55,20 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken">Токен отмены операции.</param>
         /// <returns>Результат выполнения операции.</returns>
 
-        [HttpPatch("user/edit/")]
-        public async Task<IActionResult> EditUser([FromBody] JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
+        [HttpPatch("user/edit/{id}")]
+        public async Task<IActionResult> EditUser(int id, [FromBody] JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
-            int id = 1;
+            int userFromTokenId = AuthExtension.GetId(User);
+
             if (patchDoc == null)
             {
-                return BadRequest();
+                return BadRequest(new { message = "Patch document cannot be null." });
             }
 
-            Result<GetUserResponse> user = await _userService.GetUser(id, cancellationToken);
-
-            if (!user.IsSuccess)
+            // Проверяем, что пользователь редактирует свой профиль
+            if (id != userFromTokenId)
             {
-                return NotFound();
+                return Forbid();
             }
 
             Result result = await _userService.EditUser(id, patchDoc, cancellationToken);
