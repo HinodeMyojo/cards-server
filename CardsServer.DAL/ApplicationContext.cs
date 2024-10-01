@@ -12,6 +12,7 @@ namespace CardsServer.DAL
         public DbSet<RoleEntity> Roles { get; set; }
         public DbSet<StatusEntity> Statuses { get; set; }
         public DbSet<PermissionEntity> Permissions { get; set; }
+        public DbSet<ModuleEntity> Modules { get; set; }
         public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
