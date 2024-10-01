@@ -17,6 +17,29 @@ namespace CardsServer.API.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// <para>Позволяет изменить (пока что) email и username пользователя.</para>
+        /// Отправлять запрос в формате:
+        /// <code>
+        /// [
+        ///    { 
+        ///        "op": "replace", 
+        ///        "path": "/username", 
+        ///        "value": "новое_значение"
+        ///    },
+        ///    { 
+        ///        "op": "replace", 
+        ///        "path": "/email", 
+        ///        "value": "новый_email@example.com"
+        ///    }
+        /// ]
+        /// </code>
+        /// <para>Состояние подтверждения email после изменения сохраняется.</para>
+        /// </summary>
+        /// <param name="patchDoc">Документ с операциями изменения (JSON Patch Document).</param>
+        /// <param name="cancellationToken">Токен отмены операции.</param>
+        /// <returns>Результат выполнения операции.</returns>
+
         [HttpPatch("user/edit/")]
         public async Task<IActionResult> EditUser([FromBody] JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {

@@ -18,24 +18,25 @@ namespace CardsServer.BLL.Services.User
         public async Task<Result> EditUser(int id, JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
 
-            Result<GetUserResponse> user = await GetUser(id, cancellationToken);
-            if (user.IsSuccess)
+
+            UserEntity? user = await _repository.GetUser(id, cancellationToken);
+            if (user == null)
             {
-                GetUserResponse userValue = user.Value;
-                var userToPatch = new PatchUser()
-                {
-                    UserName = userValue.UserName,
-                    Email = userValue.Email,
-                    Avatar = userValue.Avatar,
-                };
-
-                patchDoc.ApplyTo(userToPatch);
-
-                var b = userToPatch;
-
-                var a = 1;
-
+                return Result<GetUserResponse>.Failure(ErrorAdditional.NotFound);
             }
+            var userToPatch = new PatchUser()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Avatar = user.Avatar,
+            };
+
+            patchDoc.ApplyTo(userToPatch);
+
+            user.UserName = userToPatch.UserName;
+            user.Email = userToPatch.Email;
+
+            await _repository.EditUser(user, cancellationToken);
 
             return Result.Success();
         }
@@ -53,7 +54,7 @@ namespace CardsServer.BLL.Services.User
                 Id = res.Id,
                 Email = res.Email,
                 StatusId = res.StatusId,
-                AvatarId = res.Avatar.Id,
+                AvatarId = res.AvatarId,
                 UserName = res.UserName,
                 IsEmailConfirmed = res.IsEmailConfirmed,
                 RoleId = res.RoleId,
