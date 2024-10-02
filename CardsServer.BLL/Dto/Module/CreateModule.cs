@@ -1,4 +1,5 @@
-﻿using CardsServer.BLL.Entity;
+﻿using CardsServer.BLL.Dto.Element;
+using CardsServer.BLL.Entity;
 
 namespace CardsServer.BLL.Dto.Module
 {
@@ -9,6 +10,6 @@ namespace CardsServer.BLL.Dto.Module
         public DateTime CreateAt { get; set; }
         public bool Private { get; set; }
         public bool IsDraft { get; set; }
-        public List<ElementEntity> Elements { get; set; } = [];
+        public List<CreateElement> Elements { get; set; } = [];
     }
 }
