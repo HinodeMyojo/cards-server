@@ -3,6 +3,7 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
+using CardsServer.BLL.Services;
 using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;

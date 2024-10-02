@@ -1,21 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Module;
+using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Result;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
 {
     /// <summary>
     /// Контроллер для работы с модулями
     /// </summary>
+    [ApiController]
+    [Authorize]
     public class ModuleController : ControllerBase
     {
+        private readonly IModuleService _service;
+
+        public ModuleController(IModuleService service)
+        {
+            _service = service;
+        }
+
         /// <summary>
         /// Метод создания модулей
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("module")]
-        public async Task<IActionResult> CreateModule(CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateModule(
+            CreateModule module, CancellationToken cancellationToken)
         {
-            return Ok();
+            int userId = AuthExtension.GetId(User);
+
+            Result<int> result = await _service.CreateModule(userId, module, cancellationToken);
+
+            return result.ToActionResult();
         }
 
         /// <summary>
