@@ -34,6 +34,7 @@
         public RoleEntity? Role { get; set; }
         public int AvatarId { get; set; }
         public AvatarEntity? Avatar { get; set; }
+        public List<ModuleEntity> Modules { get; set; } = [];
 
     }
 }
