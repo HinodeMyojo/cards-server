@@ -1,29 +1,40 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Element;
+using CardsServer.BLL.Dto.Image;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
+using CardsServer.DAL.Repository;
 
 namespace CardsServer.BLL.Services.Module
 {
     public class ModuleService : IModuleService
     {
+        private readonly IElementRepostory _elementRepostory;
         private readonly IModuleRepository _repository;
+        private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
 
-        public ModuleService(IModuleRepository repository, IUserRepository userRepository)
+        public ModuleService(
+            IModuleRepository repository, 
+            IUserRepository userRepository, 
+            IImageService imageService, 
+            IElementRepostory elementRepostory)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _imageService = imageService;
+            _elementRepostory = elementRepostory;
         }
 
-        public async Task<Result<int>> CreateModule(
-            int userId, CreateModule module, CancellationToken cancellationToken)
+        public async Task<Result<int>> CreateModule(int userId, CreateModule module, CancellationToken cancellationToken)
         {
             (bool isValid, string errorMessage) check = CheckTitle(module.Title);
             if (!check.isValid)
                 return Result<int>.Failure(check.errorMessage);
             try
             {
+
                 UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
                 if (user == null)
                 {
@@ -36,19 +47,82 @@ namespace CardsServer.BLL.Services.Module
                     CreateAt = module.CreateAt,
                     CreatorId = userId,
                     Description = module.Description,
-                    Elements = module.Elements,
                     IsDraft = module.IsDraft,
                     Private = module.Private,
                     UsedUsers = [user],
                 };
 
-                int result = await _repository.CreateModule(entity, cancellationToken);
+                int moduleId = await _repository.CreateModule(entity, cancellationToken);
 
-                return Result<int>.Success(result);
+                if (module.Elements.Any())
+                {
+                    foreach (CreateElement element in module.Elements)
+                    {
+                        ElementEntity el = new()
+                        {
+                            Key = element.Key,
+                            Value = element.Value,
+                            ModuleId = moduleId
+                        };
+
+                        int elementId = await _elementRepostory.AddElement(el, cancellationToken);
+
+                        if (element.Image != null)
+                        {
+                            var res = await _imageService.UploadImage(
+                                new CreateImage()
+                                {
+                                    UserId = userId,
+                                    Image = element.Image
+                                },
+                                cancellationToken);
+                        }
+                    }
+                }
+
+                return Result<int>.Success(moduleId);
             }
             catch (Exception ex)
             {
                 return Result<int>.Failure(ErrorAdditional.BadRequest);
+            }
+        }
+
+        public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ModuleEntity? res = await _repository.GetModule(id, cancellationToken);
+
+                if (res == null)
+                {
+                    return Result<GetModule>.Failure(ErrorAdditional.NotFound);
+                }
+                if (res.CreatorId != userId && res.Private)
+                {
+                    return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
+                }
+
+                List<ElementEntity> elements = await _elementRepostory.GetElementsByModuleId(userId, cancellationToken);
+
+
+                GetModule result = new()
+                {
+                    Title = res.Title,
+                    CreateAt = res.CreateAt,
+                    Description = res.Description,
+                    CreatorId = res.CreatorId,
+                    IsDraft = res.IsDraft,
+                    UpdateAt = res.UpdateAt
+                    //Elements = 
+                };
+
+                return Result<GetModule>.Success(result);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception();
             }
         }
 

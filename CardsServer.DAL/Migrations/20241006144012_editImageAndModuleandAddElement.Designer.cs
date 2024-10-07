@@ -3,6 +3,7 @@ using System;
 using CardsServer.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20241006144012_editImageAndModuleandAddElement")]
+    partial class editImageAndModuleandAddElement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,13 +95,18 @@ namespace CardsServer.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.Property<int>("ElementId")
+                    b.Property<bool>("IsModuleImage")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ModuleId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ModuleId");
 
                     b.HasIndex("UserId");
 
@@ -345,11 +353,19 @@ namespace CardsServer.DAL.Migrations
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ImageEntity", b =>
                 {
+                    b.HasOne("CardsServer.BLL.Entity.ModuleEntity", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Module");
 
                     b.Navigation("User");
                 });

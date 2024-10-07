@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
@@ -11,7 +12,7 @@ namespace CardsServer.API.Controllers
     /// Контроллер для работы с модулями
     /// </summary>
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ModuleController : ControllerBase
     {
         private readonly IModuleService _service;
@@ -24,6 +25,7 @@ namespace CardsServer.API.Controllers
         /// <summary>
         /// Метод создания модулей
         /// </summary>
+        /// <param name="module"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("module")]
@@ -40,12 +42,17 @@ namespace CardsServer.API.Controllers
         /// <summary>
         /// Метод получения модулей
         /// </summary>
+        /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("module")]
-        public async Task<IActionResult> GetModule(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetModule(int id, CancellationToken cancellationToken)
         {
-            return Ok();
+            int userId = AuthExtension.GetId(User);
+
+            Result<GetModule> result = await _service.GetModule(userId, id, cancellationToken);
+
+            return result.ToActionResult();
         }
 
         /// <summary>

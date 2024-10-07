@@ -29,11 +29,14 @@ namespace CardsServer.API
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IPolicyService, PolicyService>();
             services.AddTransient<IModuleService, ModuleService>();
+            services.AddTransient<IImageService, ImageService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IPolicyRepository, PolicyRepository>();
             services.AddTransient<IModuleRepository, ModuleRepository>();
+            services.AddTransient<IImageRepository, ImageRepository>();
+            services.AddTransient<IElementRepostory, ElementRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
