@@ -1,6 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Element;
-using CardsServer.BLL.Dto.Image;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
@@ -52,7 +51,7 @@ namespace CardsServer.BLL.Services.Module
                     UsedUsers = [user],
                 };
 
-                int moduleId = await _repository.CreateModule(entity, cancellationToken);
+                //int moduleId = await _repository.CreateModule(entity, cancellationToken);
 
                 if (module.Elements.Any())
                 {
@@ -62,24 +61,35 @@ namespace CardsServer.BLL.Services.Module
                         {
                             Key = element.Key,
                             Value = element.Value,
-                            ModuleId = moduleId
+                            //ModuleId = moduleId
                         };
 
-                        int elementId = await _elementRepostory.AddElement(el, cancellationToken);
+                        //int elementId = await _elementRepostory.AddElement(el, cancellationToken);
 
                         if (element.Image != null)
                         {
-                            var res = await _imageService.UploadImage(
-                                new CreateImage()
-                                {
-                                    UserId = userId,
-                                    Image = element.Image
-                                },
-                                cancellationToken);
+
+
+                            //var res = await _imageService.UploadImage(
+                            //    new CreateImage()
+                            //    {
+                            //        UserId = userId,
+                            //        Image = element.Image
+                            //    },
+                            //    cancellationToken);
+
+                            el.Image = new ImageEntity()
+                            {
+                                UserId = userId,
+                                Data = Convert.FromBase64String(element.Image)
+                            };
                         }
+
+                        entity.Elements.Add(el);
                     }
                 }
 
+                int moduleId = await _repository.CreateModule(entity, cancellationToken);
                 return Result<int>.Success(moduleId);
             }
             catch (Exception ex)
@@ -103,7 +113,7 @@ namespace CardsServer.BLL.Services.Module
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
 
-                List<ElementEntity> elements = await _elementRepostory.GetElementsByModuleId(userId, cancellationToken);
+                //List<ElementEntity> elements = await _elementRepostory.GetElementsByModuleId(userId, cancellationToken);
 
 
                 GetModule result = new()
@@ -113,8 +123,8 @@ namespace CardsServer.BLL.Services.Module
                     Description = res.Description,
                     CreatorId = res.CreatorId,
                     IsDraft = res.IsDraft,
-                    UpdateAt = res.UpdateAt
-                    //Elements = 
+                    UpdateAt = res.UpdateAt,
+                    //Elements = res.Elements
                 };
 
                 return Result<GetModule>.Success(result);

@@ -2,7 +2,7 @@
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 
-namespace CardsServer.BLL.Services
+namespace CardsServer.BLL.Abstractions
 {
     public interface IImageService
     {

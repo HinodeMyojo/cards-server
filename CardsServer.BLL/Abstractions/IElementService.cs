@@ -1,6 +1,6 @@
 ﻿using CardsServer.BLL.Dto.Element;
 
-namespace CardsServer.BLL.Services
+namespace CardsServer.BLL.Abstractions
 {
     public interface IElementService
     {
