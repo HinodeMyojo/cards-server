@@ -7,5 +7,6 @@ namespace CardsServer.BLL.Abstractions
     {
         Task<int> CreateModule(ModuleEntity entity, CancellationToken cancellationToken);
         Task<ModuleEntity?> GetModule(int id, CancellationToken cancellationToken);
+        Task<ICollection<ModuleEntity>> GetUsedModules(int userId, CancellationToken cancellationToken);
     }
 }

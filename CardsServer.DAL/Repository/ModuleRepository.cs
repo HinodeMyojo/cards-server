@@ -25,5 +25,15 @@ namespace CardsServer.DAL.Repository
             return await _context.Modules.Include(x => x.Elements).ThenInclude(x => x.Image).FirstOrDefaultAsync(x => x.Id == id);
 
         }
+
+        public async Task<ICollection<ModuleEntity>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        {
+            return await _context.Modules
+                .Include(x => x.Elements)
+                .ThenInclude(x => x.Image)
+                .Where(x => x.UsedUsers.Any(x => x.Id == userId))
+                .ToListAsync();
+
+        }
     }
 }

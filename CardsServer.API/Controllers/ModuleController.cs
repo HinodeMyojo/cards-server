@@ -76,5 +76,20 @@ namespace CardsServer.API.Controllers
         {
             return Ok();
         }
+        
+        /// <summary>
+        /// Метод получения добавленнх пользователем модулей
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("used-modules")]
+        public async Task<IActionResult> GetUsedModules(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
+
+            return Ok();
+        }
     }
 }

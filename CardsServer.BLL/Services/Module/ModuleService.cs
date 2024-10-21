@@ -4,6 +4,7 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using System.Collections.Generic;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -130,6 +131,47 @@ namespace CardsServer.BLL.Services.Module
             catch (Exception ex)
             {
                 throw new Exception();
+            }
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetUsedModules(userId, cancellationToken);
+                ICollection<GetModule> result = [];
+                if (listOfOriginModules.Any())
+                {
+                    var resultLock = new object();
+
+                    await Parallel.ForEachAsync(listOfOriginModules, cancellationToken, async (module, ct) =>
+                    {
+                        var moduleDto = new GetModule
+                        {
+                            Id = module.Id,
+                            Title = module.Title,
+                            CreateAt = module.CreateAt,
+                            CreatorId = module.CreatorId,
+                            Description = module.Description,
+                            IsDraft = module.IsDraft,
+                            UpdateAt = module.UpdateAt,
+                            //Elements = module.Elements,
+                        };
+
+                        lock (resultLock)
+                        {
+                            result.Add(moduleDto);
+                        }
+
+                        await Task.CompletedTask;
+                    });
+                }
+
+                return Result<IEnumerable<GetModule>>.Success(result);
+            }
+            catch(Exception ex)
+            {
+                throw;
             }
         }
 
