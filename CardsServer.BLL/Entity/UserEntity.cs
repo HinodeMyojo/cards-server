@@ -34,6 +34,12 @@
         public RoleEntity? Role { get; set; }
         public int AvatarId { get; set; }
         public AvatarEntity? Avatar { get; set; }
+        // Модули, созданные пользователем
+        public List<ModuleEntity> CreatedModules { get; set; } = [];
+
+        // Модули, которые использует пользователь
+        public List<ModuleEntity> UsedModules { get; set; } = [];
 
     }
 }
+ 
