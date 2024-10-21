@@ -51,8 +51,6 @@ namespace CardsServer.BLL.Services.Module
                     UsedUsers = [user],
                 };
 
-                //int moduleId = await _repository.CreateModule(entity, cancellationToken);
-
                 if (module.Elements.Any())
                 {
                     foreach (CreateElement element in module.Elements)
@@ -60,27 +58,14 @@ namespace CardsServer.BLL.Services.Module
                         ElementEntity el = new()
                         {
                             Key = element.Key,
-                            Value = element.Value,
-                            //ModuleId = moduleId
+                            Value = element.Value
                         };
-
-                        //int elementId = await _elementRepostory.AddElement(el, cancellationToken);
 
                         if (element.Image != null)
                         {
-
-
-                            //var res = await _imageService.UploadImage(
-                            //    new CreateImage()
-                            //    {
-                            //        UserId = userId,
-                            //        Image = element.Image
-                            //    },
-                            //    cancellationToken);
-
-                            el.Image = new ImageEntity()
+                            el.Image = new ElementImageEntity()
                             {
-                                UserId = userId,
+                                //UserId = userId,
                                 Data = Convert.FromBase64String(element.Image)
                             };
                         }
@@ -113,19 +98,31 @@ namespace CardsServer.BLL.Services.Module
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
 
-                //List<ElementEntity> elements = await _elementRepostory.GetElementsByModuleId(userId, cancellationToken);
-
 
                 GetModule result = new()
                 {
+                    Id = id,
                     Title = res.Title,
                     CreateAt = res.CreateAt,
                     Description = res.Description,
                     CreatorId = res.CreatorId,
                     IsDraft = res.IsDraft,
                     UpdateAt = res.UpdateAt,
-                    //Elements = res.Elements
                 };
+                if (res.Elements.Any())
+                {
+                    foreach (ElementEntity item in res.Elements)
+                    {
+                        result.Elements.Add(new GetElement()
+                        {
+                            Id = item.Id,
+                            Key = item.Key,
+                            Value = item.Value,
+                            Image = item.Image != null ? Convert.ToBase64String(item.Image.Data) : null,
+                        });
+                    }
+                }
+
 
                 return Result<GetModule>.Success(result);
 

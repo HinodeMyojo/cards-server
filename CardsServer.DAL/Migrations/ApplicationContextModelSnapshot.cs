@@ -54,15 +54,9 @@ namespace CardsServer.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ImageId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int?>("ModuleEntityId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("ModuleId")
                         .HasColumnType("integer");
@@ -73,14 +67,12 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageId");
-
-                    b.HasIndex("ModuleEntityId");
+                    b.HasIndex("ModuleId");
 
                     b.ToTable("Elements");
                 });
 
-            modelBuilder.Entity("CardsServer.BLL.Entity.ImageEntity", b =>
+            modelBuilder.Entity("CardsServer.BLL.Entity.ElementImageEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,12 +87,10 @@ namespace CardsServer.DAL.Migrations
                     b.Property<int>("ElementId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ElementId")
+                        .IsUnique();
 
                     b.ToTable("Images");
                 });
@@ -136,6 +126,8 @@ namespace CardsServer.DAL.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
 
                     b.ToTable("Modules");
                 });
@@ -315,43 +307,52 @@ namespace CardsServer.DAL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ModuleEntityUserEntity", b =>
+            modelBuilder.Entity("UserModule", b =>
                 {
-                    b.Property<int>("ModulesId")
+                    b.Property<int>("ModuleId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UsedUsersId")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("ModulesId", "UsedUsersId");
+                    b.HasKey("ModuleId", "UserId");
 
-                    b.HasIndex("UsedUsersId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("ModuleEntityUserEntity");
+                    b.ToTable("UserModule");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ElementEntity", b =>
                 {
-                    b.HasOne("CardsServer.BLL.Entity.ImageEntity", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
-
-                    b.HasOne("CardsServer.BLL.Entity.ModuleEntity", null)
+                    b.HasOne("CardsServer.BLL.Entity.ModuleEntity", "Module")
                         .WithMany("Elements")
-                        .HasForeignKey("ModuleEntityId");
-
-                    b.Navigation("Image");
-                });
-
-            modelBuilder.Entity("CardsServer.BLL.Entity.ImageEntity", b =>
-                {
-                    b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Module");
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.ElementImageEntity", b =>
+                {
+                    b.HasOne("CardsServer.BLL.Entity.ElementEntity", "Element")
+                        .WithOne("Image")
+                        .HasForeignKey("CardsServer.BLL.Entity.ElementImageEntity", "ElementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Element");
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.ModuleEntity", b =>
+                {
+                    b.HasOne("CardsServer.BLL.Entity.UserEntity", "Creator")
+                        .WithMany("CreatedModules")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RolePermissionEntity", b =>
@@ -400,17 +401,17 @@ namespace CardsServer.DAL.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("ModuleEntityUserEntity", b =>
+            modelBuilder.Entity("UserModule", b =>
                 {
                     b.HasOne("CardsServer.BLL.Entity.ModuleEntity", null)
                         .WithMany()
-                        .HasForeignKey("ModulesId")
+                        .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CardsServer.BLL.Entity.UserEntity", null)
                         .WithMany()
-                        .HasForeignKey("UsedUsersId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -418,6 +419,11 @@ namespace CardsServer.DAL.Migrations
             modelBuilder.Entity("CardsServer.BLL.Entity.AvatarEntity", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.ElementEntity", b =>
+                {
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ModuleEntity", b =>
@@ -440,6 +446,11 @@ namespace CardsServer.DAL.Migrations
             modelBuilder.Entity("CardsServer.BLL.Entity.StatusEntity", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("CardsServer.BLL.Entity.UserEntity", b =>
+                {
+                    b.Navigation("CreatedModules");
                 });
 #pragma warning restore 612, 618
         }

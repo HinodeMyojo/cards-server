@@ -9,8 +9,14 @@
         public DateTime? UpdateAt { get; set; }
         public bool Private {  get; set; }
         public bool IsDraft { get; set; }
+        // Id и сущность создателя модуля
         public int CreatorId { get; set; }
+        public UserEntity? Creator { get; set; }
+
+        // Элементы, принадлежащие модулю
         public List<ElementEntity> Elements { get; set; } = [];
+
+        // Пользователи, которые используют модуль
         public List<UserEntity> UsedUsers { get; set; } = [];
     }
 }

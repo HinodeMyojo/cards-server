@@ -32,12 +32,12 @@ namespace CardsServer.BLL.Services
             {
                 byte[] byteImage = Convert.FromBase64String(model.Image);
 
-                ImageEntity image = new()
-                {
-                    Data = byteImage,
-                    UserId = model.UserId,
-                };
-                await _repository.AddImage(image);
+                //ElementImageEntity image = new()
+                //{
+                //    Data = byteImage,
+                //    UserId = model.UserId,
+                //};
+                //await _repository.AddImage(image);
 
                 return Result.Success();
 

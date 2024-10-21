@@ -8,6 +8,8 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<AvatarEntity> builder)
         {
+
+
             builder.HasData(
                 new AvatarEntity()
                 {

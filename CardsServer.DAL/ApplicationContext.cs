@@ -14,7 +14,7 @@ namespace CardsServer.DAL
         public DbSet<PermissionEntity> Permissions { get; set; }
         public DbSet<ModuleEntity> Modules { get; set; }
         public DbSet<ElementEntity> Elements { get; set; }
-        public DbSet<ImageEntity> Images { get; set; }
+        public DbSet<ElementImageEntity> Images { get; set; }
         public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
@@ -33,6 +33,8 @@ namespace CardsServer.DAL
             modelBuilder.ApplyConfiguration(new AvatarConfiguration());
             modelBuilder.ApplyConfiguration(new StatusConfiguration());
             modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
+            modelBuilder.ApplyConfiguration(new ModuleConfiguration());
+            modelBuilder.ApplyConfiguration(new ElementConfiguration());
         }
     }
 }
