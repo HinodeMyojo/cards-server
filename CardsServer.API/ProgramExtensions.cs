@@ -1,17 +1,16 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
-using CardsServer.BLL.Infrastructure.Auth.Permissions;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
+using CardsServer.BLL.Services;
+using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 namespace CardsServer.API
@@ -29,10 +28,15 @@ namespace CardsServer.API
             services.AddTransient<ILoginService, LoginService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IPolicyService, PolicyService>();
+            services.AddTransient<IModuleService, ModuleService>();
+            services.AddTransient<IImageService, ImageService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IPolicyRepository, PolicyRepository>();
+            services.AddTransient<IModuleRepository, ModuleRepository>();
+            services.AddTransient<IImageRepository, ImageRepository>();
+            services.AddTransient<IElementRepostory, ElementRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
@@ -42,6 +46,10 @@ namespace CardsServer.API
         public static IServiceCollection AuthService(this IServiceCollection services, IConfiguration configuration) 
         {
             JwtOptions jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
+            if (jwtOptions == null)
+            {
+                throw new ArgumentNullException(nameof(jwtOptions));
+            }
 
             services.AddCors(options =>
             {

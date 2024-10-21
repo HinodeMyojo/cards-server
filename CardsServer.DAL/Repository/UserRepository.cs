@@ -19,6 +19,11 @@ namespace CardsServer.DAL.Repository
             await _context.SaveChangesAsync(cancellationToken);
         }
 
+        //public async Task<UserEntity> GetListUser(ICollection<int> UserIds, CancellationToken cancellationToken)
+        //{
+
+        //}
+
         public async Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken)
         {
             UserEntity? user = await _context.Users.FindAsync(userId, cancellationToken);
