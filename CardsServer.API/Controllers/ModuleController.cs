@@ -76,7 +76,22 @@ namespace CardsServer.API.Controllers
         {
             return Ok();
         }
-        
+
+        /// <summary>
+        /// Добавить модуль в группу "добавленные"
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("add-module")]
+        public async Task<IActionResult> AddModule(int moduleId, CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result result = await _service.AddModule(moduleId, userId, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
         /// <summary>
         /// Метод получения добавленнх пользователем модулей
         /// </summary>

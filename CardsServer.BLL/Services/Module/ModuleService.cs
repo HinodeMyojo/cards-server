@@ -101,11 +101,46 @@ namespace CardsServer.BLL.Services.Module
                     await ElementsHandler(listOfOriginModules, result, cancellationToken);
                 }
 
+                result.OrderBy(x => x.CreateAt);
+
                 return Result<IEnumerable<GetModule>>.Success(result);
             }
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.UsedUsers.Any(x => x.Id == userId),
+                    cancellationToken);
+
+                ICollection<GetModule> result = [];
+                if (listOfOriginModules.Any())
+                {
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                }
+                //result.OrderBy(x => x.)
+
+                return Result<IEnumerable<GetModule>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result> AddModule(int moduleId, int userId, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
+            if (module == null)
+            {
+                return Result.Failure(ErrorAdditional.NotFound);
             }
         }
 
@@ -159,29 +194,7 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
-        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
-                    userId, 
-                    x => x.UsedUsers.Any(x => x.Id == userId), 
-                    cancellationToken);
-
-                ICollection<GetModule> result = [];
-                if (listOfOriginModules.Any())
-                {
-                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
-                }
-                //result.OrderBy(x => x.)
-
-                return Result<IEnumerable<GetModule>>.Success(result);
-            }
-            catch(Exception ex)
-            {
-                throw;
-            }
-        }
+        
 
         /// <summary>
         /// Метод для маппинга внутренних объектов Модуля
@@ -260,5 +273,6 @@ namespace CardsServer.BLL.Services.Module
             return (true, "");
         }
 
+        
     }
 }
