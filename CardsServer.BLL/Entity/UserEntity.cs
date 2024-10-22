@@ -39,6 +39,7 @@
 
         // Модули, которые использует пользователь
         public List<ModuleEntity> UsedModules { get; set; } = [];
+        public List<UserModule> UserModules { get; set; } = [];
 
     }
 }

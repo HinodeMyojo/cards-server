@@ -4,7 +4,6 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Collections.Generic;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -49,7 +48,10 @@ namespace CardsServer.BLL.Services.Module
                     Description = module.Description,
                     IsDraft = module.IsDraft,
                     Private = module.Private,
-                    UsedUsers = [user],
+                    //UsedUsers = [user],
+                    // Так как мы вынесли в отдельную сущность нашу промежуточную таблицу
+                    // То добавление пользователя вместе с временем просходит путем добавления в нашу промежуточную таблицу UserModules
+                    UserModules = [new UserModule() { User = user, AddedAt = DateTime.UtcNow }]
                 };
 
                 if (module.Elements.Any())
@@ -62,7 +64,7 @@ namespace CardsServer.BLL.Services.Module
                             Value = element.Value
                         };
 
-                        if (element.Image != null)
+                        if (element.Image != null && element.Image != "")
                         {
                             el.Image = new ElementImageEntity()
                             {
@@ -81,6 +83,29 @@ namespace CardsServer.BLL.Services.Module
             catch (Exception ex)
             {
                 return Result<int>.Failure(ErrorAdditional.BadRequest);
+            }
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetCreatedModules(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.CreatorId == userId,
+                    cancellationToken);
+
+                ICollection<GetModule> result = [];
+                if (listOfOriginModules.Any())
+                {
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                }
+
+                return Result<IEnumerable<GetModule>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 
@@ -138,34 +163,17 @@ namespace CardsServer.BLL.Services.Module
         {
             try
             {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetUsedModules(userId, cancellationToken);
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                    userId, 
+                    x => x.UsedUsers.Any(x => x.Id == userId), 
+                    cancellationToken);
+
                 ICollection<GetModule> result = [];
                 if (listOfOriginModules.Any())
                 {
-                    var resultLock = new object();
-
-                    await Parallel.ForEachAsync(listOfOriginModules, cancellationToken, async (module, ct) =>
-                    {
-                        var moduleDto = new GetModule
-                        {
-                            Id = module.Id,
-                            Title = module.Title,
-                            CreateAt = module.CreateAt,
-                            CreatorId = module.CreatorId,
-                            Description = module.Description,
-                            IsDraft = module.IsDraft,
-                            UpdateAt = module.UpdateAt,
-                            //Elements = module.Elements,
-                        };
-
-                        lock (resultLock)
-                        {
-                            result.Add(moduleDto);
-                        }
-
-                        await Task.CompletedTask;
-                    });
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
                 }
+                //result.OrderBy(x => x.)
 
                 return Result<IEnumerable<GetModule>>.Success(result);
             }
@@ -173,6 +181,57 @@ namespace CardsServer.BLL.Services.Module
             {
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Метод для маппинга внутренних объектов Модуля
+        /// </summary>
+        /// <param name="listOfOriginModules"></param>
+        /// <param name="resultList"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task ElementsHandler(
+            ICollection<ModuleEntity> listOfOriginModules,
+            ICollection<GetModule> resultList,
+            CancellationToken cancellationToken)
+        {
+            var resultLock = new object();
+
+            await Parallel.ForEachAsync(listOfOriginModules, cancellationToken, async (module, ct) =>
+            {
+                var moduleDto = new GetModule
+                {
+                    Id = module.Id,
+                    Title = module.Title,
+                    CreateAt = module.CreateAt,
+                    CreatorId = module.CreatorId,
+                    Description = module.Description,
+                    IsDraft = module.IsDraft,
+                    UpdateAt = module.UpdateAt,
+
+                };
+
+                if (module.Elements.Any())
+                {
+                    foreach (ElementEntity item in module.Elements)
+                    {
+                        moduleDto.Elements.Add(new GetElement()
+                        {
+                            Id = item.Id,
+                            Key = item.Key,
+                            Value = item.Value,
+                            Image = item.Image != null ? Convert.ToBase64String(item.Image.Data) : null,
+                        });
+                    }
+                }
+
+                lock (resultLock)
+                {
+                    resultList.Add(moduleDto);
+                }
+
+                await Task.CompletedTask;
+            });
         }
 
         private (bool isValid, string errorMessage) CheckTitle(string title, int minLength = 2, int maxLength = 256)

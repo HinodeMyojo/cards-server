@@ -89,7 +89,22 @@ namespace CardsServer.API.Controllers
 
             Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
 
-            return Ok();
+            return result.ToActionResult();
+        }
+
+        /// <summary>
+        /// Метод получения созданных пользователем модулей
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("created-modules")]
+        public async Task<IActionResult> GetCreatedModules(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<IEnumerable<GetModule>> result = await _service.GetCreatedModules(userId, cancellationToken);
+
+            return result.ToActionResult();
         }
     }
 }

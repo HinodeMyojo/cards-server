@@ -1,6 +1,8 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace CardsServer.DAL.Repository
 {
@@ -26,12 +28,15 @@ namespace CardsServer.DAL.Repository
 
         }
 
-        public async Task<ICollection<ModuleEntity>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        public async Task<ICollection<ModuleEntity>> GetModules(
+            int userId, 
+            Expression<Func<ModuleEntity, bool>> expression, 
+            CancellationToken cancellationToken)
         {
             return await _context.Modules
                 .Include(x => x.Elements)
                 .ThenInclude(x => x.Image)
-                .Where(x => x.UsedUsers.Any(x => x.Id == userId))
+                .Where(expression)
                 .ToListAsync();
 
         }
