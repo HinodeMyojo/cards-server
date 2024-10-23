@@ -12,7 +12,7 @@ namespace CardsServer.API.Controllers
     /// Контроллер для работы с модулями
     /// </summary>
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ModuleController : ControllerBase
     {
         private readonly IModuleService _service;
@@ -75,6 +75,51 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> DeleteModule(CancellationToken cancellationToken)
         {
             return Ok();
+        }
+
+        /// <summary>
+        /// Добавить модуль в группу "добавленные"
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("add-module-to-used")]
+        public async Task<IActionResult> AddModuleToUsed([FromBody]int moduleId, CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result result = await _service.AddModuleToUsed(moduleId, userId, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
+        /// <summary>
+        /// Метод получения добавленнх пользователем модулей
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("used-modules")]
+        public async Task<IActionResult> GetUsedModules(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
+        /// <summary>
+        /// Метод получения созданных пользователем модулей
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("created-modules")]
+        public async Task<IActionResult> GetCreatedModules(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<IEnumerable<GetModule>> result = await _service.GetCreatedModules(userId, cancellationToken);
+
+            return result.ToActionResult();
         }
     }
 }
