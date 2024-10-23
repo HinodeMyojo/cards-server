@@ -18,5 +18,6 @@
 
         // Пользователи, которые используют модуль
         public List<UserEntity> UsedUsers { get; set; } = [];
+        public List<UserModule> UserModules { get; set; } = [];
     }
 }

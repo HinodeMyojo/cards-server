@@ -48,7 +48,10 @@ namespace CardsServer.BLL.Services.Module
                     Description = module.Description,
                     IsDraft = module.IsDraft,
                     Private = module.Private,
-                    UsedUsers = [user],
+                    //UsedUsers = [user],
+                    // Так как мы вынесли в отдельную сущность нашу промежуточную таблицу
+                    // То добавление пользователя вместе с временем просходит путем добавления в нашу промежуточную таблицу UserModules
+                    UserModules = [new UserModule() { User = user, AddedAt = DateTime.UtcNow }]
                 };
 
                 if (module.Elements.Any())
@@ -61,7 +64,7 @@ namespace CardsServer.BLL.Services.Module
                             Value = element.Value
                         };
 
-                        if (element.Image != null)
+                        if (element.Image != null && element.Image != "")
                         {
                             el.Image = new ElementImageEntity()
                             {
@@ -81,6 +84,75 @@ namespace CardsServer.BLL.Services.Module
             {
                 return Result<int>.Failure(ErrorAdditional.BadRequest);
             }
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetCreatedModules(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.CreatorId == userId,
+                    cancellationToken);
+
+                ICollection<GetModule> result = [];
+                if (listOfOriginModules.Any())
+                {
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                }
+
+                result.OrderBy(x => x.CreateAt);
+
+                return Result<IEnumerable<GetModule>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.UsedUsers.Any(x => x.Id == userId),
+                    cancellationToken);
+
+                ICollection<GetModule> result = [];
+                if (listOfOriginModules.Any())
+                {
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                }
+                //result.OrderBy(x => x.)
+
+                return Result<IEnumerable<GetModule>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
+            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+            if (module == null || user == null)
+            {
+                return Result.Failure(ErrorAdditional.NotFound);
+            }
+
+            user.UserModules.Add(new UserModule() { Module = module });
+
+            await _repository.AddModuleToUsed(user, cancellationToken);
+
+            return Result.Success();
+
+
+
+
         }
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
@@ -133,6 +205,59 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
+        
+
+        /// <summary>
+        /// Метод для маппинга внутренних объектов Модуля
+        /// </summary>
+        /// <param name="listOfOriginModules"></param>
+        /// <param name="resultList"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task ElementsHandler(
+            ICollection<ModuleEntity> listOfOriginModules,
+            ICollection<GetModule> resultList,
+            CancellationToken cancellationToken)
+        {
+            var resultLock = new object();
+
+            await Parallel.ForEachAsync(listOfOriginModules, cancellationToken, async (module, ct) =>
+            {
+                var moduleDto = new GetModule
+                {
+                    Id = module.Id,
+                    Title = module.Title,
+                    CreateAt = module.CreateAt,
+                    CreatorId = module.CreatorId,
+                    Description = module.Description,
+                    IsDraft = module.IsDraft,
+                    UpdateAt = module.UpdateAt,
+
+                };
+
+                if (module.Elements.Any())
+                {
+                    foreach (ElementEntity item in module.Elements)
+                    {
+                        moduleDto.Elements.Add(new GetElement()
+                        {
+                            Id = item.Id,
+                            Key = item.Key,
+                            Value = item.Value,
+                            Image = item.Image != null ? Convert.ToBase64String(item.Image.Data) : null,
+                        });
+                    }
+                }
+
+                lock (resultLock)
+                {
+                    resultList.Add(moduleDto);
+                }
+
+                await Task.CompletedTask;
+            });
+        }
+
         private (bool isValid, string errorMessage) CheckTitle(string title, int minLength = 2, int maxLength = 256)
         {
             // Проверка на null или пустую строку
@@ -159,5 +284,6 @@ namespace CardsServer.BLL.Services.Module
             return (true, "");
         }
 
+        
     }
 }
