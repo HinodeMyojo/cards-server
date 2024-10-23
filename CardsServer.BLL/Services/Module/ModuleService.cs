@@ -135,13 +135,24 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
-        public async Task<Result> AddModule(int moduleId, int userId, CancellationToken cancellationToken)
+        public async Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken)
         {
             ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
-            if (module == null)
+            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+            if (module == null || user == null)
             {
                 return Result.Failure(ErrorAdditional.NotFound);
             }
+
+            user.UserModules.Add(new UserModule() { Module = module });
+
+            await _repository.AddModuleToUsed(user, cancellationToken);
+
+            return Result.Success();
+
+
+
+
         }
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)

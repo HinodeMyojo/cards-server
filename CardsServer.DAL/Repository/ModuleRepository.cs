@@ -15,6 +15,12 @@ namespace CardsServer.DAL.Repository
             _context = context;
         }
 
+        public async Task AddModuleToUsed(UserEntity user, CancellationToken cancellationToken)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<int> CreateModule(ModuleEntity entity, CancellationToken cancellationToken)
         {
             await _context.Modules.AddAsync(entity, cancellationToken);

@@ -12,7 +12,7 @@ namespace CardsServer.API.Controllers
     /// Контроллер для работы с модулями
     /// </summary>
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ModuleController : ControllerBase
     {
         private readonly IModuleService _service;
@@ -82,12 +82,12 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("add-module")]
-        public async Task<IActionResult> AddModule(int moduleId, CancellationToken cancellationToken)
+        [HttpPost("add-module-to-used")]
+        public async Task<IActionResult> AddModuleToUsed([FromBody]int moduleId, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
 
-            Result result = await _service.AddModule(moduleId, userId, cancellationToken);
+            Result result = await _service.AddModuleToUsed(moduleId, userId, cancellationToken);
 
             return result.ToActionResult();
         }
