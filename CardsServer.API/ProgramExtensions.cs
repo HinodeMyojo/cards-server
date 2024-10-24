@@ -4,6 +4,7 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
+using CardsServer.BLL.Services.Cards;
 using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
@@ -30,6 +31,8 @@ namespace CardsServer.API
             services.AddTransient<IPolicyService, PolicyService>();
             services.AddTransient<IModuleService, ModuleService>();
             services.AddTransient<IImageService, ImageService>();
+            services.AddTransient<IElementService, ElementService>();
+            services.AddTransient<ICardsService, CardsService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
@@ -37,6 +40,7 @@ namespace CardsServer.API
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IImageRepository, ImageRepository>();
             services.AddTransient<IElementRepostory, ElementRepository>();
+            services.AddTransient<ICardsRepository, CardsRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 

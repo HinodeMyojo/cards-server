@@ -1,6 +1,8 @@
 ﻿
+using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Card;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +32,10 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-            return Ok();
+            Result<GetElementStatistic> result = await _service
+                .SaveModuleStatistic(userId, moduleStatistic, cancellationToken);
+
+            return result.ToActionResult();
         }
     }
 }
