@@ -82,7 +82,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("add-module-to-used")]
+        [HttpPost("module/used-modules")]
         public async Task<IActionResult> AddModuleToUsed([FromBody]int moduleId, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -97,7 +97,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("used-modules")]
+        [HttpGet("mode/used-modules")]
         public async Task<IActionResult> GetUsedModules(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -112,7 +112,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("created-modules")]
+        [HttpGet("module/created-modules")]
         public async Task<IActionResult> GetCreatedModules(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);

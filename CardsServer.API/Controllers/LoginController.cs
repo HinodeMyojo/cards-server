@@ -19,13 +19,13 @@ namespace CardsServer.API.Controllers
             _publisher = publisher;
         }
 
-        [HttpGet("ping")]
+        [HttpGet("auth/ping")]
         public async Task<IActionResult> TestConnection()
         {
             return Ok("Hinode!");
         }
 
-        [HttpPost("register")]
+        [HttpPost("auth/register")]
         public async Task<IActionResult> RegisterUser(
             RegisterUser model, CancellationToken cancellationToken)
         {
@@ -34,7 +34,7 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("login")]
+        [HttpPost("auth/login")]
         public async Task<IActionResult> LoginUser(
             LoginUser user, CancellationToken cancellationToken)
         {
@@ -43,7 +43,7 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("send-recovery-code")]
+        [HttpGet("auth/send-recovery-code")]
         public async Task<IActionResult> SendRecoveryCode(
             string to, CancellationToken cancellationToken)
         {
@@ -52,7 +52,7 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult($"Письмо отправлено на {to}");
         }
 
-        [HttpGet("check-recovery-code")]
+        [HttpGet("auth/check-recovery-code")]
         public async Task<IActionResult> CheckRecoveryCode(
             string email, int code, CancellationToken cancellationToken)
         {
@@ -69,7 +69,7 @@ namespace CardsServer.API.Controllers
         /// <param name="password"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("update-password")]
+        [HttpPost("auth/update-password")]
         public async Task<IActionResult> UpdatePassword(string email, int code, string password, CancellationToken cancellationToken)
         {
             Result result = await _service.UpdatePassword(email, code, password, cancellationToken);

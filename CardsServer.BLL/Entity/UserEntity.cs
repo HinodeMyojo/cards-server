@@ -41,6 +41,9 @@
         public List<ModuleEntity> UsedModules { get; set; } = [];
         public List<UserModule> UserModules { get; set; } = [];
 
+        // Статистика по элементам
+        public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
+
     }
 }
  
