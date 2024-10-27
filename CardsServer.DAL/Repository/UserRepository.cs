@@ -30,6 +30,8 @@ namespace CardsServer.DAL.Repository
                 .Users
                 .Include(x => x.UserModules)
                 .Include(x => x.Avatar)
+                .Include(x => x.RefreshTokens)
+                .Include(x => x.Role)
                 .FirstOrDefaultAsync(x => x.Id == userId);
 
             return user;

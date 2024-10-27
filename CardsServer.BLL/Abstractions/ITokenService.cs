@@ -5,8 +5,9 @@ namespace CardsServer.BLL.Abstractions
 {
     public interface ITokenService
     {
-        string GenerateToken(UserEntity user);
+        string GenerateAccessToken(UserEntity user);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
         string GetRefreshToken();
+        DateTime GetRefreshTokenExpiryTime();
     }
 }

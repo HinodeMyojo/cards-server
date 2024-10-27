@@ -45,10 +45,9 @@
         public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
 
         /// <summary>
-        /// Рефреш токен и его время окончания
+        /// Рефреш токен(ы)
         /// </summary>
-        public string? RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public List<RefreshTokenEntity> RefreshTokens { get; set; } = [];
 
     }
 }

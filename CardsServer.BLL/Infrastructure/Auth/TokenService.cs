@@ -12,13 +12,15 @@ namespace CardsServer.BLL.Infrastructure.Auth
     public class TokenService : ITokenService
     {
         private readonly JwtOptions _options;
+        private readonly IUserRepository _userRepository;
 
-        public TokenService(IOptions<JwtOptions> options)
+        public TokenService(IOptions<JwtOptions> options, IUserRepository userRepository)
         {
             _options = options.Value;
+            _userRepository = userRepository;
         }
 
-        public string GenerateToken(UserEntity user)
+        public string GenerateAccessToken(UserEntity user)
         {
 
             List<Claim> claims;
@@ -69,7 +71,7 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CardsSecretKeyJK(*HJ*(#HUFihBGBbrgjnI()Uj4tjrjkgb")),
                 ValidateLifetime = false
             };
 
@@ -84,6 +86,11 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 throw new SecurityTokenException("Invalid token");
 
             return principal;
+        }
+
+        public DateTime GetRefreshTokenExpiryTime()
+        {
+            return DateTime.UtcNow.AddDays(30);
         }
     }
 }
