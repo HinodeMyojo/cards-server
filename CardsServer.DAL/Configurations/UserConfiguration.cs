@@ -19,19 +19,7 @@ namespace CardsServer.DAL.Configurations
                 .HasForeignKey(x => x.CreatorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Много пользователей могут добавить много модулей
-            //builder.HasMany(x => x.UsedModules)
-            //    .WithMany(x => x.UsedUsers)
-            //    .UsingEntity<Dictionary<string, object>>(
-            //    "UserModule",
-            //    j => j.HasOne<ModuleEntity>()
-            //          .WithMany()
-            //          .HasForeignKey("ModuleId")
-            //          .OnDelete(DeleteBehavior.Cascade),
-            //    j => j.HasOne<UserEntity>()
-            //          .WithMany()
-            //          .HasForeignKey("UserId")
-            //          .OnDelete(DeleteBehavior.Cascade));
+
             builder.HasMany(x => x.UsedModules)
                 .WithMany(x => x.UsedUsers)
                 .UsingEntity<UserModule>(
@@ -48,8 +36,11 @@ namespace CardsServer.DAL.Configurations
                         j.HasKey(x => new { x.ModuleId, x.UserId });
                         j.ToTable("UserModules");
                     });
-                
 
+            builder.HasMany(x => x.RefreshTokens)
+                .WithOne(x => x.User)
+                .HasForeignKey( x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);            
         }
     }
 }

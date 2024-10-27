@@ -24,7 +24,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public required int StatusId { get; set; }
+    public required int StatusId { get; set; }
         public StatusEntity? Status { get; set; }
         /// <summary>
         /// Роль
@@ -40,6 +40,14 @@
         // Модули, которые использует пользователь
         public List<ModuleEntity> UsedModules { get; set; } = [];
         public List<UserModule> UserModules { get; set; } = [];
+
+        // Статистика по элементам
+        public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
+
+        /// <summary>
+        /// Рефреш токен(ы)
+        /// </summary>
+        public List<RefreshTokenEntity> RefreshTokens { get; set; } = [];
 
     }
 }

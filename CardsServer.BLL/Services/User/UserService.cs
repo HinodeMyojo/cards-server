@@ -59,6 +59,7 @@ namespace CardsServer.BLL.Services.User
                 UserName = res.UserName,
                 IsEmailConfirmed = res.IsEmailConfirmed,
                 RoleId = res.RoleId,
+                Avatar = Convert.ToBase64String(res.Avatar.Data)
             };
 
             return Result<GetUserResponse>.Success(result);

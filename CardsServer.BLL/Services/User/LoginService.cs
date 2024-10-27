@@ -6,6 +6,7 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
+using System.Security.Claims;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -13,7 +14,7 @@ namespace CardsServer.BLL.Services.User
     {
         private readonly IUserRepository _userRepository; 
         private readonly ILoginRepository _loginRepository;
-        private readonly IJwtGenerator _jwtGenerator;
+        private readonly ITokenService _tokenService;
         private readonly IRabbitMQPublisher _publisher;
         private readonly IRedisCaching _caching;
         //private readonly ILogger _logger;
@@ -21,7 +22,7 @@ namespace CardsServer.BLL.Services.User
 
         public LoginService(
             ILoginRepository loginRepository,
-            IJwtGenerator jwtGenerator,
+            ITokenService jwtGenerator,
             IUserRepository userRepository,
             IRabbitMQPublisher publisher,
             IRedisCaching caching
@@ -29,30 +30,42 @@ namespace CardsServer.BLL.Services.User
             )
         {
             _loginRepository = loginRepository;
-            _jwtGenerator = jwtGenerator;
+            _tokenService = jwtGenerator;
             _userRepository = userRepository;
             _publisher = publisher;
             _caching = caching;
             //_logger = logger;
         }
-        public async Task<Result<string>> LoginUser(LoginUser user, CancellationToken cancellationToken)
+        public async Task<Result<TokenApiModel>> LoginUser(LoginUser user, CancellationToken cancellationToken)
         {
 
-            UserEntity? res = await _loginRepository.GetUser(user, cancellationToken);
-            Result<UserEntity> userResult = AssertModel.CheckNull(res);
+            UserEntity? userFromDB = await _loginRepository.GetUser(user, cancellationToken);
+            Result<UserEntity> userResult = AssertModel.CheckNull(userFromDB);
             // спрятать в AssertModel
             if (!userResult.IsSuccess)
             {
-                return Result<string>.Failure(userResult.Error);
+                return Result<TokenApiModel>.Failure(userResult.Error);
             }
 
-            if (!PasswordExtension.CheckPassword(res.Password, user.Password))
+            if (!PasswordExtension.CheckPassword(userFromDB.Password, user.Password))
             {
-                return Result<string>.Failure("Пароли не сопадают.");
+                return Result<TokenApiModel>.Failure("Пароли не сопадают.");
             }
+            TokenApiModel result = new()
+            {
+                AccessToken = _tokenService.GenerateAccessToken(userFromDB),
+                RefreshToken = _tokenService.GetRefreshToken()
+            };
+            userFromDB.RefreshTokens.Add(
+                new RefreshTokenEntity()
+                {
+                    Token = result.RefreshToken,
+                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30),
+                });
 
-            string token = _jwtGenerator.GenerateToken(res);
-            return Result<string>.Success(token);
+            await _userRepository.EditUser(userFromDB, cancellationToken);
+
+            return Result<TokenApiModel>.Success(result);
         }
         public async Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken)
         {
@@ -109,6 +122,80 @@ namespace CardsServer.BLL.Services.User
             _publisher.SendEmail(mail);
 
             return Result.Success();
+        }
+
+        /// <summary>
+        ///  Метод для обновления токена с помощью refresh токена
+        /// </summary>
+        /// <param name="tokenApiModel"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Result<TokenApiModel>> RefreshToken(TokenApiModel tokenApiModel, CancellationToken cancellationToken)
+        {
+            string accessToken = tokenApiModel.AccessToken;
+            string refreshToken = tokenApiModel.RefreshToken;
+            DateTime timeNow = DateTime.UtcNow;
+
+            // Получаем Claims из старого access токена
+            ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
+
+            Claim? userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Result<TokenApiModel>.Failure("Не удалось получить пользователя из токена");
+            }
+
+            int userId;
+
+            try
+            {
+                int.TryParse(userIdClaim.Value, out userId);
+            }
+            catch 
+            {
+                throw new Exception("Не удалось распарсить токен пользователя.");
+            }
+
+            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+            
+            if (user == null)
+            {
+                return Result<TokenApiModel>.Failure("Не удалось найти пользователя");
+            }
+
+            // Получаем ревреш токен по полученному в методе токену
+            RefreshTokenEntity? refreshTokenFromUser = user.RefreshTokens.FirstOrDefault(x => x.Token == refreshToken);
+            if (refreshTokenFromUser == null || refreshTokenFromUser.RefreshTokenExpiryTime < timeNow)
+            {
+                return Result<TokenApiModel>.Failure("Токен навалиден");
+            }
+
+            // Создаем новый Рефреш токен
+            RefreshTokenEntity newRefreshToken = new()
+            {
+                Token = _tokenService.GetRefreshToken(),
+                RefreshTokenExpiryTime = _tokenService.GetRefreshTokenExpiryTime(),
+            };
+
+            // Удаляю старый рефреш из списка рефрешей пользователя
+            user.RefreshTokens.Remove(refreshTokenFromUser);
+
+            // Добавляю новый рефреш
+            user.RefreshTokens.Add(newRefreshToken);
+
+            await _userRepository.EditUser(user, cancellationToken);
+
+            string newAccessToken = _tokenService.GenerateAccessToken(user);
+
+            TokenApiModel result = new()
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken.Token
+            };
+
+            return Result<TokenApiModel>.Success(result);
         }
 
         public async Task<Result> CheckRecoveryCode(string email, int code, CancellationToken cancellationToken)

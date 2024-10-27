@@ -9,16 +9,18 @@ using System.Text;
 
 namespace CardsServer.BLL.Infrastructure.Auth
 {
-    public class JwtGenerator : IJwtGenerator
+    public class TokenService : ITokenService
     {
         private readonly JwtOptions _options;
+        private readonly IUserRepository _userRepository;
 
-        public JwtGenerator(IOptions<JwtOptions> options)
+        public TokenService(IOptions<JwtOptions> options, IUserRepository userRepository)
         {
             _options = options.Value;
+            _userRepository = userRepository;
         }
 
-        public string GenerateToken(UserEntity user)
+        public string GenerateAccessToken(UserEntity user)
         {
 
             List<Claim> claims;
@@ -29,9 +31,8 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 [
                     new( ClaimTypes.Name, user.UserName ),
                     new( ClaimTypes.Email, user.Email ),
-                    new( ClaimTypes.NameIdentifier, user.Id.ToString() ),
+                    new( ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new( ClaimsIdentity.DefaultRoleClaimType, user.Role.Name),
-                    //new( JwtRegisteredClaimNames.Sub, user.Id.ToString())
                 ];
             }
             catch(Exception ex)
@@ -48,7 +49,7 @@ namespace CardsServer.BLL.Infrastructure.Auth
             JwtSecurityToken token = new(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(_options.ExpiresHours));
+                expires: DateTime.UtcNow.AddMinutes(_options.ExpiresMinutes));
 
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -58,11 +59,9 @@ namespace CardsServer.BLL.Infrastructure.Auth
         public string GetRefreshToken()
         {
             var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
@@ -72,7 +71,7 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345")),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CardsSecretKeyJK(*HJ*(#HUFihBGBbrgjnI()Uj4tjrjkgb")),
                 ValidateLifetime = false
             };
 
@@ -87,6 +86,11 @@ namespace CardsServer.BLL.Infrastructure.Auth
                 throw new SecurityTokenException("Invalid token");
 
             return principal;
+        }
+
+        public DateTime GetRefreshTokenExpiryTime()
+        {
+            return DateTime.UtcNow.AddDays(30);
         }
     }
 }
