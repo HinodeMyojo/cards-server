@@ -14,7 +14,7 @@ namespace CardsServer.DAL.Repository
         public async Task<int> AddElement(ElementEntity entity, CancellationToken cancellationToken)
         {
             await _context.AddAsync(entity, cancellationToken);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             return entity.Id;
         }
 

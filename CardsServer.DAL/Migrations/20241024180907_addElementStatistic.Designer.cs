@@ -3,6 +3,7 @@ using System;
 using CardsServer.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20241024180907_addElementStatistic")]
+    partial class addElementStatistic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,31 +193,6 @@ namespace CardsServer.DAL.Migrations
                             Id = 2,
                             Title = "ReadObjects"
                         });
-                });
-
-            modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokenEntities");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RoleEntity", b =>
@@ -431,17 +409,6 @@ namespace CardsServer.DAL.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
-                {
-                    b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CardsServer.BLL.Entity.RolePermissionEntity", b =>
                 {
                     b.HasOne("CardsServer.BLL.Entity.PermissionEntity", "Permission")
@@ -548,8 +515,6 @@ namespace CardsServer.DAL.Migrations
                     b.Navigation("CreatedModules");
 
                     b.Navigation("ElementStatistics");
-
-                    b.Navigation("RefreshTokens");
 
                     b.Navigation("UserModules");
                 });

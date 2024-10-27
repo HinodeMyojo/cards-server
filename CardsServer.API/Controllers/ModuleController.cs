@@ -82,7 +82,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("add-module-to-used")]
+        [HttpPost("module/used-modules")]
         public async Task<IActionResult> AddModuleToUsed([FromBody]int moduleId, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -97,7 +97,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("used-modules")]
+        [HttpGet("module/used-modules")]
         public async Task<IActionResult> GetUsedModules(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -107,12 +107,45 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
+
+        /// <summary>
+        /// Метод получения добавленных пользователем модулей (короткий)
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("module/used-modules-short")]
+        public async Task<IActionResult> GetUsedShortModules(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
+
+            ICollection<object> shortResult = [];
+
+            foreach (GetModule item in result.Value)
+            {
+                shortResult.Add(new
+                {
+                    moduleId = item.Id,
+                    title = item.Title,
+                    description = item.Description,
+                    creatorId = item.CreatorId,
+                    elements = getElements(item.Elements)
+                });
+            }
+
+            var resultAfterProcessing = Result<ICollection<object>>.Success(shortResult);
+
+            return resultAfterProcessing.ToActionResult();
+        }
+
+
         /// <summary>
         /// Метод получения созданных пользователем модулей
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("created-modules")]
+        [HttpGet("module/created-modules")]
         public async Task<IActionResult> GetCreatedModules(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -120,6 +153,22 @@ namespace CardsServer.API.Controllers
             Result<IEnumerable<GetModule>> result = await _service.GetCreatedModules(userId, cancellationToken);
 
             return result.ToActionResult();
+        }
+
+        private ICollection<object> getElements(List<GetElement> elements)
+        {
+            ICollection<object> objects = [];
+            foreach (GetElement element in elements)
+            {
+                objects.Add(new
+                {
+                    elementId = element.Id,
+                    key = element.Key,
+                    value = element.Value
+                });
+            }
+
+            return objects;
         }
     }
 }

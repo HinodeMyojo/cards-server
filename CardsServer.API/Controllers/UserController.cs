@@ -32,6 +32,20 @@ namespace CardsServer.API.Controllers
         }
 
         /// <summary>
+        /// Возвращает информацию о залогинненом пользователе
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("user/whoami")]
+        public async Task<IActionResult> Whoami(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result<GetUserResponse> result = await _userService.GetUser(userId, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
+        /// <summary>
         /// <para>Позволяет изменить (пока что) email и username пользователя.</para>
         /// Отправлять запрос в формате:
         /// <code>
