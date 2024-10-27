@@ -24,7 +24,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public required int StatusId { get; set; }
+    public required int StatusId { get; set; }
         public StatusEntity? Status { get; set; }
         /// <summary>
         /// Роль
@@ -43,6 +43,12 @@
 
         // Статистика по элементам
         public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
+
+        /// <summary>
+        /// Рефреш токен и его время окончания
+        /// </summary>
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
 
     }
 }

@@ -22,7 +22,7 @@ namespace CardsServer.API
         {
             services.AddDbContext<ApplicationContext>();
 
-            services.AddTransient<IJwtGenerator, JwtGenerator>();
+            services.AddTransient<ITokenService, TokenService>();
 
             services.AddScoped<IRabbitMQPublisher, RabbitMQPublisher>();
 

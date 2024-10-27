@@ -11,6 +11,6 @@ namespace CardsServer.BLL.Dto.User
         public int StatusId { get; set; }
         public int RoleId { get; set; }
         public int AvatarId { get; set; }
-        public AvatarEntity? Avatar { get; set; }
+        public required string Avatar { get; set; }
     }
 }

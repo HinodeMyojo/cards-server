@@ -38,7 +38,16 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> LoginUser(
             LoginUser user, CancellationToken cancellationToken)
         {
-            Result<string> result = await _service.LoginUser(user, cancellationToken);
+            Result<TokenApiModel> result = await _service.LoginUser(user, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
+        [HttpPost("auth/refresh")]
+        public async Task<IActionResult> RefreshToken(
+            TokenApiModel tokenApiModel, CancellationToken cancellationToken)
+        {
+            Result<TokenApiModel> result = await _service.RefreshToken(tokenApiModel, cancellationToken);
 
             return result.ToActionResult();
         }
