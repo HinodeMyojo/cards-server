@@ -11,6 +11,6 @@ namespace CardsServer.BLL.Abstractions
         Task<Result<TokenApiModel>> RefreshToken(TokenApiModel refreshToken, CancellationToken cancellationToken);
         Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken);
         Task<Result> SendRecoveryCode(string to, CancellationToken cancellationToken);
-        Task<Result> UpdatePassword(string email, int code, string password, CancellationToken cancellationToken);
+        Task<Result> UpdatePassword(UserUpdatePasswordDto model, CancellationToken cancellationToken);
     }
 }

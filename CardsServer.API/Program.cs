@@ -69,7 +69,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "redis:6390,password=admin";
+    options.Configuration = "redis:6379,password=admin";
 });
 
 
