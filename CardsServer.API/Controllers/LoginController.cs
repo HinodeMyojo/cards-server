@@ -73,15 +73,13 @@ namespace CardsServer.API.Controllers
         /// <summary>
         /// Метод для изменениия пароля НЕавторизованным юзерам
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="code"></param>
-        /// <param name="password"></param>
+        /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("auth/update-password")]
-        public async Task<IActionResult> UpdatePassword(string email, int code, string password, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdatePassword(UserUpdatePasswordDto model, CancellationToken cancellationToken)
         {
-            Result result = await _service.UpdatePassword(email, code, password, cancellationToken);
+            Result result = await _service.UpdatePassword(model, cancellationToken);
 
             return result.ToActionResult("Пароль изменен!");
         }
