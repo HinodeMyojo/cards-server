@@ -15,9 +15,20 @@ namespace CardsServer.BLL.Services.User
             _repository = repository;
         }
 
+        public async Task<Result> EditAvatar(int userId, string newAvatar, CancellationToken cancellationToken)
+        {
+            UserEntity? user = await _repository.GetUser(userId, cancellationToken);
+            if (user == null)
+            {
+                return Result.Failure("Пользователь не найден!");
+            }
+            user.Avatar.Data = Convert.FromBase64String(newAvatar);
+            await _repository.EditUser(user, cancellationToken);
+            return Result.Success();
+        }
+
         public async Task<Result> EditUser(int id, JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
-
 
             UserEntity? user = await _repository.GetUser(id, cancellationToken);
             if (user == null)
