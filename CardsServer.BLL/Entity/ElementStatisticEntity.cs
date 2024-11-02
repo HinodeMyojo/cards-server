@@ -13,5 +13,7 @@
         public ElementEntity? Element { get; set; }
         public int CorrectAnswers { get; set; }
         public int IncorrectAnswers { get; set; }
+        // Последний ответ = 1 - правильный, 0 - неправильный
+        public bool LastAnswer { get; set; }
     }
 }

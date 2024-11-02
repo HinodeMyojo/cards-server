@@ -16,6 +16,14 @@
 # Mono auto generated files
 mono_crash.*
 
+# Exclude RabbitMQ files
+coordination/rabbit@rabbitmq/*.wal
+coordination/rabbit@rabbitmq/*.dets
+coordination/rabbit@rabbitmq/*.segment
+quorum/rabbit@rabbitmq/*.wal
+rabbit_durable_queue.*
+rabbit_serial
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

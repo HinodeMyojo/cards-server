@@ -6,6 +6,7 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace CardsServer.BLL.Services.User
@@ -224,10 +225,19 @@ namespace CardsServer.BLL.Services.User
             }
         }
 
-        public async Task<Result> UpdatePassword(string email, int code, string newPassword, CancellationToken cancellationToken)
+        public async Task<Result> UpdatePassword([FromBody]UserUpdatePasswordDto model, CancellationToken cancellationToken)
         {
+            string newPassword = model.Password;
+            string submitPassword = model.SubmitPassword;
+            string email = model.Email;
+            int code = model.Code;
+
             try
             {
+                if (newPassword != submitPassword)
+                {
+                    return Result.Failure("Пароли не совпадают");
+                }
                 // Проверка кода восстановления
                 var recoveryCodeCheck = await CheckRecoveryCode(email, code, cancellationToken);
                 if (!recoveryCodeCheck.IsSuccess)

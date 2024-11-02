@@ -6,6 +6,7 @@ namespace CardsServer.BLL.Abstractions
 {
     public interface IUserService
     {
+        Task<Result> EditAvatar(int userId, string newAvatar, CancellationToken cancellationToken);
         Task<Result> EditUser(int id, JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken);
         Task<Result<GetUserResponse>> GetUser(int userId, CancellationToken cancellationToken);
     }
