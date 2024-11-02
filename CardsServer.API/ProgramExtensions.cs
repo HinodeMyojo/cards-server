@@ -32,7 +32,7 @@ namespace CardsServer.API
             services.AddTransient<IModuleService, ModuleService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IElementService, ElementService>();
-            services.AddTransient<ICardsService, CardsService>();
+            services.AddTransient<IStatisticService, StatisticService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
@@ -40,7 +40,7 @@ namespace CardsServer.API
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IImageRepository, ImageRepository>();
             services.AddTransient<IElementRepostory, ElementRepository>();
-            services.AddTransient<ICardsRepository, CardsRepository>();
+            services.AddTransient<IStatisticRepository, StatisticRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 

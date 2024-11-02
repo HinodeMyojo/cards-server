@@ -11,11 +11,11 @@ namespace CardsServer.API.Controllers
 {
     [ApiController]
     [Authorize]
-    public class CardsController : ControllerBase
+    public class StatisticController : ControllerBase
     {
-        private readonly ICardsService _service;
+        private readonly IStatisticService _service;
 
-        public CardsController(ICardsService service)
+        public StatisticController(IStatisticService service)
         {
             _service = service;
         }
@@ -26,7 +26,7 @@ namespace CardsServer.API.Controllers
         /// <param name="moduleStatistic"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("cards/save-module-statistic")]
+        [HttpPost("statistic")]
         public async Task<IActionResult> SaveModuleStatistic(
             SaveModuleStatistic moduleStatistic, CancellationToken cancellationToken)
         {
@@ -36,6 +36,28 @@ namespace CardsServer.API.Controllers
                 .SaveModuleStatistic(userId, moduleStatistic, cancellationToken);
 
             return result.ToActionResult();
+        }
+
+        /// <summary>
+        /// TODO: Получает статистику по определенному модулю
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic/{id}")]
+        public async Task<IActionResult> GetModuleStatistic(
+            int id)
+        {
+            return Ok();
+        }
+
+        /// <summary>
+        /// Получает статистику по всем модулям, ассоциированым с юзером
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetModulesStatistic(
+            )
+        {
+            return Ok();
         }
     }
 }
