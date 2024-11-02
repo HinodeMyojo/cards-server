@@ -24,7 +24,7 @@
         /// <summary>
         /// 
         /// </summary>
-    public required int StatusId { get; set; }
+        public required int StatusId { get; set; }
         public StatusEntity? Status { get; set; }
         /// <summary>
         /// Роль

@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace CardsServer.DAL.Repository
 {
-    public class CardsRepository : ICardsRepository
+    public class StatisticRepository : IStatisticRepository
     {
         private readonly ApplicationContext _context;
 
-        public CardsRepository(ApplicationContext context)
+        public StatisticRepository(ApplicationContext context)
         {
             _context = context;
         }

@@ -6,14 +6,18 @@ using CardsServer.DAL.Repository;
 
 namespace CardsServer.BLL.Services.Cards
 {
-    public class CardsService : ICardsService
+    public class StatisticService : IStatisticService
     {
-        private readonly ICardsRepository _repository;
+        private readonly IStatisticRepository _repository;
         private readonly IUserRepository _userRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IElementRepostory _elementRepostory;
 
-        public CardsService(ICardsRepository repository, IUserRepository userRepository, IModuleRepository moduleRepository, IElementRepostory elementRepostory)
+        public StatisticService(
+            IStatisticRepository repository, 
+            IUserRepository userRepository, 
+            IModuleRepository moduleRepository, 
+            IElementRepostory elementRepostory)
         {
             _repository = repository;
             _userRepository = userRepository;
@@ -65,6 +69,8 @@ namespace CardsServer.BLL.Services.Cards
 
                     elementStatistic.CorrectAnswers += item.Answer ? 1 : 0;
                     elementStatistic.IncorrectAnswers += item.Answer ? 0 : 1;
+
+                    elementStatistic.LastAnswer = item.Answer;
 
                     await _repository.EditElementStatistic(elementStatistic, cancellationToken);
                 }

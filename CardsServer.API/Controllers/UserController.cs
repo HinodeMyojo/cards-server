@@ -31,6 +31,16 @@ namespace CardsServer.API.Controllers
             return Ok();
         }
 
+        [HttpPut("user/avatar")]
+        public async Task<IActionResult> EditAvatar([FromBody]string newAvatar, CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+
+            Result result = await _userService.EditAvatar(userId, newAvatar, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
         /// <summary>
         /// Возвращает информацию о залогинненом пользователе
         /// </summary>

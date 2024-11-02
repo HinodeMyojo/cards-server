@@ -4,6 +4,7 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using System.Xml.Linq;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -56,7 +57,8 @@ namespace CardsServer.BLL.Services.Module
 
                 if (module.Elements.Any())
                 {
-                    foreach (CreateElement element in module.Elements)
+                    object locker = new();
+                    Parallel.ForEach(module.Elements, (element, cancellationToken) =>
                     {
                         ElementEntity el = new()
                         {
@@ -73,8 +75,12 @@ namespace CardsServer.BLL.Services.Module
                             };
                         }
 
-                        entity.Elements.Add(el);
-                    }
+                        lock (locker) 
+                        {
+                            entity.Elements.Add(el);
+                        }
+                        
+                    });
                 }
 
                 int moduleId = await _repository.CreateModule(entity, cancellationToken);
@@ -149,10 +155,6 @@ namespace CardsServer.BLL.Services.Module
             await _repository.AddModuleToUsed(user, cancellationToken);
 
             return Result.Success();
-
-
-
-
         }
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
