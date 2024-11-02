@@ -17,7 +17,7 @@ namespace CardsServer.BLL.Services.User
 
         public async Task<Result> EditAvatar(int userId, string newAvatar, CancellationToken cancellationToken)
         {
-            UserEntity? user = await _repository.GetUser(userId, cancellationToken);
+             UserEntity? user = await _repository.GetUser(userId, cancellationToken);
             if (user == null)
             {
                 return Result.Failure("Пользователь не найден!");

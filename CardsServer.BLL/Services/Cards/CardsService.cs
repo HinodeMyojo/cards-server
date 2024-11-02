@@ -66,6 +66,8 @@ namespace CardsServer.BLL.Services.Cards
                     elementStatistic.CorrectAnswers += item.Answer ? 1 : 0;
                     elementStatistic.IncorrectAnswers += item.Answer ? 0 : 1;
 
+                    elementStatistic.LastAnswer = item.Answer;
+
                     await _repository.EditElementStatistic(elementStatistic, cancellationToken);
                 }
 
