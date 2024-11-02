@@ -35,9 +35,9 @@ namespace CardsServer.BLL.Infrastructure.Result
         public static new Result<T> Failure(Error error) => new(default!, false, error);
         public static new Result<T> Failure(string message) => new(default!, false, new Error(message, HttpStatusCode.BadRequest));
 
-        public static implicit operator Result<T>(Result<GetModule> v)
-        {
-            throw new NotImplementedException();
-        }
+        //public static implicit operator Result(Result<T> result)
+        //{
+        //    return new Result(result.IsSuccess, result.Error);
+        //}
     }
 }
