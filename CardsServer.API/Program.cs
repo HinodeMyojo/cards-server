@@ -2,7 +2,9 @@ using CardsServer.API;
 using CardsServer.API.Extension;
 using CardsServer.API.Middlewares;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -73,6 +75,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -90,5 +93,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Миграция при старте приложения
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext =
+//        scope.ServiceProvider
+//            .GetRequiredService<ApplicationContext>();
+//    dbContext.Database.Migrate();
+//}
 
 app.Run();
