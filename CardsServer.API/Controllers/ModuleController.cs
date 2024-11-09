@@ -28,7 +28,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("module/headers")]
+        [HttpGet("module/header")]
         public IActionResult GetHeaders(CancellationToken cancellationToken)
         {
             ICollection<HeaderDto> results = [
