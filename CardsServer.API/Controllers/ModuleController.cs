@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Infrastructure.Auth;
@@ -20,6 +21,23 @@ namespace CardsServer.API.Controllers
         public ModuleController(IModuleService service)
         {
             _service = service;
+        }
+
+        /// <summary>
+        /// Возвращает настройки таблицы
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpGet("module/header")]
+        public IActionResult GetHeaders(CancellationToken cancellationToken)
+        {
+            ICollection<HeaderDto> results = [
+                new HeaderDto{Title="Ключ", Sortable=true, Key="key"},
+                new HeaderDto{Title="Значение", Sortable=true, Key="value"},
+                 new HeaderDto{Title="Контент", Sortable=true, Key="content"}
+                ];
+
+            return Ok(results);
         }
 
         /// <summary>

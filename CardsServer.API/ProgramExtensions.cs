@@ -4,12 +4,14 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
+using CardsServer.BLL.Services.Analytic;
 using CardsServer.BLL.Services.Cards;
 using CardsServer.BLL.Services.Learning;
 using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
+using Grpc.Net.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -46,6 +48,11 @@ namespace CardsServer.API
             services.AddTransient<ILearningRepository, LearningRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
+
+            services.AddSingleton(GrpcChannel.ForAddress("http://analytic-service:8080")); // Укажите адрес вашего gRPC-сервиса
+
+            // Регистрация вашего сервиса
+            services.AddScoped<IAnalyticService, AnalyticService>();
 
             return services;
         }
