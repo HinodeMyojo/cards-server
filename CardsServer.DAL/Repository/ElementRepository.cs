@@ -1,5 +1,7 @@
 ﻿using CardsServer.BLL.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+
 namespace CardsServer.DAL.Repository
 {
     public class ElementRepository : IElementRepostory
@@ -24,6 +26,13 @@ namespace CardsServer.DAL.Repository
             return element;
         }
 
+        public async Task<ElementEntity?> GetElementCreatorId(Expression<Func<ElementEntity, bool>> func, CancellationToken cancellationToken)
+        {
+            ElementEntity? element = await _context.Elements.Include(x => x.Module).ThenInclude(x => x.Creator).FirstOrDefaultAsync(func, cancellationToken);
+
+            return element;
+        }
+
         public async Task<ElementEntity?> GetElementByModuleId(int moduleId, CancellationToken cancellationToken)
         {
             ElementEntity? element = await _context.Elements.FirstOrDefaultAsync(x => x.ModuleId == moduleId, cancellationToken);
@@ -34,6 +43,12 @@ namespace CardsServer.DAL.Repository
         {
             List<ElementEntity> elements = await _context.Elements.Where(x => x.ModuleId == moduleId).ToListAsync();
             return elements;
+        }
+
+        public async Task DeleteElementById(ElementEntity entity, CancellationToken cancellationToken)
+        {
+            _context.Remove(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }
