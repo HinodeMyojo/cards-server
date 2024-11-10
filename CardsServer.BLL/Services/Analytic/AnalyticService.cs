@@ -7,6 +7,13 @@ namespace CardsServer.BLL.Services.Analytic
     public class AnalyticService : IAnalyticService
     {
         //private readonly DataAnalytic.DataAnalyticClient _grpcClient;
+        //private readonly GrpcChannel _grpcChannel;
+
+        //public AnalyticService(GrpcChannel grpcChannel)
+        //{
+        //    _grpcChannel = grpcChannel;
+        //}
+
         private readonly GrpcChannel _grpcChannel;
 
         public AnalyticService(GrpcChannel grpcChannel)
@@ -17,13 +24,10 @@ namespace CardsServer.BLL.Services.Analytic
         public async Task<AnalyticsResponse> SendTestDataAsync(AnalyticsRequest request)
         {
             //using var channel = GrpcChannel.ForAddress("http://analytic-service:8080");
-            var client = new AnalyticService(_grpcChannel);
-
-            // Создаем запрос
-            var rq = new AnalyticsRequest { Id = 123 };
+            var client = new DataAnalytic.DataAnalyticClient(_grpcChannel);
 
             // Отправляем запрос
-            AnalyticsResponse response = await client.SendTestDataAsync(request);
+            AnalyticsResponse response = await client.GetAnalyticsAsync(request);
 
             // Выводим результат
             Console.WriteLine($"Result: {response.Result}");

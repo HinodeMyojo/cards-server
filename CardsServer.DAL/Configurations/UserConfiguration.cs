@@ -39,8 +39,7 @@ namespace CardsServer.DAL.Configurations
 
             builder.HasMany(x => x.RefreshTokens)
                 .WithOne(x => x.User)
-                .HasForeignKey( x => x.UserId)
-                .OnDelete(DeleteBehavior.NoAction);            
+                .HasForeignKey(x => x.UserId);       
         }
     }
 }

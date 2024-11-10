@@ -34,7 +34,7 @@ namespace CardsServer.API.Controllers
             ICollection<HeaderDto> results = [
                 new HeaderDto{Title="Ключ", Sortable=true, Key="key"},
                 new HeaderDto{Title="Значение", Sortable=true, Key="value"},
-                 new HeaderDto{Title="Контент", Sortable=true, Key="content"}
+                new HeaderDto{Title="Контент", Sortable=true, Key="content"},
                 ];
 
             return Ok(results);
