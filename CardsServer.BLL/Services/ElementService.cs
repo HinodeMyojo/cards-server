@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
 namespace CardsServer.BLL.Services
 {
@@ -13,6 +14,29 @@ namespace CardsServer.BLL.Services
         {
             _imageRepository = imageRepository;
             _elementRepository = elementRepository;
+        }
+
+        public async Task<Result> DeleteElementById(int id, int userId, CancellationToken cancellationToken)
+        {
+            Result<ElementEntity> check = await CheckElementAvailabityAndUserCorrect(id, userId, cancellationToken);
+            if (check.IsSuccess)
+            {
+                try
+                {
+                    await _elementRepository.DeleteElementById(check.Value, cancellationToken);
+                    return Result.Success();
+                }
+                catch (Exception)
+                {
+                    throw; 
+                }
+            }
+            return Result.Failure(check.Error);
+        }
+
+        public Task<Result> DeleteElements(int[] ids, int userId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken)
@@ -30,6 +54,40 @@ namespace CardsServer.BLL.Services
             return null;
         }
 
+        public async Task<Result<GetElement>> GetElementById(int id, int userId, CancellationToken cancellationToken)
+        {
+            ElementEntity? element = await _elementRepository.GetElementCreatorId(x => x.Id == id, cancellationToken);
+            if (element != null && element.Module!.Creator!.Id == userId)
+            {
+                GetElement result = new()
+                {
+                    Key = element.Key,
+                    Value = element.Value,
+                };
+                return Result<GetElement>.Success(result);
+            }
+
+            return Result<GetElement>.Failure("Не удалось получить элемент!");
+        }
+
+
+        private async Task<Result<ElementEntity>> CheckElementAvailabityAndUserCorrect(int elementId, int userId, CancellationToken cancellationToken)
+        {
+            ElementEntity? element = await _elementRepository.GetElementCreatorId(x => x.Id == elementId, cancellationToken);
+            if (element != null && element.Module!.Creator!.Id == userId)
+            {
+                return Result<ElementEntity>.Success(element);
+            }
+            else if (element == null)
+            {
+                return Result<ElementEntity>.Failure(ErrorAdditional.NotFound);
+            }
+            else if(element.Module!.CreatorId != userId)
+            {
+                return Result<ElementEntity>.Failure(ErrorAdditional.Forbidden);
+            }
+            return Result<ElementEntity>.Failure("Не удалось получить модуль");
+        }
         //public async Task<GetElement> GetElement()
         //{
 
