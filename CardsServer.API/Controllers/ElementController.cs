@@ -15,6 +15,18 @@ namespace CardsServer.API.Controllers
             _service = service;
         }
 
+        [HttpPost("element")]
+        public async Task<IActionResult> AddElement([FromBody] AddElement model, CancellationToken cancellationToken)
+        {
+            if (ModelState.IsValid)
+            {
+                int userId = AuthExtension.GetId(User);
+                Result result = await _service.AddElement(model, userId, cancellationToken);
+                return result.ToActionResult();
+            }
+            return BadRequest("Модель не прошла проверку!");
+        }
+
         /// <summary>
         /// Позволяет получить элемент по его id
         /// </summary>

@@ -5,6 +5,7 @@ namespace CardsServer.BLL.Abstractions
 {
     public interface IElementService
     {
+        Task<Result> AddElement(AddElement model, int userId, CancellationToken cancellationToken);
         Task<Result> DeleteElementById(int id, int userId, CancellationToken cancellationToken);
         Task<Result> DeleteElements(int[] ids, int userId, CancellationToken cancellationToken);
         Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken);
