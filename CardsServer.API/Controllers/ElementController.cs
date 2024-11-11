@@ -27,6 +27,18 @@ namespace CardsServer.API.Controllers
             return BadRequest("Модель не прошла проверку!");
         }
 
+        [HttpPut("element")]
+        public async Task<IActionResult> EditElement([FromBody] EditElement model, CancellationToken cancellationToken)
+        {
+            if (ModelState.IsValid)
+            {
+                int userId = AuthExtension.GetId(User);
+                Result result = await _service.EditElement(model, userId, cancellationToken);
+                return result.ToActionResult();
+            }
+            return BadRequest("Модель не прошла проверку!");
+        }
+
         /// <summary>
         /// Позволяет получить элемент по его id
         /// </summary>

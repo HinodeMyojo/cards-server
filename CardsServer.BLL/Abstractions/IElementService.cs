@@ -8,6 +8,7 @@ namespace CardsServer.BLL.Abstractions
         Task<Result> AddElement(AddElement model, int userId, CancellationToken cancellationToken);
         Task<Result> DeleteElementById(int id, int userId, CancellationToken cancellationToken);
         Task<Result> DeleteElements(int[] ids, int userId, CancellationToken cancellationToken);
+        Task<Result> EditElement(EditElement model, int userId, CancellationToken cancellationToken);
         Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken);
         Task<Result<GetElement>> GetElementById(int id, int userId, CancellationToken cancellationToken);
     }

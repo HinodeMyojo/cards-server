@@ -11,5 +11,6 @@ namespace CardsServer.DAL.Repository
         Task<ElementEntity?> GetElementByModuleId(int moduleId, CancellationToken cancellationToken);
         Task<List<ElementEntity>> GetElementsByModuleId(int moduleId, CancellationToken cancellationToken);
         Task DeleteElementById(ElementEntity entity, CancellationToken cancellationToken);
+        Task EditElement(ElementEntity element, CancellationToken cancellationToken);
     }
 }

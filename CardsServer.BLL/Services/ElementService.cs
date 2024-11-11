@@ -68,6 +68,33 @@ namespace CardsServer.BLL.Services
             throw new NotImplementedException();
         }
 
+        public async Task<Result> EditElement(EditElement model, int userId, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await _moduleRepository.GetModule(model.ModuleId, cancellationToken);
+            if (module == null)
+                return Result.Failure("Не найден модуль, для которого редактируется элемент!");
+            if (module.Creator!.Id != userId)
+                return Result.Failure(ErrorAdditional.Forbidden);
+            ElementEntity element = await _elementRepository.GetElement(model.ElementId, cancellationToken);
+            if (element == null)
+            {
+                return Result.Failure("Редактируемый элемент не найден");
+            }
+
+            element.Value = model.Value;
+            element.Key = model.Key;
+
+            try
+            {
+                await _elementRepository.EditElement(element, cancellationToken);
+                return Result.Success();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken)
         {
             ElementEntity? el = await _elementRepository.GetElementByModuleId(moduleId, cancellationToken);
