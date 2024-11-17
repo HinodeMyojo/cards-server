@@ -21,7 +21,7 @@ namespace CardsServer.BLL.Services
             _moduleRepository = moduleRepository;
         }
 
-        public async Task<Result> AddElement(AddElement model, int userId, CancellationToken cancellationToken)
+        public async Task<Result> AddElement(AddElementModel model, int userId, CancellationToken cancellationToken)
         {
             ModuleEntity? module = await _moduleRepository.GetModule(model.ModuleId, cancellationToken);
             if(module == null) 
@@ -68,7 +68,7 @@ namespace CardsServer.BLL.Services
             throw new NotImplementedException();
         }
 
-        public async Task<Result> EditElement(EditElement model, int userId, CancellationToken cancellationToken)
+        public async Task<Result> EditElement(EditElementModel model, int userId, CancellationToken cancellationToken)
         {
             ModuleEntity? module = await _moduleRepository.GetModule(model.ModuleId, cancellationToken);
             if (module == null)

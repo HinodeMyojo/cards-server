@@ -1,6 +1,6 @@
 ﻿namespace CardsServer.BLL.Dto.Element
 {
-    public class EditElement : AddElement
+    public class EditElementModel : AddElementModel
     {
         public int ElementId { get; set; }
     }

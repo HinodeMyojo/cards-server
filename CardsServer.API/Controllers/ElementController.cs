@@ -15,8 +15,14 @@ namespace CardsServer.API.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Позволяет сохранить отдельный элемент. Для сохранения - нужно обязательно указать id существующего модуля.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpPost("element")]
-        public async Task<IActionResult> AddElement([FromBody] AddElement model, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddElement([FromBody] AddElementModel model, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
@@ -27,8 +33,14 @@ namespace CardsServer.API.Controllers
             return BadRequest("Модель не прошла проверку!");
         }
 
+        /// <summary>
+        /// Позволяет изменить существующий элемент
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpPut("element")]
-        public async Task<IActionResult> EditElement([FromBody] EditElement model, CancellationToken cancellationToken)
+        public async Task<IActionResult> EditElement([FromBody] EditElementModel model, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
