@@ -1,6 +1,7 @@
 ﻿
 using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Card;
+using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
@@ -58,6 +59,25 @@ namespace CardsServer.API.Controllers
             )
         {
             return Ok();
+        }
+
+        /// <summary>
+        /// Возвращает статистику по действиям юзера в год 
+        /// TODO - вынести в отдельный микросервис (gRPC)
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("year-statistic")]
+        public async Task<IActionResult> GetYearStatisic()
+        {
+            // Пока мокаю
+            YearStatistic result = new()
+            {
+                Year = 2024
+            };
+            for (int i = 0; i < 12; i++)
+            {
+                result.Data.Add()
+            }
         }
     }
 }
