@@ -54,7 +54,7 @@ namespace CardsServer.API.Controllers
         /// Получает статистику по всем модулям, ассоциированым с юзером
         /// </summary>
         /// <returns></returns>
-        [HttpGet("statistics")]
+        [HttpGet("statistic")]
         public async Task<IActionResult> GetModulesStatistic(
             )
         {
@@ -66,18 +66,49 @@ namespace CardsServer.API.Controllers
         /// TODO - вынести в отдельный микросервис (gRPC)
         /// </summary>
         /// <returns></returns>
-        [HttpGet("year-statistic")]
+        [HttpGet("statistic/year")]
         public async Task<IActionResult> GetYearStatisic()
         {
             // Пока мокаю
+            YearStatistic result = GenerateYearStatistic(2024);
+
+            return Ok(result);
+
+        }
+
+        public static YearStatistic GenerateYearStatistic(int year)
+        {
             YearStatistic result = new()
             {
-                Year = 2024
+                Year = year
             };
-            for (int i = 0; i < 12; i++)
+
+            for (int month = 1; month <= 12; month++)
             {
-                result.Data.Add()
+                var monthData = new YearStatisticMonthData
+                {
+                    Month = month,
+                    Data = []
+                };
+
+                int daysInMonth = DateTime.DaysInMonth(year, month);
+                for (int day = 1; day <= daysInMonth; day++)
+                {
+                    DateTime date = new DateTime(year, month, day);
+                    var dayData = new YearStatisticDayData
+                    {
+                        Day = day,
+                        DayOfWeek = (int)date.DayOfWeek, // День недели (0 - воскресенье, 1 - понедельник, ...)
+                        Data = [] // Пустой список данных для дня
+                    };
+                    monthData.Data.Add(dayData);
+                }
+                result.Data.Add(monthData);
             }
+
+            
+
+            return result;
         }
     }
 }
