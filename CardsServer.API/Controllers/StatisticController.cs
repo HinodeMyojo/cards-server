@@ -70,43 +70,50 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> GetYearStatisic()
         {
             // Пока мокаю
-            YearStatistic result = GenerateYearStatistic(2024);
+            YearStatisticData[][] result = GenerateYearStatistic(2024);
 
             return Ok(result);
 
         }
 
-        public static YearStatistic GenerateYearStatistic(int year)
+        public static YearStatisticData[][] GenerateYearStatistic(int year)
         {
-            YearStatistic result = new()
+            YearStatistic pre = new()
             {
                 Year = year
             };
+            Random rnd = new Random();
+
+            int ab = 30;
 
             for (int month = 1; month <= 12; month++)
             {
-                var monthData = new YearStatisticMonthData
+                if (month == 2)
                 {
-                    Month = month,
-                    Data = []
-                };
-
-                int daysInMonth = DateTime.DaysInMonth(year, month);
-                for (int day = 1; day <= daysInMonth; day++)
-                {
-                    DateTime date = new DateTime(year, month, day);
-                    var dayData = new YearStatisticDayData
-                    {
-                        Day = day,
-                        DayOfWeek = (int)date.DayOfWeek, // День недели (0 - воскресенье, 1 - понедельник, ...)
-                        Data = [] // Пустой список данных для дня
-                    };
-                    monthData.Data.Add(dayData);
+                    ab = 28;
                 }
-                result.Data.Add(monthData);
+                else
+                {
+                    ab = 30;
+                }
+                for (int i = 1; i <= ab; i++)
+                {
+                    var data = new YearStatisticData()
+                    {
+                        Date = new DateTime(year, month, i),
+                        Value = rnd.Next(0, 3)
+                    };
+                    pre.Data.Add(data);
+                }
+               
             }
 
-            
+            YearStatisticData[][] result = new YearStatisticData[7][];
+
+            for (int i = 0; i < 7; i++)
+            {
+                result[i] = pre.Data.Where(x => (int)x.Date.DayOfWeek == i).ToArray();
+            }
 
             return result;
         }
