@@ -9,6 +9,6 @@
     public class YearStatisticData
     {
         public DateTime Date {  get; set; }
-        public int Value {  get; set; }
+        public int? Value {  get; set; }
     }
 }
