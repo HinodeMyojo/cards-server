@@ -67,13 +67,25 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("statistic/year")]
-        public async Task<IActionResult> GetYearStatisic()
+        public async Task<IActionResult> GetYearStatisic(int year)
         {
             // Пока мокаю
             YearStatisticData[][] result = GenerateYearStatistic(2024);
 
             return Ok(result);
 
+        }
+
+        /// <summary>
+        /// Позволяет получить список доступных годов статистики
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic/available-years")]
+        public async Task<IActionResult> GetAvailableYears(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+            Result<IEnumerable<int>> result = await _service.GetAvailableYears(userId, cancellationToken);
+            return Ok(result);
         }
 
         /// <summary>

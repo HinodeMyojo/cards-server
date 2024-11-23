@@ -41,6 +41,10 @@ namespace CardsServer.BLL.Services.User
         {
 
             UserEntity? userFromDB = await _loginRepository.GetUser(user, cancellationToken);
+            if (userFromDB == null)
+            {
+                return Result<TokenApiModel>.Failure("Пользователь не найден!");
+            }
             Result<UserEntity> userResult = AssertModel.CheckNull(userFromDB);
             // спрятать в AssertModel
             if (!userResult.IsSuccess)
@@ -83,6 +87,7 @@ namespace CardsServer.BLL.Services.User
                 RoleId = (int)Infrastructure.Auth.Enums.Role.User,
                 StatusId = (int)Status.Active,
                 UserName = model.UserName,
+                CreatedAt = DateTime.UtcNow,
                 AvatarId = 1 
             };
 
