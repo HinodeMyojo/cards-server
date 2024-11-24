@@ -70,10 +70,78 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> GetYearStatisic(int year)
         {
             // Пока мокаю
-            YearStatisticData[][] result = GenerateYearStatistic(2024);
+            YearStatisticData[][] res = GenerateYearStatistic(2024);
+
+            List<int> colspan = GenerateColspan(res[6], year);
+
+            YearStatisticDto result = new()
+            {
+                Year = year,
+                Colspan = colspan,
+                Data = res
+            };
+
 
             return Ok(result);
 
+        }
+
+        private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)
+        {
+            List<int> result = [];
+            int count = 0;
+            int initialMonth = 1;
+            foreach (YearStatisticData item in yearStatisticDatas)
+            {
+                if (item.Date.Year != year)
+                {
+                    continue;
+                }
+
+                if (item.Date.Month == initialMonth)
+                {
+                    count++;
+                    continue;
+                }
+                result.Add(count);
+                initialMonth++;
+                count = 1;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Получение данный об активности пользователя
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic/last-activity")]
+        public async Task<IActionResult> GetLastActivity()
+        {
+            int userId = AuthExtension.GetId(User);
+            // Пока мокаем
+            LastActivityDTO data = new()
+            {
+                ActivityList = [
+                    new LastActivityModel()
+                    {
+                        Id = 15,
+                        Name = "Билибоба"
+                    },
+                    new LastActivityModel()
+                    {
+                        Id = 16,
+                        Name = "Боба"
+                    },
+                    new LastActivityModel()
+                    {
+                        Id = 17,
+                        Name = "билиб"
+                    }
+                    ]
+            };
+
+            return Ok(data);
         }
 
         /// <summary>
