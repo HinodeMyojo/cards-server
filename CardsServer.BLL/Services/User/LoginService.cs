@@ -18,6 +18,7 @@ namespace CardsServer.BLL.Services.User
         private readonly ITokenService _tokenService;
         private readonly IRabbitMQPublisher _publisher;
         private readonly IRedisCaching _caching;
+        private const string DEFAULT_FINGERPRINT = "default";
         //private readonly ILogger _logger;
 
 
@@ -37,41 +38,60 @@ namespace CardsServer.BLL.Services.User
             _caching = caching;
             //_logger = logger;
         }
-        public async Task<Result<TokenApiModel>> LoginUser(LoginUser user, CancellationToken cancellationToken)
+        public async Task<Result<TokenApiModel>> LoginUser(LoginUserExtension user, CancellationToken cancellationToken)
         {
+            // FingerPrint - для логина на нескольких устройствах. Позволяет различать refresh токены.
+            string fingerPrint = user.FingerPrint == null ? DEFAULT_FINGERPRINT : user.FingerPrint;
 
-            UserEntity? userFromDB = await _loginRepository.GetUser(user, cancellationToken);
+            // Получение пользователя из базы данных
+            var userFromDB = await _loginRepository.GetUser(user, cancellationToken);
             if (userFromDB == null)
             {
                 return Result<TokenApiModel>.Failure("Пользователь не найден!");
             }
-            Result<UserEntity> userResult = AssertModel.CheckNull(userFromDB);
-            // спрятать в AssertModel
-            if (!userResult.IsSuccess)
+
+            // Проверка корректности модели
+            var userValidationResult = AssertModel.CheckNull(userFromDB);
+            if (!userValidationResult.IsSuccess)
             {
-                return Result<TokenApiModel>.Failure(userResult.Error);
+                return Result<TokenApiModel>.Failure(userValidationResult.Error);
             }
 
+            // Проверка пароля
             if (!PasswordExtension.CheckPassword(userFromDB.Password, user.Password))
             {
-                return Result<TokenApiModel>.Failure("Пароли не сопадают.");
+                return Result<TokenApiModel>.Failure("Пароли не совпадают.");
             }
-            TokenApiModel result = new()
+
+            // Удаление устаревших refresh токенов
+            userFromDB.RefreshTokens.RemoveAll(rt => rt.FingerPrint == fingerPrint);
+
+            // Генерация нового access и refresh токена
+            var newAccessToken = _tokenService.GenerateAccessToken(userFromDB);
+            var newRefreshToken = _tokenService.GetRefreshToken();
+
+            // Добавление нового refresh токена в базу данных
+            var now = DateTime.UtcNow;
+            userFromDB.RefreshTokens.Add(new RefreshTokenEntity
             {
-                AccessToken = _tokenService.GenerateAccessToken(userFromDB),
-                RefreshToken = _tokenService.GetRefreshToken()
-            };
-            userFromDB.RefreshTokens.Add(
-                new RefreshTokenEntity()
-                {
-                    Token = result.RefreshToken,
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30),
-                });
+                Token = newRefreshToken,
+                RefreshTokenExpiryTime = now.AddDays(30),
+                FingerPrint = fingerPrint
+            });
 
             await _userRepository.EditUser(userFromDB, cancellationToken);
 
-            return Result<TokenApiModel>.Success(result);
+            // Формирование результата
+            var tokenApiModel = new TokenApiModel
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            };
+
+            return Result<TokenApiModel>.Success(tokenApiModel);
         }
+
+
         public async Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken)
         {
             if (await IsEmailUsedAsync(model.Email))
@@ -96,6 +116,13 @@ namespace CardsServer.BLL.Services.User
             return Result.Success();
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<Result> SendRecoveryCode(string to, CancellationToken cancellationToken)
         {
             if (!await IsEmailUsedAsync(to))
@@ -141,61 +168,60 @@ namespace CardsServer.BLL.Services.User
         {
             string accessToken = tokenApiModel.AccessToken;
             string refreshToken = tokenApiModel.RefreshToken;
-            DateTime timeNow = DateTime.UtcNow;
+            DateTime currentTime = DateTime.UtcNow;
 
-            // Получаем Claims из старого access токена
-            ClaimsPrincipal principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
-
-            Claim? userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null)
-            {
-                return Result<TokenApiModel>.Failure("Не удалось получить пользователя из токена");
-            }
-
-            int userId;
-
+            // Извлечение ClaimsPrincipal из токена
+            ClaimsPrincipal principal;
             try
             {
-                int.TryParse(userIdClaim.Value, out userId);
+                principal = _tokenService.GetPrincipalFromExpiredToken(accessToken);
             }
-            catch 
+            catch
             {
-                throw new Exception("Не удалось распарсить токен пользователя.");
+                return Result<TokenApiModel>.Failure("Невалидный токен доступа.");
             }
 
-            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
-            
+            // Извлечение UserId из токена
+            if (!int.TryParse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int userId))
+            {
+                return Result<TokenApiModel>.Failure("Не удалось извлечь Id пользователя из токена.");
+            }
+
+            // Получение пользователя из базы данных
+            var user = await _userRepository.GetUser(userId, cancellationToken);
             if (user == null)
             {
-                return Result<TokenApiModel>.Failure("Не удалось найти пользователя");
+                return Result<TokenApiModel>.Failure("Пользователь не найден.");
             }
 
-            // Получаем ревреш токен по полученному в методе токену
-            RefreshTokenEntity? refreshTokenFromUser = user.RefreshTokens.FirstOrDefault(x => x.Token == refreshToken);
-            if (refreshTokenFromUser == null || refreshTokenFromUser.RefreshTokenExpiryTime < timeNow)
+            // Проверка существования refresh токена
+            RefreshTokenEntity? refreshTokenEntity = user.RefreshTokens.FirstOrDefault(x => x.Token == refreshToken);
+            if (refreshTokenEntity == null || refreshTokenEntity.RefreshTokenExpiryTime < currentTime)
             {
-                return Result<TokenApiModel>.Failure("Токен навалиден");
+                return Result<TokenApiModel>.Failure("Недействительный или просроченный refresh токен.");
             }
+            // Получаем fingerPrint хозяина токена
+            string fingerPrint = refreshTokenEntity.FingerPrint;
 
-            // Создаем новый Рефреш токен
-            RefreshTokenEntity newRefreshToken = new()
+            // Создание нового refresh токена
+            var newRefreshToken = new RefreshTokenEntity
             {
                 Token = _tokenService.GetRefreshToken(),
                 RefreshTokenExpiryTime = _tokenService.GetRefreshTokenExpiryTime(),
+                FingerPrint = fingerPrint
             };
 
-            // Удаляю старый рефреш из списка рефрешей пользователя
-            user.RefreshTokens.Remove(refreshTokenFromUser);
-
-            // Добавляю новый рефреш
+            // Обновление токенов пользователя
+            user.RefreshTokens.Remove(refreshTokenEntity);
             user.RefreshTokens.Add(newRefreshToken);
 
             await _userRepository.EditUser(user, cancellationToken);
 
-            string newAccessToken = _tokenService.GenerateAccessToken(user);
+            // Генерация нового access токена
+            var newAccessToken = _tokenService.GenerateAccessToken(user);
 
-            TokenApiModel result = new()
+            // Формирование результата
+            var result = new TokenApiModel
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken.Token
@@ -203,6 +229,7 @@ namespace CardsServer.BLL.Services.User
 
             return Result<TokenApiModel>.Success(result);
         }
+
 
         public async Task<Result> CheckRecoveryCode(string email, int code, CancellationToken cancellationToken)
         {
