@@ -50,5 +50,11 @@ namespace CardsServer.DAL.Repository
             _context.Remove(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task EditElement(ElementEntity element, CancellationToken cancellationToken)
+        {
+            _context.Update(element);
+            await _context.SaveChangesAsync();
+        }
     }
 }

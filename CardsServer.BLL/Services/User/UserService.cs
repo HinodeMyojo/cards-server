@@ -68,6 +68,7 @@ namespace CardsServer.BLL.Services.User
                 StatusId = res.StatusId,
                 AvatarId = res.AvatarId,
                 UserName = res.UserName,
+                CreatedAt = res.CreatedAt,
                 IsEmailConfirmed = res.IsEmailConfirmed,
                 RoleId = res.RoleId,
                 Avatar = Convert.ToBase64String(res.Avatar.Data)

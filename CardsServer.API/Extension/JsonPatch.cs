@@ -6,6 +6,10 @@ namespace CardsServer.API.Extension
 {
     public static class MyJPIF
     {
+        /// <summary>
+        /// Extension для работы patch запросов в NewtonsoftJson
+        /// </summary>
+        /// <returns></returns>
         public static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter()
         {
             var builder = new ServiceCollection()
