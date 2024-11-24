@@ -1,10 +1,9 @@
-﻿using CardsServer.BLL.Entity;
-
-namespace CardsServer.BLL.Dto.User
+﻿namespace CardsServer.BLL.Dto.User
 {
     public class GetUserResponse
     {
         public int Id { get; set; }
+        public DateTime CreatedAt {  get; set; }
         public required string UserName { get; set; }
         public required string Email { get; set; }
         public bool IsEmailConfirmed { get; set; }

@@ -9,11 +9,40 @@ namespace CardsServer.BLL.Services
     {
         private readonly IElementRepostory _elementRepository;
         private readonly IImageRepository _imageRepository;
+        private readonly IModuleRepository _moduleRepository;
 
-        public ElementService(IImageRepository imageRepository, IElementRepostory elementRepository)
+        public ElementService(
+            IImageRepository imageRepository, 
+            IElementRepostory elementRepository, 
+            IModuleRepository moduleRepository)
         {
             _imageRepository = imageRepository;
             _elementRepository = elementRepository;
+            _moduleRepository = moduleRepository;
+        }
+
+        public async Task<Result> AddElement(AddElementModel model, int userId, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await _moduleRepository.GetModule(model.ModuleId, cancellationToken);
+            if(module == null) 
+                return Result.Failure("Не найден модуль, для которого создается элемент!");
+            if (module.Creator!.Id != userId)
+                return Result.Failure(ErrorAdditional.Forbidden);
+            ElementEntity newElement = new()
+            {
+                Key = model.Key,
+                Value = model.Value,
+                Module = module,
+            };
+            try
+            {
+                await _elementRepository.AddElement(newElement, cancellationToken);
+                return Result.Success();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<Result> DeleteElementById(int id, int userId, CancellationToken cancellationToken)
@@ -37,6 +66,33 @@ namespace CardsServer.BLL.Services
         public Task<Result> DeleteElements(int[] ids, int userId, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Result> EditElement(EditElementModel model, int userId, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await _moduleRepository.GetModule(model.ModuleId, cancellationToken);
+            if (module == null)
+                return Result.Failure("Не найден модуль, для которого редактируется элемент!");
+            if (module.Creator!.Id != userId)
+                return Result.Failure(ErrorAdditional.Forbidden);
+            ElementEntity element = await _elementRepository.GetElement(model.ElementId, cancellationToken);
+            if (element == null)
+            {
+                return Result.Failure("Редактируемый элемент не найден");
+            }
+
+            element.Value = model.Value;
+            element.Key = model.Key;
+
+            try
+            {
+                await _elementRepository.EditElement(element, cancellationToken);
+                return Result.Success();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken)

@@ -55,8 +55,6 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-
-
             return Ok();
         }
     }

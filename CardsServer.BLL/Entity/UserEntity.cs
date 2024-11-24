@@ -31,6 +31,7 @@
         /// </summary>
         public required int RoleId { get; set; }
         public int RecoveryCode {  get; set; }
+        public required DateTime CreatedAt { get; set; }
         public RoleEntity? Role { get; set; }
         public int AvatarId { get; set; }
         public AvatarEntity? Avatar { get; set; }
@@ -48,7 +49,6 @@
         /// Рефреш токен(ы)
         /// </summary>
         public List<RefreshTokenEntity> RefreshTokens { get; set; } = [];
-
     }
 }
  

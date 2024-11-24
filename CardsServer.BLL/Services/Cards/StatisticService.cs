@@ -25,6 +25,23 @@ namespace CardsServer.BLL.Services.Cards
             _elementRepostory = elementRepostory;
         }
 
+        public async Task<Result<IEnumerable<int>>> GetAvailableYears(int userId, CancellationToken cancellationToken)
+        {
+            DateTime timeNow = DateTime.UtcNow;
+            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+            if (user == null)
+            {
+                Result<IEnumerable<int>>.Failure("Не найден пользователь");
+            }
+            DateTime firstUserYear = user!.CreatedAt;
+            ICollection<int> result = [];
+            for (int i = firstUserYear.Year; i <= timeNow.Year; i++)
+            {
+                result.Add(i);
+            }
+            return Result<IEnumerable<int>>.Success(result);
+        }
+
         public async Task<Result<GetElementStatistic>> SaveModuleStatistic(
             int userId, SaveModuleStatistic moduleStatistic, CancellationToken cancellationToken)
         {
