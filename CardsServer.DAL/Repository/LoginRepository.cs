@@ -19,6 +19,7 @@ namespace CardsServer.DAL.Repository
             UserEntity? result = await _context.Users
                 .Include(u => u.Role)
                 .ThenInclude(x => x.Permissions)
+                .Include(x => x.RefreshTokens)
                 .SingleOrDefaultAsync(x => x.UserName == user.UserName);
             return result;
         }

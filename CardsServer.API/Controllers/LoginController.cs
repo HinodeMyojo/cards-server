@@ -52,7 +52,7 @@ namespace CardsServer.API.Controllers
         /// <returns>Токен доступа или описание ошибки</returns>
         [HttpPost("auth/login")]
         public async Task<IActionResult> LoginUser(
-            LoginUser user, CancellationToken cancellationToken)
+            LoginUserExtension user, CancellationToken cancellationToken)
         {
             Result<TokenApiModel> result = await _service.LoginUser(user, cancellationToken);
 
