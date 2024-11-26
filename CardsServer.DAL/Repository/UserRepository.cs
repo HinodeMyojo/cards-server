@@ -45,6 +45,13 @@ namespace CardsServer.DAL.Repository
             return user;
         }
 
+        public async Task<UserEntity?> GetUserByUserName(string userName, CancellationToken cancellationToken)
+        {
+            UserEntity? user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+
+            return user;
+        }
+
         //public async Task<HashSet<Pe>> GetUserPermissions(int id)
         //{
         //    List<RoleEntity?> roles = await _context.Users
@@ -60,5 +67,5 @@ namespace CardsServer.DAL.Repository
         //        .Select(d => d.(Permission)d.Id)
         //        .ToHashSet();
         //}
-}
+    }
     }

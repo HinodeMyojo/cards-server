@@ -98,6 +98,10 @@ namespace CardsServer.BLL.Services.User
             {
                 return Result.Failure("Пользователь с таким Email уже зарегистрирован!");
             }
+            if(await IsLoginUsedAsync(model.UserName))
+            {
+                return Result.Failure("Пользователь с таким Username уже зарегистрирован!");
+            }
 
             UserEntity user = new()
             {
@@ -306,6 +310,12 @@ namespace CardsServer.BLL.Services.User
             return user != null;
         }
 
-        
+
+        private async Task<bool> IsLoginUsedAsync(string userName)
+        {
+            UserEntity? user = await _userRepository.GetUserByUserName(userName, default);
+            return user != null;
+        }
+
     }
 }
