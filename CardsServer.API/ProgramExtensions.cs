@@ -11,7 +11,6 @@ using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
-using Grpc.Net.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -49,10 +48,13 @@ namespace CardsServer.API
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
-            services.AddSingleton(GrpcChannel.ForAddress("http://analytic-service:8080")); // Укажите адрес вашего gRPC-сервиса
+            services.AddGrpcClient<AnalyticService>(o =>
+            {
+                o.Address = new Uri("http://statistic-service:8080");
+            })
+            .EnableCallContextPropagation();
 
-            // Регистрация вашего сервиса
-            services.AddScoped<IAnalyticService, AnalyticService>();
+            services.AddTransient<IAnalyticService, AnalyticService>();
 
             return services;
         }
