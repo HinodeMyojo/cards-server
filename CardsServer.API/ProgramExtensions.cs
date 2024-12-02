@@ -4,6 +4,7 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
+using CardsServer.BLL.Services.gRPC;
 using CardsServer.BLL.Services.Learning;
 using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
@@ -56,8 +57,9 @@ namespace CardsServer.API
             services.AddGrpcClient<Statistic.StatisticClient>(o =>
             {
                 o.Address = new Uri("http://statistic-service:8080");
-            })
-            .EnableCallContextPropagation();
+            });
+            //.EnableCallContextPropagation();
+            services.AddTransient<BLL.Services.gRPC.StatisticService>();
 
             return services;
         }

@@ -6,6 +6,7 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.BLL.Services.gRPC;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StatisticService.API;
@@ -27,18 +28,19 @@ namespace CardsServer.API.Controllers
             _service = service;
             _statistic = statistic;
         }
-
+        [AllowAnonymous]
         [HttpGet("Test")]
-        public async Task Test()
+        public async Task<IActionResult> Test()
         {
-            StatisticRequest request = new StatisticRequest()
+            YearStatisticRequest model = new()
             {
-                CompletedAt = DateTime.UtcNow.ToTimestamp(),
-                ModuleId = 1,
-                UserId =1,
+                UserId = 1,
+                Year = 2024
             };
 
-            _statistic.SaveStatistic(request);
+            YearStatisticResponse result = await _statistic.GetYearStatisicAsync(model);
+
+            return Ok(result);
         }
 
 
