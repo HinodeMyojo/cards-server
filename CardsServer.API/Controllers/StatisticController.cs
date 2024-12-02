@@ -54,7 +54,7 @@ namespace CardsServer.API.Controllers
             {
                 CompletedAt = timeNowInTimestampFormat,
                 UserId = userId,
-                ModuleId = moduleStatistic.ModuleId,
+                ModuleId = moduleStatistic.ModuleId
             };
 
             // Т.к в protobuf у нас repeated - то наши поля автоматически read-only.
@@ -67,7 +67,7 @@ namespace CardsServer.API.Controllers
                 {
                     Answer = y.Answer,
                     ElementId = y.ElementId
-                })); ;
+                }));
             }
 
 
