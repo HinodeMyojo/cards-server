@@ -43,7 +43,7 @@
         public List<UserModule> UserModules { get; set; } = [];
 
         // Статистика по элементам
-        public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
+        //public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
 
         /// <summary>
         /// Рефреш токен(ы)

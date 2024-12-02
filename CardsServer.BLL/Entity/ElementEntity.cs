@@ -12,6 +12,6 @@ namespace CardsServer.BLL.Entity
         public ModuleEntity? Module { get; set; }
         // Связь 1:1 с изображением
         public ElementImageEntity? Image { get; set; }
-        public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
+        //public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];
     }
 }

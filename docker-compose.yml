@@ -10,6 +10,7 @@ services:
     image: ${DOCKER_REGISTRY-}cardsserverapi
     networks:
       - cards-network
+    container_name: main
     build:
       context: .
       dockerfile: CardsServer.API/Dockerfile
@@ -21,7 +22,7 @@ services:
     image: rabbitmq:3-management
     networks:
       - cards-network
-    hostname: rabbitmq
+    container_name: rabbitmq
     restart: always
     environment:
       - RABBITMQ_DEFAULT_USER=admin
@@ -39,7 +40,7 @@ services:
     image: redis:latest
     networks:
       - cards-network
-    hostname: redis
+    container_name: redis
     ports:
       - "6390:6379"
     volumes:
