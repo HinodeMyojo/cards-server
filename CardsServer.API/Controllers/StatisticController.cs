@@ -1,14 +1,11 @@
-﻿
-using CardsServer.BLL.Abstractions;
-using CardsServer.BLL.Dto.Card;
+﻿using CardsServer.BLL.Dto.Card;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
-using CardsServer.BLL.Services.gRPC;
 using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using StatisticService.API;
 
 
@@ -18,29 +15,23 @@ namespace CardsServer.API.Controllers
     [Authorize]
     public class StatisticController : ControllerBase
     {
-        private readonly IStatisticService _service;
-        private readonly CardsServer.BLL.Services.gRPC.StatisticService _statistic;
+        private readonly BLL.Services.gRPC.StatisticService _service;
 
-        public StatisticController(
-            IStatisticService service, 
-            BLL.Services.gRPC.StatisticService statistic)
+        public StatisticController(BLL.Services.gRPC.StatisticService service)
         {
             _service = service;
-            _statistic = statistic;
         }
+
+        /// <summary>
+        /// Проверка соединения с gRPC микросервисом
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("Test")]
-        public async Task<IActionResult> Test()
+        [HttpGet("Ping")]
+        public async Task<IActionResult> Ping()
         {
-            YearStatisticRequest model = new()
-            {
-                UserId = 1,
-                Year = 2024
-            };
 
-            YearStatisticResponse result = await _statistic.GetYearStatisicAsync(model);
-
-            return Ok(result);
+            return Ok();
         }
 
 
@@ -56,33 +47,34 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<GetElementStatistic> result = await _service
-                .SaveModuleStatistic(userId, moduleStatistic, cancellationToken);
+            // Создаем модель для пересылки
+            StatisticRequest requestModel = new()
+            {
+                CompletedAt = moduleStatistic.CompletedAt.ToTimestamp(),
+                UserId = userId,
+                ModuleId = moduleStatistic.ModuleId,
+            };
 
-            return result.ToActionResult();
+            // Т.к в protobuf у нас repeated - то наши поля автоматически read-only.
+            // То есть инициализировать мы их не можем((
+            // Приходится добавлять после инициализации объекта
+            if (!moduleStatistic.ElementStatistics.IsNullOrEmpty())
+            {
+                requestModel.Elements.AddRange(
+                    moduleStatistic.ElementStatistics.Select(y => new StatisticElements()
+                {
+                    Answer = y.Answer,
+                    ElementId = y.ElementId
+                })); ;
+            }
+
+
+            StatisticResponse result = await _service
+                .SaveStatisticAsync(requestModel);
+
+            return Ok(result);
         }
 
-        /// <summary>
-        /// TODO: Получает статистику по определенному модулю
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic/{id}")]
-        public async Task<IActionResult> GetModuleStatistic(
-            int id)
-        {
-            return Ok();
-        }
-
-        /// <summary>
-        /// Получает статистику по всем модулям, ассоциированым с юзером
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic")]
-        public async Task<IActionResult> GetModulesStatistic(
-            )
-        {
-            return Ok();
-        }
 
         /// <summary>
         /// Возвращает статистику по действиям юзера в год 
@@ -108,6 +100,53 @@ namespace CardsServer.API.Controllers
             return Ok(result);
 
         }
+
+        /// <summary>
+        /// Позволяет получить список доступных годов статистики
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic/available-years")]
+        public async Task<IActionResult> GetAvailableYears(CancellationToken cancellationToken)
+        {
+            int userId = AuthExtension.GetId(User);
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// TODO: Позволяет получить все объекты статистики по данному модулю, ассоциированную с пользователем
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic/{id}")]
+        public async Task<IActionResult> GetAllStatisticForModuleByUser()
+        {
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// TODO: Получает статистику по определенному модулю
+        /// Вероятно надо добавить еще либо дату, либо какой-то уточняющий фактор для получения статистики
+        /// </summary>
+        /// <returns></returns>
+        //[HttpGet("statistic/{id}")]
+        //public async Task<IActionResult> GetModuleStatistic(
+        //    int id)
+        //{
+        //    return Ok();
+        //}
+
+        /// <summary>
+        /// Получает статистику по всем модулям, ассоциированым с юзером
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetModulesStatistic(
+            )
+        {
+            return Ok();
+        }
+
 
         private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)
         {
@@ -165,18 +204,6 @@ namespace CardsServer.API.Controllers
             };
 
             return Ok(data);
-        }
-
-        /// <summary>
-        /// Позволяет получить список доступных годов статистики
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic/available-years")]
-        public async Task<IActionResult> GetAvailableYears(CancellationToken cancellationToken)
-        {
-            int userId = AuthExtension.GetId(User);
-            Result<IEnumerable<int>> result = await _service.GetAvailableYears(userId, cancellationToken);
-            return Ok(result);
         }
 
         /// <summary>
