@@ -4,8 +4,11 @@ using CardsServer.BLL.Dto.Card;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
+using CardsServer.BLL.Services.gRPC;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StatisticService.API;
 
 
 namespace CardsServer.API.Controllers
@@ -15,11 +18,29 @@ namespace CardsServer.API.Controllers
     public class StatisticController : ControllerBase
     {
         private readonly IStatisticService _service;
+        private readonly CardsServer.BLL.Services.gRPC.StatisticService _statistic;
 
-        public StatisticController(IStatisticService service)
+        public StatisticController(
+            IStatisticService service, 
+            BLL.Services.gRPC.StatisticService statistic)
         {
             _service = service;
+            _statistic = statistic;
         }
+
+        [HttpGet("Test")]
+        public async Task Test()
+        {
+            StatisticRequest request = new StatisticRequest()
+            {
+                CompletedAt = DateTime.UtcNow.ToTimestamp(),
+                ModuleId = 1,
+                UserId =1,
+            };
+
+            _statistic.SaveStatistic(request);
+        }
+
 
         /// <summary>
         /// Сохраняет статистику модуля

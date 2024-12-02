@@ -4,8 +4,6 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
-using CardsServer.BLL.Services.Analytic;
-using CardsServer.BLL.Services.Cards;
 using CardsServer.BLL.Services.Learning;
 using CardsServer.BLL.Services.Module;
 using CardsServer.BLL.Services.User;
@@ -14,12 +12,18 @@ using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using StatisticService.API;
 using System.Text;
 
 namespace CardsServer.API
 {
     public static class ProgramExtensions
     {
+        /// <summary>
+        /// Extension метод для регистрации сервисов.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection RegisterService(this IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>();
@@ -34,7 +38,7 @@ namespace CardsServer.API
             services.AddTransient<IModuleService, ModuleService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IElementService, ElementService>();
-            services.AddTransient<IStatisticService, StatisticService>();
+            services.AddTransient<IStatisticService, BLL.Services.Cards.StatisticService>();
             services.AddTransient<ILearningService, LearningService>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
@@ -48,13 +52,12 @@ namespace CardsServer.API
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
-            services.AddGrpcClient<AnalyticService>(o =>
+            // Интеграция фабрики клиента gRPC
+            services.AddGrpcClient<Statistic.StatisticClient>(o =>
             {
                 o.Address = new Uri("http://statistic-service:8080");
             })
             .EnableCallContextPropagation();
-
-            services.AddTransient<IAnalyticService, AnalyticService>();
 
             return services;
         }
