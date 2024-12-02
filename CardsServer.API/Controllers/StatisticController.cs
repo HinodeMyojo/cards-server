@@ -47,10 +47,12 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
+            Timestamp timeNowInTimestampFormat = DateTime.UtcNow.ToTimestamp();
+
             // Создаем модель для пересылки
             StatisticRequest requestModel = new()
             {
-                CompletedAt = moduleStatistic.CompletedAt.ToTimestamp(),
+                CompletedAt = timeNowInTimestampFormat,
                 UserId = userId,
                 ModuleId = moduleStatistic.ModuleId,
             };
