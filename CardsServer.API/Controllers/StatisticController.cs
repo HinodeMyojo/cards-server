@@ -30,10 +30,18 @@ namespace CardsServer.API.Controllers
         [HttpGet("Ping")]
         public async Task<IActionResult> Ping()
         {
+            PingResponse result;
+            try
+            {
+                result = await _service.PingAsync(new PingRequest());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Связаться не получилось((");
+            }
+            return Ok(result);
 
-            return Ok();
         }
-
 
         /// <summary>
         /// Сохраняет статистику модуля
@@ -69,12 +77,18 @@ namespace CardsServer.API.Controllers
                     ElementId = y.ElementId
                 }));
             }
-
-
             StatisticResponse result = await _service
                 .SaveStatisticAsync(requestModel);
 
             return Ok(result);
+        }
+
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetStatisticById(int id)
+        {
+            GetStatisticByIdResponse response = await _service
+                .GetStatisticByIdAsync(new GetStatisticByIdRequest { Id = id });
+            return Ok(response);
         }
 
 
@@ -98,7 +112,6 @@ namespace CardsServer.API.Controllers
                 Data = res
             };
 
-
             return Ok(result);
 
         }
@@ -115,15 +128,15 @@ namespace CardsServer.API.Controllers
         }
 
 
-        /// <summary>
-        /// TODO: Позволяет получить все объекты статистики по данному модулю, ассоциированную с пользователем
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic/{id}")]
-        public async Task<IActionResult> GetAllStatisticForModuleByUser()
-        {
-            return Ok();
-        }
+        ///// <summary>
+        ///// TODO: Позволяет получить все объекты статистики по данному модулю, ассоциированную с пользователем
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("statistic/{id}")]
+        //public async Task<IActionResult> GetAllStatisticForModuleByUser()
+        //{
+        //    return Ok();
+        //}
 
 
         /// <summary>
@@ -138,16 +151,16 @@ namespace CardsServer.API.Controllers
         //    return Ok();
         //}
 
-        /// <summary>
-        /// Получает статистику по всем модулям, ассоциированым с юзером
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic")]
-        public async Task<IActionResult> GetModulesStatistic(
-            )
-        {
-            return Ok();
-        }
+        ///// <summary>
+        ///// Получает статистику по всем модулям, ассоциированым с юзером
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("statistic")]
+        //public async Task<IActionResult> GetModulesStatistic(
+        //    )
+        //{
+        //    return Ok();
+        //}
 
 
         private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)

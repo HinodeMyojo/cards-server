@@ -15,6 +15,11 @@ namespace CardsServer.BLL.Services.gRPC
             _grpcChannel = grpcChannel;
         }
 
+        public override AsyncUnaryCall<GetStatisticByIdResponse> GetStatisticByIdAsync(GetStatisticByIdRequest request, CallOptions options)
+        {
+            return _grpcChannel.GetStatisticByIdAsync(request, options);
+        }
+
         public override AsyncUnaryCall<YearStatisticResponse> GetYearStatisicAsync(YearStatisticRequest request, CallOptions options)
         {
             return _grpcChannel.GetYearStatisicAsync(request, options);
@@ -34,7 +39,7 @@ namespace CardsServer.BLL.Services.gRPC
         // TODO
         public override AsyncUnaryCall<PingResponse> PingAsync(PingRequest request, CallOptions options)
         {
-            return base.PingAsync(request, options);
+            return _grpcChannel.PingAsync(request, options);
         }
     }
 }
