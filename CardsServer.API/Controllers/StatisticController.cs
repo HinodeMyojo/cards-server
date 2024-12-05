@@ -1,7 +1,7 @@
 ﻿using CardsServer.BLL.Dto.Card;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
-using CardsServer.BLL.Infrastructure.Result;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,10 +30,18 @@ namespace CardsServer.API.Controllers
         [HttpGet("Ping")]
         public async Task<IActionResult> Ping()
         {
+            PingResponse result;
+            try
+            {
+                result = await _service.PingAsync(new PingRequest());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Связаться не получилось((");
+            }
+            return Ok(result);
 
-            return Ok();
         }
-
 
         /// <summary>
         /// Сохраняет статистику модуля
@@ -69,10 +77,24 @@ namespace CardsServer.API.Controllers
                     ElementId = y.ElementId
                 }));
             }
-
-
             StatisticResponse result = await _service
                 .SaveStatisticAsync(requestModel);
+
+            return Ok(result);
+        }
+
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetStatisticById(int id)
+        {
+            GetStatisticByIdResponse response = await _service
+                .GetStatisticByIdAsync(new GetStatisticByIdRequest { Id = id });
+
+            GetStatisticDto result = new()
+            {
+                CompletedAt = response.CompletedAt.ToDateTime(),
+                NumberOfAttempts = response.NumberOfAttempts,
+                PercentSuccess = response.PercentSuccess,
+            };
 
             return Ok(result);
         }
@@ -87,17 +109,25 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> GetYearStatisic(int year)
         {
             // Пока мокаю
-            YearStatisticData[][] res = GenerateYearStatistic(2024);
+            //YearStatisticData[][] res = GenerateYearStatistic(2024);
 
-            List<int> colspan = GenerateColspan(res[6], year);
+            //List<int> colspan = GenerateColspan(res[6], year);
+
+            int userId = AuthExtension.GetId(User);
+
+            YearStatisticResponse responseFromGrpcService = await _service
+                .GetYearStatisicAsync(new()
+            {
+                UserId = userId,
+                Year = year
+            });
 
             YearStatisticDto result = new()
             {
                 Year = year,
-                Colspan = colspan,
-                Data = res
+                Colspan = [.. responseFromGrpcService.Colspan],
+                Data = ConvertRepeatedField(responseFromGrpcService.Data)
             };
-
 
             return Ok(result);
 
@@ -115,15 +145,15 @@ namespace CardsServer.API.Controllers
         }
 
 
-        /// <summary>
-        /// TODO: Позволяет получить все объекты статистики по данному модулю, ассоциированную с пользователем
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic/{id}")]
-        public async Task<IActionResult> GetAllStatisticForModuleByUser()
-        {
-            return Ok();
-        }
+        ///// <summary>
+        ///// TODO: Позволяет получить все объекты статистики по данному модулю, ассоциированную с пользователем
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("statistic/{id}")]
+        //public async Task<IActionResult> GetAllStatisticForModuleByUser()
+        //{
+        //    return Ok();
+        //}
 
 
         /// <summary>
@@ -138,41 +168,27 @@ namespace CardsServer.API.Controllers
         //    return Ok();
         //}
 
-        /// <summary>
-        /// Получает статистику по всем модулям, ассоциированым с юзером
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("statistic")]
-        public async Task<IActionResult> GetModulesStatistic(
-            )
+        ///// <summary>
+        ///// Получает статистику по всем модулям, ассоциированым с юзером
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("statistic")]
+        //public async Task<IActionResult> GetModulesStatistic(
+        //    )
+        //{
+        //    return Ok();
+        //}
+        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
         {
-            return Ok();
-        }
-
-
-        private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)
-        {
-            List<int> result = [];
-            int count = 0;
-            int initialMonth = 1;
-            foreach (YearStatisticData item in yearStatisticDatas)
-            {
-                if (item.Date.Year != year)
-                {
-                    continue;
-                }
-
-                if (item.Date.Month == initialMonth)
-                {
-                    count++;
-                    continue;
-                }
-                result.Add(count);
-                initialMonth++;
-                count = 1;
-            }
-
-            return result;
+            return protobufField
+                .Select(row => row.Values
+                    .Select(value => new YearStatisticData
+                    {
+                        Date = value.Date.ToDateTime(),
+                        Value = value.Value
+                    })
+                    .ToArray())
+                .ToArray();
         }
 
         /// <summary>
@@ -207,70 +223,5 @@ namespace CardsServer.API.Controllers
 
             return Ok(data);
         }
-
-        /// <summary>
-        /// Генерирует статистику для указанного года.
-        /// </summary>
-        /// <param name="year">Год, для которого генерируется статистика.</param>
-        /// <returns>Двумерный массив, где каждая строка соответствует дням недели.</returns>
-        public static YearStatisticData[][] GenerateYearStatistic(int year)
-        {
-            // Инициализация объекта для хранения данных
-            YearStatistic yearStatistic = new()
-            {
-                Year = year
-            };
-
-            Random random = new Random();
-
-            // Проходим по каждому месяцу года
-            for (int month = 1; month <= 12; month++)
-            {
-                // Получаем количество дней в текущем месяце
-                int daysInMonth = DateTime.DaysInMonth(year, month);
-
-                for (int day = 1; day <= daysInMonth; day++)
-                {
-                    var date = new DateTime(year, month, day);
-
-                    // Добавляем данные текущего дня
-                    yearStatistic.Data.Add(new YearStatisticData
-                    {
-                        Date = date,
-                        Value = random.Next(0, 3) // Генерация случайного значения
-                    });
-
-                    // Для первого дня января добавляем пустые дни до первого дня недели
-                    if (month == 1 && day == 1)
-                    {
-                        int firstDayOfWeek = (int)date.DayOfWeek;
-
-                        // Добавляем пустые дни до первого дня (если не воскресенье)
-                        for (int i = 0; i < firstDayOfWeek; i++)
-                        {
-                            yearStatistic.Data.Insert(0, new YearStatisticData
-                            {
-                                Date = date.AddDays(-1 - i), // Смещение на предыдущие дни
-                                Value = null // Пустое значение для отсутствующих дней
-                            });
-                        }
-                    }
-                }
-            }
-
-            // Создаем двумерный массив для группировки по дням недели
-            YearStatisticData[][] result = new YearStatisticData[7][];
-
-            for (int i = 0; i < 7; i++)
-            {
-                // Фильтруем данные по конкретному дню недели (0 = Воскресенье, 6 = Суббота)
-                result[i] = yearStatistic.Data
-                    .Where(x => x.Date.DayOfWeek == (DayOfWeek)i)
-                    .ToArray();
-            }
-
-            return result;
-        }
-
     }
 }
