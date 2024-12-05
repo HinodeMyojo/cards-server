@@ -1,7 +1,7 @@
 ﻿using CardsServer.BLL.Dto.Card;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
-using CardsServer.BLL.Infrastructure.Result;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -88,7 +88,15 @@ namespace CardsServer.API.Controllers
         {
             GetStatisticByIdResponse response = await _service
                 .GetStatisticByIdAsync(new GetStatisticByIdRequest { Id = id });
-            return Ok(response);
+
+            GetStatisticDto result = new()
+            {
+                CompletedAt = response.CompletedAt.ToDateTime(),
+                NumberOfAttempts = response.NumberOfAttempts,
+                PercentSuccess = response.PercentSuccess,
+            };
+
+            return Ok(result);
         }
 
 
@@ -101,15 +109,24 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> GetYearStatisic(int year)
         {
             // Пока мокаю
-            YearStatisticData[][] res = GenerateYearStatistic(2024);
+            //YearStatisticData[][] res = GenerateYearStatistic(2024);
 
-            List<int> colspan = GenerateColspan(res[6], year);
+            //List<int> colspan = GenerateColspan(res[6], year);
+
+            int userId = AuthExtension.GetId(User);
+
+            YearStatisticResponse responseFromGrpcService = await _service
+                .GetYearStatisicAsync(new()
+            {
+                UserId = userId,
+                Year = year
+            });
 
             YearStatisticDto result = new()
             {
                 Year = year,
-                Colspan = colspan,
-                Data = res
+                Colspan = [.. responseFromGrpcService.Colspan],
+                Data = ConvertRepeatedField(responseFromGrpcService.Data)
             };
 
             return Ok(result);
@@ -161,6 +178,18 @@ namespace CardsServer.API.Controllers
         //{
         //    return Ok();
         //}
+        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
+        {
+            return protobufField
+                .Select(row => row.Values
+                    .Select(value => new YearStatisticData
+                    {
+                        Date = value.Date.ToDateTime(),
+                        Value = value.Value
+                    })
+                    .ToArray())
+                .ToArray();
+        }
 
 
         private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)
