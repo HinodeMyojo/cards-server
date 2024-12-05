@@ -191,32 +191,6 @@ namespace CardsServer.API.Controllers
                 .ToArray();
         }
 
-
-        private List<int> GenerateColspan(YearStatisticData[] yearStatisticDatas, int year)
-        {
-            List<int> result = [];
-            int count = 0;
-            int initialMonth = 1;
-            foreach (YearStatisticData item in yearStatisticDatas)
-            {
-                if (item.Date.Year != year)
-                {
-                    continue;
-                }
-
-                if (item.Date.Month == initialMonth)
-                {
-                    count++;
-                    continue;
-                }
-                result.Add(count);
-                initialMonth++;
-                count = 1;
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// Получение данный об активности пользователя
         /// </summary>
@@ -249,70 +223,5 @@ namespace CardsServer.API.Controllers
 
             return Ok(data);
         }
-
-        /// <summary>
-        /// Генерирует статистику для указанного года.
-        /// </summary>
-        /// <param name="year">Год, для которого генерируется статистика.</param>
-        /// <returns>Двумерный массив, где каждая строка соответствует дням недели.</returns>
-        public static YearStatisticData[][] GenerateYearStatistic(int year)
-        {
-            // Инициализация объекта для хранения данных
-            YearStatistic yearStatistic = new()
-            {
-                Year = year
-            };
-
-            Random random = new Random();
-
-            // Проходим по каждому месяцу года
-            for (int month = 1; month <= 12; month++)
-            {
-                // Получаем количество дней в текущем месяце
-                int daysInMonth = DateTime.DaysInMonth(year, month);
-
-                for (int day = 1; day <= daysInMonth; day++)
-                {
-                    var date = new DateTime(year, month, day);
-
-                    // Добавляем данные текущего дня
-                    yearStatistic.Data.Add(new YearStatisticData
-                    {
-                        Date = date,
-                        Value = random.Next(0, 3) // Генерация случайного значения
-                    });
-
-                    // Для первого дня января добавляем пустые дни до первого дня недели
-                    if (month == 1 && day == 1)
-                    {
-                        int firstDayOfWeek = (int)date.DayOfWeek;
-
-                        // Добавляем пустые дни до первого дня (если не воскресенье)
-                        for (int i = 0; i < firstDayOfWeek; i++)
-                        {
-                            yearStatistic.Data.Insert(0, new YearStatisticData
-                            {
-                                Date = date.AddDays(-1 - i), // Смещение на предыдущие дни
-                                Value = null // Пустое значение для отсутствующих дней
-                            });
-                        }
-                    }
-                }
-            }
-
-            // Создаем двумерный массив для группировки по дням недели
-            YearStatisticData[][] result = new YearStatisticData[7][];
-
-            for (int i = 0; i < 7; i++)
-            {
-                // Фильтруем данные по конкретному дню недели (0 = Воскресенье, 6 = Суббота)
-                result[i] = yearStatistic.Data
-                    .Where(x => x.Date.DayOfWeek == (DayOfWeek)i)
-                    .ToArray();
-            }
-
-            return result;
-        }
-
     }
 }
