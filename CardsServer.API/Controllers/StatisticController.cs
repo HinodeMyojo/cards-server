@@ -108,10 +108,6 @@ namespace CardsServer.API.Controllers
         [HttpGet("statistic/year")]
         public async Task<IActionResult> GetYearStatisic(int year)
         {
-            // Пока мокаю
-            //YearStatisticData[][] res = GenerateYearStatistic(2024);
-
-            //List<int> colspan = GenerateColspan(res[6], year);
 
             int userId = AuthExtension.GetId(User);
 
@@ -178,18 +174,6 @@ namespace CardsServer.API.Controllers
         //{
         //    return Ok();
         //}
-        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
-        {
-            return protobufField
-                .Select(row => row.Values
-                    .Select(value => new YearStatisticData
-                    {
-                        Date = value.Date.ToDateTime(),
-                        Value = value.Value
-                    })
-                    .ToArray())
-                .ToArray();
-        }
 
         /// <summary>
         /// Получение данный об активности пользователя
@@ -223,5 +207,19 @@ namespace CardsServer.API.Controllers
 
             return Ok(data);
         }
+
+        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
+        {
+            return protobufField
+                .Select(row => row.Values
+                    .Select(value => new YearStatisticData
+                    {
+                        Date = value.Date.ToDateTime(),
+                        Value = value.Value
+                    })
+                    .ToArray())
+                .ToArray();
+        }
+
     }
 }
