@@ -3,6 +3,7 @@ using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -30,17 +31,8 @@ namespace CardsServer.API.Controllers
         [HttpGet("Ping")]
         public async Task<IActionResult> Ping()
         {
-            PingResponse result;
-            try
-            {
-                result = await _service.PingAsync(new PingRequest());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Связаться не получилось((");
-            }
+            PingResponse result = await _service.PingAsync(new PingRequest());
             return Ok(result);
-
         }
 
         /// <summary>
@@ -108,10 +100,6 @@ namespace CardsServer.API.Controllers
         [HttpGet("statistic/year")]
         public async Task<IActionResult> GetYearStatisic(int year)
         {
-            // Пока мокаю
-            //YearStatisticData[][] res = GenerateYearStatistic(2024);
-
-            //List<int> colspan = GenerateColspan(res[6], year);
 
             int userId = AuthExtension.GetId(User);
 
@@ -130,7 +118,6 @@ namespace CardsServer.API.Controllers
             };
 
             return Ok(result);
-
         }
 
         /// <summary>
@@ -178,18 +165,6 @@ namespace CardsServer.API.Controllers
         //{
         //    return Ok();
         //}
-        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
-        {
-            return protobufField
-                .Select(row => row.Values
-                    .Select(value => new YearStatisticData
-                    {
-                        Date = value.Date.ToDateTime(),
-                        Value = value.Value
-                    })
-                    .ToArray())
-                .ToArray();
-        }
 
         /// <summary>
         /// Получение данный об активности пользователя
@@ -223,5 +198,19 @@ namespace CardsServer.API.Controllers
 
             return Ok(data);
         }
+
+        private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)
+        {
+            return protobufField
+                .Select(row => row.Values
+                    .Select(value => new YearStatisticData
+                    {
+                        Date = value.Date.ToDateTime(),
+                        Value = value.Value
+                    })
+                    .ToArray())
+                .ToArray();
+        }
+
     }
 }
