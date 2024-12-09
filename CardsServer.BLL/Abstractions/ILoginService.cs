@@ -7,7 +7,7 @@ namespace CardsServer.BLL.Abstractions
     public interface ILoginService
     {
         Task<Result> CheckRecoveryCode(string email, int code, CancellationToken cancellationToken);
-        Task<Result<TokenApiModel>> LoginUser(LoginUserExtension user, CancellationToken cancellationToken);
+        Task<Result<TokenApiModel >> LoginUser(LoginUserExtension user, CancellationToken cancellationToken);
         Task<Result<TokenApiModel>> RefreshToken(TokenApiModel refreshToken, CancellationToken cancellationToken);
         Task<Result> RegisterUser(RegisterUser model, CancellationToken cancellationToken);
         Task<Result> SendRecoveryCode(string to, CancellationToken cancellationToken);

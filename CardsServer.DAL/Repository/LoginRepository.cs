@@ -20,14 +20,14 @@ namespace CardsServer.DAL.Repository
                 .Include(u => u.Role)
                 .ThenInclude(x => x.Permissions)
                 .Include(x => x.RefreshTokens)
-                .SingleOrDefaultAsync(x => x.UserName == user.UserName);
+                .SingleOrDefaultAsync(x => x.UserName == user.UserName, cancellationToken: cancellationToken);
             return result;
         }
 
         public async Task RegisterUser(UserEntity model, CancellationToken cancellationToken)
         {
-            await _context.Users.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await _context.Users.AddAsync(model, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

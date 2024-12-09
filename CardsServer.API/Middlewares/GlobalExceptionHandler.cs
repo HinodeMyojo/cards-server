@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Infrastructure.CustomExceptions;
+using Grpc.Core;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -39,6 +40,10 @@ namespace CardsServer.API.Middlewares
                     break;
                 case ArgumentNullException ex:
                     statusCode = StatusCodes.Status404NotFound;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
+                case RpcException ex:
+                    statusCode = StatusCodes.Status400BadRequest;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
                     break;
                 default:
