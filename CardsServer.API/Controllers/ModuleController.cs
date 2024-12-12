@@ -90,9 +90,13 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpDelete("module")]
-        public async Task<IActionResult> DeleteModule(CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteModule(int Id, CancellationToken cancellationToken)
         {
-            return Ok();
+            int userId = AuthExtension.GetId(User);
+
+            Result result = await _service.DeleteModule(userId, Id, cancellationToken);
+
+            return result.ToActionResult();
         }
 
         /// <summary>
@@ -101,11 +105,11 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("module/used-modules")]
-        public async Task<IActionResult> AddModuleToUsed([FromBody]int moduleId, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddModuleToUsed([FromBody]int id, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
 
-            Result result = await _service.AddModuleToUsed(moduleId, userId, cancellationToken);
+            Result result = await _service.AddModuleToUsed(id, userId, cancellationToken);
 
             return result.ToActionResult();
         }

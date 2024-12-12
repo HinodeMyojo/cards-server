@@ -157,6 +157,24 @@ namespace CardsServer.BLL.Services.Module
             return Result.Success();
         }
 
+        public async Task<Result> DeleteModule(int userId, int id, CancellationToken cancellationToken)
+        {
+            Result<GetModule> module = await GetModule(userId, id, cancellationToken);
+            if (!module.IsSuccess)
+            {
+                return Result.Failure("Возникла ошибка при получении модуля");
+            }
+
+            if (module.Value.CreatorId != userId)
+            {
+                return Result.Failure(ErrorAdditional.Forbidden);
+            }
+
+            await _repository.DeleteModule(id, cancellationToken);
+
+            return Result.Success();
+        }
+
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
             try
@@ -285,7 +303,5 @@ namespace CardsServer.BLL.Services.Module
 
             return (true, "");
         }
-
-        
     }
 }
