@@ -53,5 +53,10 @@ namespace CardsServer.DAL.Repository
                 .ToListAsync();
 
         }
+
+        public async Task<IEnumerable<ModuleEntity>> GetModulesShortInfo(int[] moduleIds, CancellationToken cancellationToken)
+        {
+            return await _context.Modules.Include(x => x.Elements).
+        }
     }
 }

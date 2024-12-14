@@ -175,6 +175,11 @@ namespace CardsServer.BLL.Services.Module
             return Result.Success();
         }
 
+        public Task<Result<ICollection<GetModule>>> GetModules(int[] moduleId, int userId, CancellationToken cancellationToken)
+        {
+            IEnumerable<ModuleEntity> resu
+        }
+
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
             try
