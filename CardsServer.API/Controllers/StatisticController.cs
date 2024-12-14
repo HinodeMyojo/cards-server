@@ -1,7 +1,9 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Card;
+using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Result;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
@@ -176,7 +178,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("statistic/last-activity")]
-        public async Task<IActionResult> GetLastActivity()
+        public async Task<IActionResult> GetLastActivity(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
 
@@ -195,8 +197,35 @@ namespace CardsServer.API.Controllers
                 result = new();
                 return Ok(result);
             }
-            
-            var modules = await 
+
+            int[] moduleIds = resultLastActivity.Data.Select(x => x.ModuleId).ToArray();
+
+            Result<IEnumerable<GetModule>> modules = await _moduleService.GetModulesShortInfo(moduleIds, userId, cancellationToken);
+
+            if (!modules.IsSuccess)
+            {
+                return BadRequest("Возникла проблема с получением информации по модулям!");
+            }
+
+            result = new();
+
+            foreach (GetLastActivityModel? item in resultLastActivity.Data)
+            {
+                var matchingModule = modules.Value.FirstOrDefault(m => m.Id == item.ModuleId);
+
+                // Исправить в будущем
+                if (matchingModule == null)
+                {
+                    continue;
+                }
+
+                result.ActivityList.Add(new()
+                {
+                    Id = item.ModuleId,
+                    AnsweredAt = item.CompletedAt.ToDateTime(),
+                    Name = matchingModule.Title
+                });
+            }
 
             return Ok(resultLastActivity);
         }

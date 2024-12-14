@@ -4,7 +4,6 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Xml.Linq;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -175,9 +174,21 @@ namespace CardsServer.BLL.Services.Module
             return Result.Success();
         }
 
-        public Task<Result<ICollection<GetModule>>> GetModules(int[] moduleId, int userId, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModule>>> GetModulesShortInfo(int[] moduleId, int userId, CancellationToken cancellationToken)
         {
-            IEnumerable<ModuleEntity> resu
+            IEnumerable<ModuleEntity> resultFromDB = await _repository.GetModulesShortInfo(moduleId, cancellationToken);
+
+            IEnumerable<GetModule> result = resultFromDB.Select(x => new GetModule()
+            {
+                Id = x.Id,
+                Title = x.Title,
+                CreateAt = x.CreateAt,
+                CreatorId = x.CreatorId,
+                Description = x.Description,
+                UpdateAt = x.UpdateAt
+            });
+
+            return Result<IEnumerable<GetModule>>.Success(result);
         }
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
@@ -307,6 +318,11 @@ namespace CardsServer.BLL.Services.Module
             //}
 
             return (true, "");
+        }
+
+        public Task<Result<ICollection<GetModule>>> GetModules(int[] moduleId, int userId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
