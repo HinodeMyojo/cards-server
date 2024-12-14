@@ -319,10 +319,5 @@ namespace CardsServer.BLL.Services.Module
 
             return (true, "");
         }
-
-        public Task<Result<ICollection<GetModule>>> GetModules(int[] moduleId, int userId, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

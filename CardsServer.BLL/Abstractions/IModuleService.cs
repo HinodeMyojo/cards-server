@@ -5,7 +5,6 @@ namespace CardsServer.BLL.Abstractions
 {
     public interface IModuleService
     {
-        Task<Result<ICollection<GetModule>>> GetModules(int[] moduleId, int userId, CancellationToken cancellationToken);
         Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken);
         Task<Result<int>> CreateModule(int userId, CreateModule module, CancellationToken cancellationToken);
         Task<Result> DeleteModule(int userId, int id, CancellationToken cancellationToken);
