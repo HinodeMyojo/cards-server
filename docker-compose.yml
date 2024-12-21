@@ -7,7 +7,7 @@ networks:
 
 services:
   cardsserver.api:
-    image: ${DOCKER_REGISTRY-}cardsserverapi
+#    image: ${DOCKER_REGISTRY-}cardsserverapi
     networks:
       - cards-network
     container_name: main
