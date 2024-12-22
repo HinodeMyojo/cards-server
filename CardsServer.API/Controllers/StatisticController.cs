@@ -1,6 +1,9 @@
-﻿using CardsServer.BLL.Dto.Card;
+﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Card;
+using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Dto.Statistic;
 using CardsServer.BLL.Infrastructure.Auth;
+using CardsServer.BLL.Infrastructure.Result;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
@@ -17,10 +20,14 @@ namespace CardsServer.API.Controllers
     public class StatisticController : ControllerBase
     {
         private readonly BLL.Services.gRPC.StatisticService _service;
+        private readonly IModuleService _moduleService;
 
-        public StatisticController(BLL.Services.gRPC.StatisticService service)
+        public StatisticController(
+            BLL.Services.gRPC.StatisticService service,
+            IModuleService moduleService)
         {
             _service = service;
+            _moduleService = moduleService;
         }
 
         /// <summary>
@@ -171,32 +178,56 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("statistic/last-activity")]
-        public async Task<IActionResult> GetLastActivity()
+        public async Task<IActionResult> GetLastActivity(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
-            // Пока мокаем
-            LastActivityDTO data = new()
+
+            GetLastActivityRequest request = new()
             {
-                ActivityList = [
-                    new LastActivityModel()
-                    {
-                        Id = 15,
-                        Name = "Билибоба"
-                    },
-                    new LastActivityModel()
-                    {
-                        Id = 16,
-                        Name = "Боба"
-                    },
-                    new LastActivityModel()
-                    {
-                        Id = 17,
-                        Name = "билиб"
-                    }
-                    ]
+                UserId = userId
             };
 
-            return Ok(data);
+            GetLastActivityResponse resultLastActivity = await _service
+                .GetLastActivityAsync(request);
+
+            LastActivityDTO result;
+
+            if (resultLastActivity.Data.Count == 0)
+            {
+                result = new();
+                return Ok(result);
+            }
+
+            int[] moduleIds = resultLastActivity.Data.Select(x => x.ModuleId).ToArray();
+
+            Result<IEnumerable<GetModule>> modules = await _moduleService.GetModulesShortInfo(moduleIds, userId, cancellationToken);
+
+            if (!modules.IsSuccess)
+            {
+                return BadRequest("Возникла проблема с получением информации по модулям!");
+            }
+
+            result = new();
+
+            foreach (GetLastActivityModel? item in resultLastActivity.Data)
+            {
+                var matchingModule = modules.Value.FirstOrDefault(m => m.Id == item.ModuleId);
+
+                // Исправить в будущем
+                if (matchingModule == null)
+                {
+                    continue;
+                }
+
+                result.ActivityList.Add(new()
+                {
+                    Id = item.ModuleId,
+                    AnsweredAt = item.CompletedAt.ToDateTime(),
+                    Name = matchingModule.Title
+                });
+            }
+
+            return Ok(resultLastActivity);
         }
 
         private static YearStatisticData[][] ConvertRepeatedField(RepeatedField<YearStatisticRow> protobufField)

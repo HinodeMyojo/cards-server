@@ -41,5 +41,10 @@ namespace CardsServer.BLL.Services.gRPC
         {
             return _grpcChannel.PingAsync(request, options);
         }
+
+        public override AsyncUnaryCall<GetLastActivityResponse> GetLastActivityAsync(GetLastActivityRequest request, CallOptions options)
+        {
+            return _grpcChannel.GetLastActivityAsync(request, options);
+        }
     }
 }
