@@ -116,22 +116,44 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
-        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, string? textSearch, CancellationToken cancellationToken)
         {
             try
             {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                ICollection<ModuleEntity> listOfOriginModules;
+
+                if (textSearch == null)
+                {
+                    listOfOriginModules = await _repository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId),
-                    cancellationToken
-                );
+                    cancellationToken);
+                }
+                else
+                {
+                    listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.UsedUsers.Any(x => x.Id == userId) && x.Title.StartsWith(textSearch),
+                    cancellationToken);
+                }
 
                 ICollection<GetModule> result = [];
                 if (listOfOriginModules.Count != 0)
                 {
                     await ElementsHandler(listOfOriginModules, result, cancellationToken, userId);
                 }
-                List<GetModule> orderedResult = [.. result.OrderBy(x => x.AddedAt)];
+
+                List<GetModule> orderedResult;
+
+                if (textSearch == null)
+                {
+                    orderedResult = [.. result.OrderBy(x => x.AddedAt)];
+                }
+                else
+                {
+                    orderedResult = [.. result.OrderBy(x => x.Title.StartsWith(textSearch))];
+                }
+
 
                 return Result<IEnumerable<GetModule>>.Success(orderedResult);
             }

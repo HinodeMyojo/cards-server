@@ -120,11 +120,11 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("module/used-modules")]
-        public async Task<IActionResult> GetUsedModules(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUsedModules(string? textSearch, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
+            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, textSearch, cancellationToken);
 
             return result.ToActionResult();
         }
@@ -140,7 +140,7 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, cancellationToken);
+            Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, null ,cancellationToken);
 
             ICollection<object> shortResult = [];
 
