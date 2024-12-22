@@ -126,7 +126,7 @@ namespace CardsServer.BLL.Services.Module
                     cancellationToken);
 
                 ICollection<GetModule> result = [];
-                if (listOfOriginModules.Any())
+                if (listOfOriginModules.Count != 0)
                 {
                     await ElementsHandler(listOfOriginModules, result, cancellationToken);
                 }
@@ -271,7 +271,7 @@ namespace CardsServer.BLL.Services.Module
 
                 };
 
-                if (module.Elements.Any())
+                if (module.Elements.Count != 0)
                 {
                     foreach (ElementEntity item in module.Elements)
                     {
