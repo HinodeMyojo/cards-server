@@ -4,7 +4,6 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Xml.Linq;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -104,7 +103,7 @@ namespace CardsServer.BLL.Services.Module
                 ICollection<GetModule> result = [];
                 if (listOfOriginModules.Any())
                 {
-                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken, userId);
                 }
 
                 result.OrderBy(x => x.CreateAt);
@@ -117,23 +116,46 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
-        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, string? textSearch, CancellationToken cancellationToken)
         {
             try
             {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                ICollection<ModuleEntity> listOfOriginModules;
+
+                if (textSearch == null)
+                {
+                    listOfOriginModules = await _repository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId),
                     cancellationToken);
+                }
+                else
+                {
+                    listOfOriginModules = await _repository.GetModules(
+                    userId,
+                    x => x.UsedUsers.Any(x => x.Id == userId) && x.Title.StartsWith(textSearch),
+                    cancellationToken);
+                }
 
                 ICollection<GetModule> result = [];
-                if (listOfOriginModules.Any())
+                if (listOfOriginModules.Count != 0)
                 {
-                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken, userId);
                 }
-                //result.OrderBy(x => x.)
 
-                return Result<IEnumerable<GetModule>>.Success(result);
+                List<GetModule> orderedResult;
+
+                if (textSearch == null)
+                {
+                    orderedResult = [.. result.OrderBy(x => x.AddedAt)];
+                }
+                else
+                {
+                    orderedResult = [.. result.OrderBy(x => x.Title.StartsWith(textSearch))];
+                }
+
+
+                return Result<IEnumerable<GetModule>>.Success(orderedResult);
             }
             catch (Exception ex)
             {
@@ -155,6 +177,41 @@ namespace CardsServer.BLL.Services.Module
             await _repository.AddModuleToUsed(user, cancellationToken);
 
             return Result.Success();
+        }
+
+        public async Task<Result> DeleteModule(int userId, int id, CancellationToken cancellationToken)
+        {
+            Result<GetModule> module = await GetModule(userId, id, cancellationToken);
+            if (!module.IsSuccess)
+            {
+                return Result.Failure("Возникла ошибка при получении модуля");
+            }
+
+            if (module.Value.CreatorId != userId)
+            {
+                return Result.Failure(ErrorAdditional.Forbidden);
+            }
+
+            await _repository.DeleteModule(id, cancellationToken);
+
+            return Result.Success();
+        }
+
+        public async Task<Result<IEnumerable<GetModule>>> GetModulesShortInfo(int[] moduleId, int userId, CancellationToken cancellationToken)
+        {
+            IEnumerable<ModuleEntity> resultFromDB = await _repository.GetModulesShortInfo(moduleId, cancellationToken);
+
+            IEnumerable<GetModule> result = resultFromDB.Select(x => new GetModule()
+            {
+                Id = x.Id,
+                Title = x.Title,
+                CreateAt = x.CreateAt,
+                CreatorId = x.CreatorId,
+                Description = x.Description,
+                UpdateAt = x.UpdateAt
+            });
+
+            return Result<IEnumerable<GetModule>>.Success(result);
         }
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
@@ -219,7 +276,8 @@ namespace CardsServer.BLL.Services.Module
         private async Task ElementsHandler(
             ICollection<ModuleEntity> listOfOriginModules,
             ICollection<GetModule> resultList,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            int userId)
         {
             var resultLock = new object();
 
@@ -234,10 +292,14 @@ namespace CardsServer.BLL.Services.Module
                     Description = module.Description,
                     IsDraft = module.IsDraft,
                     UpdateAt = module.UpdateAt,
+                    AddedAt = module.UserModules
+                        .Where( x => x.UserId == userId)
+                        .Select( x => x.AddedAt)
+                        .FirstOrDefault()
 
                 };
 
-                if (module.Elements.Any())
+                if (module.Elements.Count != 0)
                 {
                     foreach (ElementEntity item in module.Elements)
                     {
@@ -285,7 +347,5 @@ namespace CardsServer.BLL.Services.Module
 
             return (true, "");
         }
-
-        
     }
 }

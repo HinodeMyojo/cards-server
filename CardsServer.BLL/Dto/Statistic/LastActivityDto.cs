@@ -6,7 +6,8 @@
     }
     public class LastActivityModel
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
+        public DateTime AnsweredAt {  get; set; }
         public int Id { get; set; }
     }
 }

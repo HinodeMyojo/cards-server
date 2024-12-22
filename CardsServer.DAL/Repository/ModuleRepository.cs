@@ -28,6 +28,13 @@ namespace CardsServer.DAL.Repository
             return entity.Id;
         }
 
+        public async Task DeleteModule(int id, CancellationToken cancellationToken)
+        {
+            ModuleEntity? module = await GetModule(id, cancellationToken);
+            _context.Modules.Remove(module);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<ModuleEntity?> GetModule(int id, CancellationToken cancellationToken)
         {
             return await _context.Modules.Include(x => x.Creator).Include(x => x.Elements).ThenInclude(x => x.Image).FirstOrDefaultAsync(x => x.Id == id);
@@ -40,11 +47,17 @@ namespace CardsServer.DAL.Repository
             CancellationToken cancellationToken)
         {
             return await _context.Modules
+                .Include( x => x.UserModules)
                 .Include(x => x.Elements)
                 .ThenInclude(x => x.Image)
                 .Where(expression)
                 .ToListAsync();
 
+        }
+
+        public async Task<IEnumerable<ModuleEntity>> GetModulesShortInfo(int[] moduleIds, CancellationToken cancellationToken)
+        {
+            return await _context.Modules.Where(x => moduleIds.Contains(x.Id)).ToListAsync(cancellationToken: cancellationToken);
         }
     }
 }
