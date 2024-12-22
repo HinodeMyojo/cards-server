@@ -7,7 +7,6 @@
         public string? Description { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
-        public DateTime AddedAt {  get; set; }
         public bool Private {  get; set; }
         public bool IsDraft { get; set; }
         // Id и сущность создателя модуля
