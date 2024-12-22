@@ -103,7 +103,7 @@ namespace CardsServer.BLL.Services.Module
                 ICollection<GetModule> result = [];
                 if (listOfOriginModules.Any())
                 {
-                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken, userId);
                 }
 
                 result.OrderBy(x => x.CreateAt);
@@ -123,16 +123,17 @@ namespace CardsServer.BLL.Services.Module
                 ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId),
-                    cancellationToken);
+                    cancellationToken
+                );
 
                 ICollection<GetModule> result = [];
                 if (listOfOriginModules.Count != 0)
                 {
-                    await ElementsHandler(listOfOriginModules, result, cancellationToken);
+                    await ElementsHandler(listOfOriginModules, result, cancellationToken, userId);
                 }
-                //result.OrderBy(x => x.)
+                List<GetModule> orderedResult = [.. result.OrderBy(x => x.AddedAt)];
 
-                return Result<IEnumerable<GetModule>>.Success(result);
+                return Result<IEnumerable<GetModule>>.Success(orderedResult);
             }
             catch (Exception ex)
             {
@@ -253,7 +254,8 @@ namespace CardsServer.BLL.Services.Module
         private async Task ElementsHandler(
             ICollection<ModuleEntity> listOfOriginModules,
             ICollection<GetModule> resultList,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            int userId)
         {
             var resultLock = new object();
 
@@ -268,6 +270,10 @@ namespace CardsServer.BLL.Services.Module
                     Description = module.Description,
                     IsDraft = module.IsDraft,
                     UpdateAt = module.UpdateAt,
+                    AddedAt = module.UserModules
+                        .Where( x => x.UserId == userId)
+                        .Select( x => x.AddedAt)
+                        .FirstOrDefault()
 
                 };
 

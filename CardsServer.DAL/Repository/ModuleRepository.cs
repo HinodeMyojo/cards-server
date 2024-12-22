@@ -47,6 +47,7 @@ namespace CardsServer.DAL.Repository
             CancellationToken cancellationToken)
         {
             return await _context.Modules
+                .Include( x => x.UserModules)
                 .Include(x => x.Elements)
                 .ThenInclude(x => x.Image)
                 .Where(expression)
