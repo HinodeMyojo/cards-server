@@ -9,7 +9,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ../../AnalyticService/StatisticService.API/Protos /src/Protos
+COPY ../AnalyticService/StatisticService.API/Protos /src/Protos
 COPY ["CardsServer.API/CardsServer.API.csproj", "CardsServer.API/"]
 COPY ["CardsServer.BLL/CardsServer.BLL.csproj", "CardsServer.BLL/"]
 COPY ["CardsServer.DAL/CardsServer.DAL.csproj", "CardsServer.DAL/"]
