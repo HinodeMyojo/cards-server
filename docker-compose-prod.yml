@@ -1,0 +1,84 @@
+version: '3.6'
+
+networks:
+  cards-network:
+    name: cards-network
+    driver: bridge
+
+services:
+  cardsserver.api:
+    networks:
+      - cards-network
+    container_name: main
+    restart: always
+    mem_limit: 500m
+    mem_reservation: 30m
+    build:
+      context: .
+      dockerfile: CardsServer.API/Dockerfile
+    ports:
+        - "8080:8080"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - cards-network
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    # ”величиваем место на диске до 2гб
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq/mnesia
+    ports:
+      - 15672:15672
+       # публиковать порт нужно не всегда. Если консьюмеры и паблишеры находятся внутри docker-compose или подключены к его сети, в этом нет необходимости. 
+      - 5672:5672
+
+  redis:
+    image: redis:latest
+    networks:
+      - cards-network
+    container_name: redis
+    ports:
+      - "6390:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_PORT=6379
+  # postgres:
+  #   image: postgres:latest
+  #   container_name: postgres_container
+  #   hostname: postgres_container
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: admin
+  #     POSTGRES_DB: cards_tb
+  #     PGDATA: /var/lib/postgresql/data/pgdata
+  #   ports:
+  #     - "5430:5432"
+  #   volumes:
+  #     - ./pgdata:/var/lib/postgresql/data/pgdata
+  #   networks:
+  #     - cards-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.50'
+  #         memory: 512M
+  #       reservations:
+  #         cpus: '0.25'
+  #         memory: 256M
+  #   command: >
+  #     postgres -c max_connections=1000
+  #              -c shared_buffers=256MB
+  #              -c effective_cache_size=768MB
+  #              -c maintenance_work_mem=64MB
+  #              -c checkpoint_completion_target=0.7
+  #              -c wal_buffers=16MB
+  #              -c default_statistics_target=100
+      
