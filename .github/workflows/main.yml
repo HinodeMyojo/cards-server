@@ -43,5 +43,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/pleiades-server/cards-server
+            cp -r /var/www/statistic-service/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-serv
+er/CardsServer.BLL/
             docker-compose -f docker-compose-prod.yml up -d --build
 
