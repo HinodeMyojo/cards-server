@@ -10,7 +10,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["CardsServer.API/CardsServer.API.csproj", "CardsServer.API/"]
-RUN dotnet restore "./CardsServer.API/CardsServer.API.csproj"
+COPY ["CardsServer.BLL/CardsServer.BLL.csproj", "CardsServer.BLL/"]
+COPY ["CardsServer.DAL/CardsServer.DAL.csproj", "CardsServer.DAL/"]
+RUN dotnet restore "./CardsServer.API/./CardsServer.API.csproj"
 COPY . .
 WORKDIR "/src/CardsServer.API"
 RUN dotnet build "./CardsServer.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
