@@ -11,7 +11,7 @@ namespace CardsServer.API.Controllers
 {
     [ApiController]
     [Authorize]
-    public class UserController : ControllerBase
+    public sealed class UserController : ControllerBase
     {
         private readonly IUserService _userService;
 

@@ -3,7 +3,7 @@ using CardsServer.BLL.Infrastructure.Result;
 
 namespace CardsServer.BLL.Services.Learning
 {
-    public class LearningService : ILearningService
+    public sealed class LearningService : ILearningService
     {
         private readonly ILearningRepository _repository;
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
 {
-    public class PolicyRepository : IPolicyRepository
+    public sealed class PolicyRepository : IPolicyRepository
     {
         private readonly ApplicationContext _context;
 

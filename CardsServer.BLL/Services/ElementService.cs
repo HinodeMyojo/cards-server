@@ -5,7 +5,7 @@ using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
 namespace CardsServer.BLL.Services
 {
-    public class ElementService : IElementService
+    public sealed class ElementService : IElementService
     {
         private readonly IElementRepostory _elementRepository;
         private readonly IImageRepository _imageRepository;

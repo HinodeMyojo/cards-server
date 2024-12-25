@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace CardsServer.DAL.Repository
 {
-    public class ModuleRepository : IModuleRepository
+    public sealed class ModuleRepository : IModuleRepository
     {
         private readonly ApplicationContext _context;
 

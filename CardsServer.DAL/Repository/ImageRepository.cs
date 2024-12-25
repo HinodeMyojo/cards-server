@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
 {
-    public class ImageRepository : IImageRepository
+    public sealed class ImageRepository : IImageRepository
     {
         private ApplicationContext _context;
 

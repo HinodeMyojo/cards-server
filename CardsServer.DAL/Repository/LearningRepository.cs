@@ -2,7 +2,7 @@
 
 namespace CardsServer.DAL.Repository
 {
-    public class LearningRepository : ILearningRepository
+    public sealed class LearningRepository : ILearningRepository
     {
         private ApplicationContext _context;
 

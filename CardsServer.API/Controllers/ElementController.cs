@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
 {
-    public class ElementController : ControllerBase
+    public sealed class ElementController : ControllerBase
     {
         private readonly IElementService _service;
 

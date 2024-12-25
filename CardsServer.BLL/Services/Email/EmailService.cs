@@ -2,7 +2,7 @@
 
 namespace CardsServer.BLL.Services.Email
 {
-    public class EmailService : IEmailService
+    public sealed class EmailService : IEmailService
     {
         private readonly HttpClient _httpClient;
 

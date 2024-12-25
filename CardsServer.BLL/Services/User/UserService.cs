@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 
 namespace CardsServer.BLL.Services.User
 {
-    public class UserService : IUserService
+    public sealed class UserService : IUserService
     {
         private readonly IUserRepository _repository;
 

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CardsServer.BLL.Services
 {
-    public class ImageService : IImageService
+    public sealed class ImageService : IImageService
     {
         private IImageRepository _repository;
 

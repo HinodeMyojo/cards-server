@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace CardsServer.DAL.Repository
 {
-    public class ElementRepository : IElementRepostory
+    public sealed class ElementRepository : IElementRepostory
     {
         private readonly ApplicationContext _context;
 

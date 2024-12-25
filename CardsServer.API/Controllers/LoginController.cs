@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CardsServer.API.Controllers
 {
     [ApiController]
-    public class LoginController : ControllerBase
+    public sealed class LoginController : ControllerBase
     {
         private readonly ILoginService _service;
         private readonly IRabbitMQPublisher _publisher;

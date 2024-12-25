@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
 {
-    public class UserRepository : IUserRepository
+    public sealed class UserRepository : IUserRepository
     {
         private readonly ApplicationContext _context;
 

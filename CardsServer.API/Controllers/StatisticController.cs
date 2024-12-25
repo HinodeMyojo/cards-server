@@ -17,7 +17,7 @@ namespace CardsServer.API.Controllers
 {
     [ApiController]
     [Authorize]
-    public class StatisticController : ControllerBase
+    public sealed class StatisticController : ControllerBase
     {
         private readonly BLL.Services.gRPC.StatisticService _service;
         private readonly IModuleService _moduleService;

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardsServer.DAL.Repository
 {
-    public class LoginRepository : ILoginRepository
+    public sealed class LoginRepository : ILoginRepository
     {
         private readonly ApplicationContext _context;
 

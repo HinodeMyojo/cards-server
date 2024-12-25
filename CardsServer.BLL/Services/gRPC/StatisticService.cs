@@ -6,7 +6,7 @@ namespace CardsServer.BLL.Services.gRPC
     /// <summary>
     /// Сервис для связи с gRPC микросервисом
     /// </summary>
-    public class StatisticService : Statistic.StatisticClient
+    public sealed class StatisticService : Statistic.StatisticClient
     {
         private readonly Statistic.StatisticClient _grpcChannel;
 

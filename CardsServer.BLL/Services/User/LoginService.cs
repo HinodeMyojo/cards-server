@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace CardsServer.BLL.Services.User
 {
-    public class LoginService : ILoginService
+    public sealed class LoginService : ILoginService
     {
         private readonly IUserRepository _userRepository; 
         private readonly ILoginRepository _loginRepository;

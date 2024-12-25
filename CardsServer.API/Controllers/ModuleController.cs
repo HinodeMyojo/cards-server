@@ -14,7 +14,7 @@ namespace CardsServer.API.Controllers
     /// </summary>
     [ApiController]
     [Authorize]
-    public class ModuleController : ControllerBase
+    public sealed class ModuleController : ControllerBase
     {
         private readonly IModuleService _service;
 

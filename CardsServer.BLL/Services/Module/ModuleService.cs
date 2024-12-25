@@ -7,7 +7,7 @@ using CardsServer.DAL.Repository;
 
 namespace CardsServer.BLL.Services.Module
 {
-    public class ModuleService : IModuleService
+    public sealed class ModuleService : IModuleService
     {
         private readonly IElementRepostory _elementRepostory;
         private readonly IModuleRepository _repository;

@@ -9,7 +9,7 @@ namespace CardsServer.API.Controllers
 {
     [Authorize]
     [ApiController]
-    public class LearningController : ControllerBase
+    public sealed class LearningController : ControllerBase
     {
         private readonly ILearningService _service;
 
