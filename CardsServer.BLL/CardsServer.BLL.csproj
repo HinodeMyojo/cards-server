@@ -35,13 +35,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="..\..\AnalyticService\StatisticService.API\Protos\statistic.proto" GrpcServices="Client">
-			<Link>Protos\statistic.proto</Link>
-		</Protobuf>
-		<None Include="..\..\AnalyticService\StatisticService.API\Protos\statistic.proto">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+		<Protobuf Include="Protos\statistic.proto" GrpcServices="Client" />
 	</ItemGroup>
-
 
 </Project>
