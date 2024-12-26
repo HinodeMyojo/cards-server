@@ -32,7 +32,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             echo "Проверяем, существует ли директория..."
-            if [ -d "/var/www/pleiades-server/cards-server" ]; then
+            if [ -d "/var/www/pleiades-server" ]; then
               echo "Удаляем репозиторий..."
               sudo rm -rf /var/www/pleiades-server/.*
             fi
