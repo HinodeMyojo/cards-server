@@ -17,7 +17,8 @@ services:
       context: .
       dockerfile: CardsServer.API/Dockerfile
     ports:
-        - "8080:8080"
+        - "1312:8080"
+        - "1313:8081"
 
   rabbitmq:
     image: rabbitmq:3-management
