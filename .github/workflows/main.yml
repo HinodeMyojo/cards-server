@@ -24,17 +24,35 @@ jobs:
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
             ssh-add /home/runner/.ssh/github_actions
 
-      - name: Клонирование репозитория на удаленный сервак
+      - name: Клонирование репозитория на удаленный сервер
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            rm -rf /var/www/pleiades-server/*
-            cd /var/www/pleiades-server
-            git clone https://github.com/HinodeMyojo/cards-server.git
-            
+            if [ -d "/var/www/pleiades-server/cards-server" ]; then
+              echo "Удалеяем репзиторий..."
+              rm -rf /var/www/pleiades-server/cards-server
+            fi
+            echo "Клонируем новый..."
+            git clone https://github.com/HinodeMyojo/cards-server.git /var/www/pleiades-server/cards-server
+
+      - name: Копирование Protos в cards-server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            if [ -d "/var/www/statistic-service/AnalyticService/StatisticService.API/Protos" ]; then
+              echo "Копируем протобуф..."
+              cp -r /var/www/statistic-service/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-server/CardsServer.BLL/
+            else
+              echo "Протобуфа нема, ошибка."
+              exit 1
+            fi
+
       - name: Деплой сервера
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -43,7 +61,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/pleiades-server/cards-server
-            # cp -r /var/www/statistic-service/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-server/CardsServer.BLL/
-            sed -i 's|<Protobuf Include="..\..\AnalyticService\StatisticService.API\Protos\statistic.proto" GrpcServices="Client">|<Protobuf Include="/var/www/statistic-service/AnalyticService/StatisticService.API/Protos/statistic.proto" GrpcServices="Client">|' CardsServer.BLL.csproj
+            echo "Останавливаем старые контейнера и удаляем старые..."
+            docker-compose -f docker-compose-prod.yml down
+            docker system prune -f
+            echo "Билдим и стартуем новые..."
             docker-compose -f docker-compose-prod.yml up -d --build
+
 
