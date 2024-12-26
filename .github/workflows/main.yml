@@ -34,7 +34,7 @@ jobs:
             echo "Проверяем, существует ли директория..."
             if [ -d "/var/www/pleiades-server/cards-server" ]; then
               echo "Удаляем репозиторий..."
-              sudo rm -rf /var/www/pleiades-server/     
+              sudo rm -rf /var/www/pleiades-server/.*
             fi
             echo "Клонируем новый..."
             git clone https://github.com/HinodeMyojo/cards-server.git /var/www/pleiades-server/
@@ -62,7 +62,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/pleiades-server/cards-server
+            cd /var/www/pleiades-server/
             echo "Останавливаем старые контейнера и удаляем старые..."
             docker-compose -f docker-compose-prod.yml down
             docker system prune -f
