@@ -34,6 +34,7 @@ jobs:
             echo "Проверяем, существует ли директория..."
             if [ -d "/var/www/pleiades-server" ]; then
               echo "Удаляем репозиторий..."
+              sudo rm -rf /var/www/pleiades-server/*
               sudo rm -rf /var/www/pleiades-server/.*
             fi
             echo "Клонируем новый..."
