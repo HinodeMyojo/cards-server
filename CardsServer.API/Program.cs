@@ -14,7 +14,7 @@ var configuration = builder.Configuration;
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers(options =>
 {
-    // Добавляем возможность использования Patch запросов
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Patch пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     options.InputFormatters.Insert(0, MyJPIF.GetJsonPatchInputFormatter());
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -85,7 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowAllOrigins");
 
@@ -94,7 +94,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Миграция при старте приложения
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 //using (var scope = app.Services.CreateScope())
 //{
 //    var dbContext =
