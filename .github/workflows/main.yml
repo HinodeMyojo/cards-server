@@ -45,9 +45,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            if [ -d "/var/www/statistic-service/AnalyticService/StatisticService.API/Protos" ]; then
+            if [ -d "/var/www/pleiades-server/AnalyticService/StatisticService.API/Protos" ]; then
               echo "Копируем протобуф..."
-              cp -r /var/www/statistic-service/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-server/CardsServer.BLL/
+              cp -r /var/www/pleiades-server/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-server/CardsServer.BLL/
             else
               echo "Протобуфа нема, ошибка."
               exit 1
