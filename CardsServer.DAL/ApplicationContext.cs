@@ -29,8 +29,14 @@ namespace CardsServer.DAL
             {
                 throw new Exception("Строка подключения не найдена!");                
             }
-            Console.WriteLine(connectionString);
-            optionsBuilder.UseNpgsql(connectionString);
+            try
+            {
+                optionsBuilder.UseNpgsql(connectionString);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{connectionString}||||||||{ex}");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
