@@ -29,6 +29,7 @@ namespace CardsServer.DAL
             {
                 throw new Exception("Строка подключения не найдена!");                
             }
+            Console.WriteLine(connectionString);
             optionsBuilder.UseNpgsql(connectionString);
         }
 
