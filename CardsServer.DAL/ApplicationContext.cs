@@ -35,7 +35,7 @@ namespace CardsServer.DAL
             }
             catch (Exception ex)
             {
-                throw new Exception($"{connectionString}||||||||{ex}");
+                throw new Exception($"Ошибка при подключении: {connectionString} || {ex}");
             }
         }
 
