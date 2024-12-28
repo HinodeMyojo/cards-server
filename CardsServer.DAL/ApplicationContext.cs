@@ -24,7 +24,12 @@ namespace CardsServer.DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            if (connectionString == null)
+            {
+                throw new Exception("Строка подключения не найдена!");                
+            }
+            optionsBuilder.UseNpgsql(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
