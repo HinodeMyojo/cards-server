@@ -7,11 +7,8 @@ networks:
 
 services:
   cardsserver.api:
-    # environment:
-    # - ASPNETCORE_ENVIRONMENT=Development
-    # - ASPNETCORE_HTTP_PORTS=8080
-    # - ASPNETCORE_HTTPS_PORTS=8081
-    # - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/letsencrypt/live/hinodemyojo.space/fullchain.pem
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
     networks:
       - cards-network
     container_name: main
@@ -23,7 +20,6 @@ services:
       dockerfile: CardsServer.API/Dockerfile
     ports:
         - "1312:8080"
-        # - "1313:8081"
 
   rabbitmq:
     image: rabbitmq:3-management
