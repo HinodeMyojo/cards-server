@@ -11,7 +11,7 @@ services:
       CONNECTION_STRING: "Host=172.17.0.1;Port=5432;User Id=postgres;Password=admin;Database=cards_tb;"
     networks:
       - cards-network
-    container_name: dev
+    container_name: main
     restart: always
     mem_limit: 500m
     mem_reservation: 30m
@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: CardsServer.API/Dockerfile
     ports:
-        - "34567:8080"
+        - "1312:8080"
 
   rabbitmq:
     image: rabbitmq:3-management
