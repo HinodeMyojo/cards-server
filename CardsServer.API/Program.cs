@@ -106,7 +106,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch
     {
-        throw new Exception($"Не удалось обновить базу данных. {connectionString}");
+        throw new Exception($"Не удалось обновить базу данных. {connectionString}.");
     }
     
 }
