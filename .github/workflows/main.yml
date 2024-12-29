@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Проверяем, существует ли директория..."
+            echo "Определяем директорию для ветки..."
             if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
               echo "Работаем с веткой dev..."
               TARGET_DIR="/var/www/pleiades-server-dev"
@@ -46,13 +46,12 @@ jobs:
             if [ -d "$TARGET_DIR" ]; then
               echo "Удаляем содержимое директории $TARGET_DIR..."
               sudo rm -rf $TARGET_DIR/*
-              sudo rm -rf $TARGET_DIR/.*
+              sudo rm -rf $TARGET_DIR/.* || true
             fi
 
             echo "Клонируем репозиторий в $TARGET_DIR..."
             git clone https://github.com/HinodeMyojo/cards-server.git $TARGET_DIR
-
-
+            
       - name: Деплой сервера
         uses: appleboy/ssh-action@v0.1.6
         env:
@@ -62,19 +61,19 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/pleiades-server/
-            
-            # Проверяем ветку
-          if [[ "refs/heads/main" == "refs/heads/dev" ]]; then
-            echo "Работаем с веткой dev..."
-            docker-compose -f docker-compose-dev.yml down
-            docker system prune -f
-            echo "Билдим и стартуем новые контейнеры для dev..."
-            docker-compose -f docker-compose-dev.yml up -d --build
-          else
-            echo "Работаем с веткой main..."
-            docker-compose -f docker-compose-prod.yml down
-            docker system prune -f
-            echo "Билдим и стартуем новые контейнеры для main..."
-            docker-compose -f docker-compose-prod.yml up -d --build
-          fi
+            echo "Переходим в директорию..."
+            if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+              echo "Работаем с веткой dev..."
+              cd /var/www/pleiades-server-dev
+              docker-compose -f docker-compose-dev.yml down
+              docker system prune -f
+              echo "Билдим и стартуем новые контейнеры для dev..."
+              docker-compose -f docker-compose-dev.yml up -d --build
+            else
+              echo "Работаем с веткой main..."
+              cd /var/www/pleiades-server
+              docker-compose -f docker-compose-prod.yml down
+              docker system prune -f
+              echo "Билдим и стартуем новые контейнеры для main..."
+              docker-compose -f docker-compose-prod.yml up -d --build
+            fi
