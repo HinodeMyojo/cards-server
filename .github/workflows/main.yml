@@ -70,6 +70,6 @@ jobs:
             docker-compose -f docker-compose-prod.yml down
             docker system prune -f
             echo "Билдим и стартуем новые..."
-            docker-compose -f docker-compose-prod.yml up -d --build
+            CONNECTION_STRING=${{ secrets.CONNECTION_STRING }} docker-compose -f docker-compose-prod.yml up -d --build
 
 
