@@ -96,10 +96,19 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext =
+    string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+    try
+    {
+        var dbContext =
         scope.ServiceProvider
             .GetRequiredService<ApplicationContext>();
-    dbContext.Database.Migrate();
+        dbContext.Database.Migrate();
+    }
+    catch
+    {
+        throw new Exception($"Не удалось обновить базу данных. {connectionString}");
+    }
+    
 }
 
 app.Run();  
