@@ -1,0 +1,22 @@
+version: '3.6'
+
+networks:
+  cards-network:
+    name: cards-network-dev
+    driver: bridge
+
+services:
+  cardsserver.api:
+    environment:
+      CONNECTION_STRING: "Host=localhost;Port=5432;User Id=postgres;Password=admin;Database=cards_tb;"
+    networks:
+      - cards-network
+    container_name: main
+    restart: always
+    mem_limit: 500m
+    mem_reservation: 30m
+    build:
+      context: .
+      dockerfile: CardsServer.API/Dockerfile
+    ports:
+        - "4356:8080"

@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -32,29 +34,24 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             echo "Проверяем, существует ли директория..."
-            if [ -d "/var/www/pleiades-server" ]; then
-              echo "Удаляем репозиторий..."
-              sudo rm -rf /var/www/pleiades-server/*
-              sudo rm -rf /var/www/pleiades-server/.*
+            if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+              echo "Работаем с веткой dev..."
+              TARGET_DIR="/var/www/pleiades-server-dev"
+            else
+              echo "Работаем с веткой main..."
+              TARGET_DIR="/var/www/pleiades-server"
             fi
-            echo "Клонируем новый..."
-            git clone https://github.com/HinodeMyojo/cards-server.git /var/www/pleiades-server/
 
+            echo "Проверяем, существует ли директория $TARGET_DIR..."
+            if [ -d "$TARGET_DIR" ]; then
+              echo "Удаляем содержимое директории $TARGET_DIR..."
+              sudo rm -rf $TARGET_DIR/*
+              sudo rm -rf $TARGET_DIR/.*
+            fi
 
-      # - name: Копирование Protos в cards-server
-      #   uses: appleboy/ssh-action@v0.1.6
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: |
-      #       if [ -d "/var/www/pleiades-server/AnalyticService/StatisticService.API/Protos" ]; then
-      #         echo "Копируем протобуф..."
-      #         cp -r /var/www/pleiades-server/AnalyticService/StatisticService.API/Protos /var/www/pleiades-server/cards-server/CardsServer.BLL/
-      #       else
-      #         echo "Протобуфа нема, ошибка."
-      #         exit 1
-      #       fi
+            echo "Клонируем репозиторий в $TARGET_DIR..."
+            git clone https://github.com/HinodeMyojo/cards-server.git $TARGET_DIR
+
 
       - name: Деплой сервера
         uses: appleboy/ssh-action@v0.1.6
@@ -66,10 +63,17 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/pleiades-server/
-            echo "Останавливаем старые контейнера и удаляем старые..."
-            docker-compose -f docker-compose-prod.yml down
-            docker system prune -f
-            echo "Билдим и стартуем новые..."
-            CONNECTION_STRING=${{ secrets.CONNECTION_STRING }} docker-compose -f docker-compose-prod.yml up -d --build
-
-
+            
+            # Проверяем ветку
+            if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+              echo "Работаем с веткой dev..."
+              docker-compose -f docker-compose-dev.yml down
+              docker system prune -f
+              echo "Билдим и стартуем новые контейнеры для dev..."
+              CONNECTION_STRING=${{ secrets.DEV_CONNECTION_STRING }} docker-compose -f docker-compose-dev.yml up -d --build
+            else
+              echo "Работаем с веткой main..."
+              docker-compose -f docker-compose-prod.yml down
+              docker system prune -f
+              echo "Билдим и стартуем новые контейнеры для main..."
+              CONNECTION_STRING=${{ secrets.CONNECTION_STRING }} docker-compose -f docker-compose-prod.yml up -d --build

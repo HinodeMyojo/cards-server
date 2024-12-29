@@ -104,9 +104,9 @@ using (var scope = app.Services.CreateScope())
             .GetRequiredService<ApplicationContext>();
         dbContext.Database.Migrate();
     }
-    catch
+    catch(Exception ex)
     {
-        throw new Exception($"Не удалось обновить базу данных. {connectionString}.");
+        throw new Exception($"Не удалось обновить базу данных. {connectionString}. {ex}");
     }
     
 }
