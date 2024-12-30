@@ -7,9 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace CardsServer.API.Middlewares
 {
-    public class GlobalExceptionHandler(IHostEnvironment env, ILogger<GlobalExceptionHandler> _logger) : IExceptionHandler
+    public sealed class GlobalExceptionHandler(
+        IHostEnvironment env, 
+        ILogger<GlobalExceptionHandler> _logger) : IExceptionHandler
     {
-        private const string UnhandledExceptionMsg = "An unhandled exception has occurred while executing the request.";
+        private readonly string UnhandledExceptionMsg = "An unhandled exception has occurred while executing the request.";
 
         private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
         {
@@ -63,7 +65,10 @@ namespace CardsServer.API.Middlewares
             return true;
         }
 
-        private ProblemDetails CreateProblemDetails(in HttpContext context, in Exception exception, int statusCode)
+        private ProblemDetails CreateProblemDetails(
+            in HttpContext context, 
+            in Exception exception, 
+            int statusCode)
         {
             var reasonPhrase = exception.Message;
             if (string.IsNullOrEmpty(reasonPhrase))
@@ -98,7 +103,7 @@ namespace CardsServer.API.Middlewares
             }
             catch (Exception ex)
             {
-                const string msg = "An exception has occurred while serializing error to JSON";
+                const string msg = "Возникла ошибка при сериализации ошибки в JSON";
                 _logger.LogError(ex, msg);
             }
 

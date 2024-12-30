@@ -14,7 +14,6 @@ var configuration = builder.Configuration;
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers(options =>
 {
-    // ��������� ����������� ������������� Patch ��������
     options.InputFormatters.Insert(0, MyJPIF.GetJsonPatchInputFormatter());
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -96,7 +95,6 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     try
     {
         var dbContext =
@@ -106,7 +104,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch(Exception ex)
     {
-        throw new Exception($"Не удалось обновить базу данных. {connectionString}. {ex}");
+        throw new Exception($"Не удалось обновить базу данных. {ex}");
     }
     
 }
