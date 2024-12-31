@@ -3,6 +3,7 @@ using CardsServer.API.Extension;
 using CardsServer.API.Middlewares;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.DAL;
+using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -55,7 +56,17 @@ builder.Services.AuthService(configuration);
 builder.Services.Configure<JwtOptions>(
     configuration.GetSection(nameof(JwtOptions)));
 
-builder.Services.AddLogging();
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddDebug();
+    logging.AddProvider(
+        new DbLoggerProvider(
+            builder.Services.BuildServiceProvider().
+            GetRequiredService<ILogRepository>()));
+});
+
+
 
 builder.Services.AddCors(options =>
 {
