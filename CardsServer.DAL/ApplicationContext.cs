@@ -2,6 +2,9 @@
 using CardsServer.DAL.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using DotNetEnv;
+using Google.Protobuf;
+
 namespace CardsServer.DAL
 {
     public class ApplicationContext : DbContext
@@ -15,8 +18,9 @@ namespace CardsServer.DAL
         public DbSet<ModuleEntity> Modules { get; set; }
         public DbSet<ElementEntity> Elements { get; set; }
         public DbSet<ElementImageEntity> Images { get; set; }
-        //public DbSet<ElementStatisticEntity> ElementStatistics { get; set; }
         public DbSet<RefreshTokenEntity> RefreshTokenEntities { get; set; }
+        public DbSet<LogsEntity> Logs { get; set; }
+
         public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
@@ -24,20 +28,29 @@ namespace CardsServer.DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            if (connectionString == null)
-            {
-                throw new Exception("Строка подключения не найдена!");                
-            }
+            // Загружаем .env (в случае если мы НЕ используем докер)
+            // .env должна лежать в .API
             try
             {
-                optionsBuilder.UseNpgsql(connectionString);
+                Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+                Console.WriteLine("Файл .env загружен успешно.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Ошибка при подключении: {connectionString} || {ex}");
+                throw new Exception($"Ошибка загрузки .env: {ex.Message}");
             }
+
+            // Проверяем переменную окружения
+            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            if (connectionString == null)
+            {
+                var message = "CONNECTION_STRING не найдена в переменных окружения.";
+                throw new Exception(message);
+            }
+
+            optionsBuilder.UseNpgsql(connectionString);
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,7 +62,6 @@ namespace CardsServer.DAL
             modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
             modelBuilder.ApplyConfiguration(new ModuleConfiguration());
             modelBuilder.ApplyConfiguration(new ElementConfiguration());
-            //modelBuilder.ApplyConfiguration(new ElementStatisticConfiguration());
         }
     }
 }
