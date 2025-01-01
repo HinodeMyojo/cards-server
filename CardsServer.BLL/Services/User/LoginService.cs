@@ -41,45 +41,45 @@ namespace CardsServer.BLL.Services.User
         public async Task<Result<TokenApiModel>> LoginUser(LoginUserExtension user, CancellationToken cancellationToken)
         {
             // FingerPrint - для логина на нескольких устройствах. Позволяет различать refresh токены.
-            string fingerPrint = user.FingerPrint == null ? DEFAULT_FINGERPRINT : user.FingerPrint;
+            string fingerPrint = user.FingerPrint ?? DEFAULT_FINGERPRINT;
 
             // Получение пользователя из базы данных
-            var userFromDB = await _loginRepository.GetUser(user, cancellationToken);
-            if (userFromDB == null)
+            UserEntity? userFromDb = await _loginRepository.GetUser(user, cancellationToken);
+            if (userFromDb == null)
             {
                 return Result<TokenApiModel>.Failure("Пользователь не найден!");
             }
 
             // Проверка корректности модели
-            var userValidationResult = AssertModel.CheckNull(userFromDB);
+            var userValidationResult = AssertModel.CheckNull(userFromDb);
             if (!userValidationResult.IsSuccess)
             {
                 return Result<TokenApiModel>.Failure(userValidationResult.Error);
             }
 
             // Проверка пароля
-            if (!PasswordExtension.CheckPassword(userFromDB.Password, user.Password))
+            if (!PasswordExtension.CheckPassword(userFromDb.Password, user.Password))
             {
                 return Result<TokenApiModel>.Failure("Пароли не совпадают.");
             }
 
             // Удаление устаревших refresh токенов
-            userFromDB.RefreshTokens.RemoveAll(rt => rt.FingerPrint == fingerPrint);
+            userFromDb.RefreshTokens.RemoveAll(rt => rt.FingerPrint == fingerPrint);
 
             // Генерация нового access и refresh токена
-            var newAccessToken = _tokenService.GenerateAccessToken(userFromDB);
+            var newAccessToken = _tokenService.GenerateAccessToken(userFromDb);
             var newRefreshToken = _tokenService.GetRefreshToken();
 
             // Добавление нового refresh токена в базу данных
             var now = DateTime.UtcNow;
-            userFromDB.RefreshTokens.Add(new RefreshTokenEntity
+            userFromDb.RefreshTokens.Add(new RefreshTokenEntity
             {
                 Token = newRefreshToken,
                 RefreshTokenExpiryTime = now.AddDays(30),
                 FingerPrint = fingerPrint
             });
 
-            await _userRepository.EditUser(userFromDB, cancellationToken);
+            await _userRepository.EditUser(userFromDb, cancellationToken);
 
             // Формирование результата
             var tokenApiModel = new TokenApiModel
@@ -102,6 +102,7 @@ namespace CardsServer.BLL.Services.User
             {
                 return Result.Failure("Пользователь с таким Username уже зарегистрирован!");
             }
+
 
             UserEntity user = new()
             {
