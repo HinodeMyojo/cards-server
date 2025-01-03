@@ -4,6 +4,6 @@ namespace CardsServer.DAL.Repository
 {
     public interface ILogRepository
     {
-        void Add(LogsEntity entity, CancellationToken cancellationToken);
+        Task Add(LogsEntity entity, CancellationToken cancellationToken);
     }
 }

@@ -11,10 +11,10 @@ namespace CardsServer.DAL.Repository
             _context = context;
         }
 
-        public void Add(LogsEntity entity, CancellationToken cancellationToken)
+        public async Task Add(LogsEntity entity, CancellationToken cancellationToken)
         {
             _context.Logs.Add(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }
