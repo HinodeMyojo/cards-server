@@ -8,7 +8,7 @@ namespace CardsServer.BLL.Infrastructure.Attributes
         {
             if (value is string password)
             {
-                if (password.Length > 8)   
+                if (password.Length >= 8)   
                     return true;
                 else
                     ErrorMessage = "Пароль должен состоять из 8 символов и более!";

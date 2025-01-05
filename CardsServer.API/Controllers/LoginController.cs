@@ -42,8 +42,8 @@ namespace CardsServer.API.Controllers
             Result result = await _service.RegisterUser(model, cancellationToken);
 
             return result.ToActionResult();
-        }
 
+        }
         /// <summary>
         /// Авторизация пользователя
         /// </summary>
