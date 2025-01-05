@@ -1,0 +1,21 @@
+version: '3.6'
+
+networks:
+  cards-network:
+    name: cards-network
+    driver: bridge
+
+services:
+  redis:
+    image: redis:latest
+    networks:
+      - cards-network
+    container_name: redis
+    ports:
+      - "6390:6379"
+    volumes:
+      - /path/to/local/data:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_PORT=6379
