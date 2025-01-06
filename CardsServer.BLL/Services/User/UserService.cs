@@ -94,9 +94,9 @@ namespace CardsServer.BLL.Services.User
                 return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
             }
 
-            // Фильтруем только публичные модули
-            var publicModules = user.CreatedModules.Where(x => !x.Private).ToList();
-            user.CreatedModules = publicModules; 
+            // Фильтруем только публичные (используемые) модули
+            var publicModules = user.UserModules.Where(x => !x.IsPrivateForMe).ToList();
+            user.UserModules = publicModules; 
 
             var userResponse = (GetUserSimpleResponse)user;
 

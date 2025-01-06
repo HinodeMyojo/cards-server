@@ -31,6 +31,12 @@ namespace CardsServer.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Позволяет получить информацию о пользователе передав его UserName
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet("user/getByUserName")]
         public async Task<IActionResult> GetByUserName(string userName, CancellationToken cancellationToken)
         {
