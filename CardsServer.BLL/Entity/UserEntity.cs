@@ -1,4 +1,6 @@
-﻿namespace CardsServer.BLL.Entity
+﻿using CardsServer.BLL.Dto.User;
+
+namespace CardsServer.BLL.Entity
 {
     public class UserEntity
     {
@@ -49,6 +51,7 @@
         /// Рефреш токен(ы)
         /// </summary>
         public List<RefreshTokenEntity> RefreshTokens { get; set; } = [];
+        
     }
 }
  

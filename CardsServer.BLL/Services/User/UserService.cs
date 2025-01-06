@@ -3,6 +3,7 @@ using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -33,7 +34,7 @@ namespace CardsServer.BLL.Services.User
             UserEntity? user = await _repository.GetUser(id, cancellationToken);
             if (user == null)
             {
-                return Result<GetUserResponse>.Failure(ErrorAdditional.NotFound);
+                return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
             }
 
             var userToPatch = new PatchUser()
@@ -53,15 +54,32 @@ namespace CardsServer.BLL.Services.User
             return Result.Success();
         }
 
-        public async Task<Result<GetUserResponse>> GetUser(int userId, CancellationToken cancellationToken)
+        public async Task<Result<GetUserSimpleResponse>> GetByUserName(string userName, CancellationToken cancellationToken)
+        {
+            if (userName.IsNullOrEmpty())
+            {
+                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+            }
+            UserEntity? user = await _repository.GetUserByUserName(userName, cancellationToken);
+
+            if (user == null)
+            {
+                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+            }
+            GetUserSimpleResponse result = (GetUserSimpleResponse)user;
+
+            return Result<GetUserSimpleResponse>.Success(result);
+        }
+
+        public async Task<Result<GetUserFullResponse>> GetUser(int userId, CancellationToken cancellationToken)
         {
             UserEntity? res = await _repository.GetUser(userId, cancellationToken);
             if (res == null)
             {
-                return Result<GetUserResponse>.Failure(ErrorAdditional.NotFound);
+                return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
             }
 
-            GetUserResponse result = new()
+            GetUserFullResponse result = new()
             {
                 Id = res.Id,
                 Email = res.Email,
@@ -74,7 +92,7 @@ namespace CardsServer.BLL.Services.User
                 Avatar = Convert.ToBase64String(res.Avatar.Data)
             };
 
-            return Result<GetUserResponse>.Success(result);
+            return Result<GetUserFullResponse>.Success(result);
 
         }
     }

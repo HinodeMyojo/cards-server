@@ -31,6 +31,14 @@ namespace CardsServer.API.Controllers
             return Ok();
         }
 
+        [HttpGet("user/getByUserName")]
+        public async Task<IActionResult> GetByUserName(string userName, CancellationToken cancellationToken)
+        {
+            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, cancellationToken);
+
+            return result.ToActionResult();
+        }
+
         [HttpPut("user/avatar")]
         public async Task<IActionResult> EditAvatar([FromBody]string newAvatar, CancellationToken cancellationToken)
         {
@@ -50,7 +58,7 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<GetUserResponse> result = await _userService.GetUser(userId, cancellationToken);
+            Result<GetUserFullResponse> result = await _userService.GetUser(userId, cancellationToken);
 
             return result.ToActionResult();
         }
