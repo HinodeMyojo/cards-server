@@ -33,21 +33,35 @@ namespace CardsServer.DAL.Repository
                 .Include(x => x.RefreshTokens)
                 .Include(x => x.Role)
                 .Include(x => x.Avatar)
-                .FirstOrDefaultAsync(x => x.Id == userId);
+                .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
 
             return user;
         }
 
         public async Task<UserEntity?> GetUserByEmail(string email, CancellationToken cancellationToken)
         {
-            UserEntity? user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            UserEntity? user = await _context
+                .Users
+                .Include(x => x.UserModules)
+                .Include(x => x.Avatar)
+                .Include(x => x.RefreshTokens)
+                .Include(x => x.Role)
+                .Include(x => x.Avatar)
+                .FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
             return user;
         }
 
         public async Task<UserEntity?> GetUserByUserName(string userName, CancellationToken cancellationToken)
         {
-            UserEntity? user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            UserEntity? user = await _context
+                .Users
+                .Include(x => x.UserModules)
+                .Include(x => x.Avatar)
+                .Include(x => x.RefreshTokens)
+                .Include(x => x.Role)
+                .Include(x => x.Avatar)
+                .FirstOrDefaultAsync(x => x.UserName == userName, cancellationToken);
 
             return user;
         }

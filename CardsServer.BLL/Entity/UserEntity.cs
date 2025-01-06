@@ -1,4 +1,6 @@
-﻿namespace CardsServer.BLL.Entity
+﻿using CardsServer.BLL.Dto.User;
+
+namespace CardsServer.BLL.Entity
 {
     public class UserEntity
     {
@@ -30,6 +32,7 @@
         /// Роль
         /// </summary>
         public required int RoleId { get; set; }
+        public bool IsPrivate { get; set; }
         public int RecoveryCode {  get; set; }
         public required DateTime CreatedAt { get; set; }
         public RoleEntity? Role { get; set; }
@@ -49,6 +52,7 @@
         /// Рефреш токен(ы)
         /// </summary>
         public List<RefreshTokenEntity> RefreshTokens { get; set; } = [];
+        
     }
 }
  
