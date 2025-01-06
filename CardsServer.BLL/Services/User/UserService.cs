@@ -78,6 +78,7 @@ namespace CardsServer.BLL.Services.User
             {
                 // Преобразуем пользователя в результат, если это запрос своего профиля
                 var result = (GetUserSimpleResponse)user;
+                result.IsUserProfile = true;
                 return Result<GetUserSimpleResponse>.Success(result);
             }
 
