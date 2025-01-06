@@ -34,7 +34,9 @@ namespace CardsServer.API.Controllers
         [HttpGet("user/getByUserName")]
         public async Task<IActionResult> GetByUserName(string userName, CancellationToken cancellationToken)
         {
-            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, cancellationToken);
+            int userId = User.GetId();
+
+            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, userId, cancellationToken);
 
             return result.ToActionResult();
         }
