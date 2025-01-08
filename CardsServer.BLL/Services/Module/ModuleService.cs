@@ -228,8 +228,7 @@ namespace CardsServer.BLL.Services.Module
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
-
-
+                
                 GetModule result = new()
                 {
                     Id = id,
