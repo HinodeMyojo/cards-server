@@ -1,4 +1,5 @@
-﻿using CardsServer.BLL.Abstractions;
+﻿using CardsServer.API.Filters;
+using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Auth;
@@ -61,6 +62,7 @@ namespace CardsServer.API.Controllers
         /// Возвращает информацию о залогинненом пользователе
         /// </summary>
         /// <returns></returns>
+        [AccessFilter]
         [HttpGet("user/whoami")]
         public async Task<IActionResult> Whoami(CancellationToken cancellationToken)
         {

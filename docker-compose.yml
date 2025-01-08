@@ -18,7 +18,28 @@ services:
     ports:
         - "5070:8080"
         - "5071:8081"
-
+  #emailservice.api:
+  #  networks:
+  #    - cards-network
+  #  build:
+  #    context: ../email_service
+  #    dockerfile: ../email_service/EmailService.API/Dockerfile
+      
+  #statisticservice.api:
+  #  environment:
+  #    CONNECTION_STRING: ${CONNECTION_STRING_STATISTIC}
+  #  container_name: statistic-service
+  #  build:
+  #    context: ../AnalyticService
+  #    dockerfile: ../AnalyticService/StatisticService.API/Dockerfile
+  #  networks:
+  #    - cards-network
+  #  # В целом даже порты прокидывать не надо. Так как все через бридж будет работать. 
+  #  ports:
+  #    - "5003:8080"
+  #    - "5004:8081"
+      
+  
   rabbitmq:
     image: rabbitmq:3-management
     networks:
