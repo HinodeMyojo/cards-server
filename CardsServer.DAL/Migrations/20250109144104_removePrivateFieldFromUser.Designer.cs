@@ -3,6 +3,7 @@ using System;
 using CardsServer.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250109144104_removePrivateFieldFromUser")]
+    partial class removePrivateFieldFromUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,28 +188,6 @@ namespace CardsServer.DAL.Migrations
                             Id = 2,
                             Title = "ReadObjects"
                         });
-                });
-
-            modelBuilder.Entity("CardsServer.BLL.Entity.ProfileEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsPrivate")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("ProfileEntities");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
@@ -439,17 +420,6 @@ namespace CardsServer.DAL.Migrations
                     b.Navigation("Creator");
                 });
 
-            modelBuilder.Entity("CardsServer.BLL.Entity.ProfileEntity", b =>
-                {
-                    b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
-                        .WithOne("Profile")
-                        .HasForeignKey("CardsServer.BLL.Entity.ProfileEntity", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
                 {
                     b.HasOne("CardsServer.BLL.Entity.UserEntity", "User")
@@ -563,9 +533,6 @@ namespace CardsServer.DAL.Migrations
             modelBuilder.Entity("CardsServer.BLL.Entity.UserEntity", b =>
                 {
                     b.Navigation("CreatedModules");
-
-                    b.Navigation("Profile")
-                        .IsRequired();
 
                     b.Navigation("RefreshTokens");
 
