@@ -1,5 +1,4 @@
-﻿using CardsServer.API.Filters;
-using CardsServer.BLL.Abstractions;
+﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Auth;
@@ -20,7 +19,7 @@ namespace CardsServer.API.Controllers
         {
             _userService = userService;
         }
-
+        
         /// <summary>
         /// Позволяет получить пользователя по его Id
         /// </summary>
@@ -43,7 +42,7 @@ namespace CardsServer.API.Controllers
         {
             int userId = User.GetId();
 
-            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, userId, cancellationToken);
+            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, cancellationToken);
 
             return result.ToActionResult();
         }
@@ -62,13 +61,12 @@ namespace CardsServer.API.Controllers
         /// Возвращает информацию о залогинненом пользователе
         /// </summary>
         /// <returns></returns>
-        [AccessFilter]
         [HttpGet("user/whoami")]
         public async Task<IActionResult> Whoami(CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<GetUserFullResponse> result = await _userService.GetUser(userId, cancellationToken);
+            Result<GetUserSimpleResponse> result = await _userService.GetUser(userId, cancellationToken);
 
             return result.ToActionResult();
         }

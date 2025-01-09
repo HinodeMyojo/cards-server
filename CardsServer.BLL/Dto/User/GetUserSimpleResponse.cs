@@ -11,10 +11,6 @@ namespace CardsServer.BLL.Dto.User
         public int RoleId { get; set; }
         public int AvatarId { get; set; }
         public required string Avatar { get; set; }
-        /// <summary>
-        /// Этот профиль принадлжеит запросившему пользователю?
-        /// </summary>
-        public bool IsUserProfile { get; set; }
 
         public static explicit operator GetUserSimpleResponse(UserEntity user)
         {

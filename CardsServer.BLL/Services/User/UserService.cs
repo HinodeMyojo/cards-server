@@ -36,7 +36,7 @@ namespace CardsServer.BLL.Services.User
             UserEntity? user = await _repository.GetUser(id, cancellationToken);
             if (user == null)
             {
-                return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
+                return Result.Failure(ErrorAdditional.NotFound);
             }
 
             var userToPatch = new PatchUser()
@@ -56,7 +56,7 @@ namespace CardsServer.BLL.Services.User
             return Result.Success();
         }
 
-        public async Task<Result<GetUserSimpleResponse>> GetByUserName(string userName, int userId, CancellationToken cancellationToken)
+        public async Task<Result<GetUserSimpleResponse>> GetByUserName(string userName, CancellationToken cancellationToken)
         {
             // Проверка на пустое имя пользователя
             if (userName.IsNullOrEmpty())
@@ -74,29 +74,29 @@ namespace CardsServer.BLL.Services.User
             }
 
             // Проверка, если запрашиваемый пользователь — это тот же самый пользователь
-            if (userId == user.Id)
-            {
-                // Преобразуем пользователя в результат, если это запрос своего профиля
-                var result = (GetUserSimpleResponse)user;
-                result.IsUserProfile = true;
-                return Result<GetUserSimpleResponse>.Success(result);
-            }
+            // if (userId == user.Id)
+            // {
+            //     // Преобразуем пользователя в результат, если это запрос своего профиля
+            //     // var result = (GetUserSimpleResponse)user;
+            //     // result.IsUserProfile = true;
+            //     return Result<GetUserSimpleResponse>.Success(result);
+            // }
 
-            // Проверка на блокировку пользователя
-            if (user.Status != null && user.Status.Id == (int)Status.Blocked)
-            {
-                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
-            }
-
-            // Проверка на приватность профиля
-            if (user.IsPrivate)
-            {
-                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
-            }
-
-            // Фильтруем только публичные (используемые) модули
-            var publicModules = user.UserModules.Where(x => !x.IsPrivateForMe).ToList();
-            user.UserModules = publicModules; 
+            // // Проверка на блокировку пользователя
+            // if (user.Status != null && user.Status.Id == (int)Status.Blocked)
+            // {
+            //     return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
+            // }
+            //
+            // // Проверка на приватность профиля
+            // if (user.IsPrivate)
+            // {
+            //     return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
+            // }
+            //
+            // // Фильтруем только публичные (используемые) модули
+            // var publicModules = user.UserModules.Where(x => !x.IsPrivateForMe).ToList();
+            // user.UserModules = publicModules; 
 
             var userResponse = (GetUserSimpleResponse)user;
 
@@ -104,29 +104,29 @@ namespace CardsServer.BLL.Services.User
         }
 
 
-        public async Task<Result<GetUserFullResponse>> GetUser(int userId, CancellationToken cancellationToken)
-        {
-            UserEntity? res = await _repository.GetUser(userId, cancellationToken);
-            if (res == null)
-            {
-                return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
-            }
-
-            GetUserFullResponse result = new()
-            {
-                Id = res.Id,
-                Email = res.Email,
-                StatusId = res.StatusId,
-                AvatarId = res.AvatarId,
-                UserName = res.UserName,
-                CreatedAt = res.CreatedAt,
-                IsEmailConfirmed = res.IsEmailConfirmed,
-                RoleId = res.RoleId,
-                Avatar = Convert.ToBase64String(res.Avatar.Data)
-            };
-
-            return Result<GetUserFullResponse>.Success(result);
-
-        }
+        // public async Task<Result<GetUserFullResponse>> GetUser(int userId, CancellationToken cancellationToken)
+        // {
+        //     UserEntity? res = await _repository.GetUser(userId, cancellationToken);
+        //     if (res == null)
+        //     {
+        //         return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
+        //     }
+        //
+        //     GetUserFullResponse result = new()
+        //     {
+        //         Id = res.Id,
+        //         Email = res.Email,
+        //         StatusId = res.StatusId,
+        //         AvatarId = res.AvatarId,
+        //         UserName = res.UserName,
+        //         CreatedAt = res.CreatedAt,
+        //         IsEmailConfirmed = res.IsEmailConfirmed,
+        //         RoleId = res.RoleId,
+        //         Avatar = Convert.ToBase64String(res.Avatar.Data)
+        //     };
+        //
+        //     return Result<GetUserFullResponse>.Success(result);
+        //
+        // }
     }
 }
