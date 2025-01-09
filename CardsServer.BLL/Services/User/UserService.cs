@@ -1,11 +1,9 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
-using System.Net;
 
 namespace CardsServer.BLL.Services.User
 {
@@ -101,6 +99,28 @@ namespace CardsServer.BLL.Services.User
             var userResponse = (GetUserSimpleResponse)user;
 
             return Result<GetUserSimpleResponse>.Success(userResponse);
+        }
+
+        public async Task<Result<GetUserSimpleResponse>> GetUser(int userId, CancellationToken cancellationToken)
+        {
+            UserEntity? res = await _repository.GetUser(userId, cancellationToken);
+                 if (res == null)
+            {
+                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+            }
+
+            GetUserSimpleResponse result = new()
+            {
+                Id = res.Id,
+                StatusId = res.StatusId,
+                AvatarId = res.AvatarId,
+                UserName = res.UserName,
+                IsEmailConfirmed = res.IsEmailConfirmed,
+                RoleId = res.RoleId,
+                Avatar = Convert.ToBase64String(res.Avatar.Data)
+            };
+
+            return Result<GetUserSimpleResponse>.Success(result);
         }
 
 

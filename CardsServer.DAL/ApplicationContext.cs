@@ -20,6 +20,7 @@ namespace CardsServer.DAL
         public DbSet<ElementImageEntity> Images { get; set; }
         public DbSet<RefreshTokenEntity> RefreshTokenEntities { get; set; }
         public DbSet<LogsEntity> Logs { get; set; }
+        public DbSet<ProfileEntity> ProfileEntities { get; set; }
 
         public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {

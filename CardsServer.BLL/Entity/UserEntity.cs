@@ -32,7 +32,6 @@ namespace CardsServer.BLL.Entity
         /// Роль
         /// </summary>
         public required int RoleId { get; set; }
-        public bool IsPrivate { get; set; }
         public int RecoveryCode {  get; set; }
         public required DateTime CreatedAt { get; set; }
         public RoleEntity? Role { get; set; }
