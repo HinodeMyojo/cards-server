@@ -29,9 +29,9 @@ namespace CardsServer.BLL.Dto.User
                     HasPrivateProfile = user.Profile.IsPrivate
                 };
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                throw new Exception($"Не удалось преобразовать модель пользователя! {ex.Message}");
             }
         }
     }

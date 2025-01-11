@@ -70,33 +70,7 @@ namespace CardsServer.BLL.Services.User
             {
                 return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
             }
-
-            // Проверка, если запрашиваемый пользователь — это тот же самый пользователь
-            // if (userId == user.Id)
-            // {
-            //     // Преобразуем пользователя в результат, если это запрос своего профиля
-            //     // var result = (GetUserSimpleResponse)user;
-            //     // result.IsUserProfile = true;
-            //     return Result<GetUserSimpleResponse>.Success(result);
-            // }
-
-            // // Проверка на блокировку пользователя
-            // if (user.Status != null && user.Status.Id == (int)Status.Blocked)
-            // {
-            //     return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
-            // }
-            //
-            // // Проверка на приватность профиля
-            // if (user.IsPrivate)
-            // {
-            //     return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.Forbidden);
-            // }
-            //
-            // // Фильтруем только публичные (используемые) модули
-            // var publicModules = user.UserModules.Where(x => !x.IsPrivateForMe).ToList();
-            // user.UserModules = publicModules; 
-
-            var userResponse = (GetUserSimpleResponse)user;
+            GetUserSimpleResponse userResponse = (GetUserSimpleResponse)user;
 
             return Result<GetUserSimpleResponse>.Success(userResponse);
         }

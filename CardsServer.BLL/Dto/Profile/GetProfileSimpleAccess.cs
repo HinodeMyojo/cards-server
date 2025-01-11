@@ -29,4 +29,18 @@ public class GetProfileSimpleAccess : GetUserSimpleResponse
             StatusId = user.StatusId,
         };
     }
+
+    public static GetProfileSimpleAccess FromGetUserSimpleResponse(GetUserSimpleResponse user)
+    {
+        return new GetProfileSimpleAccess
+        {
+            Id = user.Id,
+            Avatar = user.Avatar,
+            UserName = user.UserName,
+            AvatarId = user.AvatarId,
+            IsEmailConfirmed = user.IsEmailConfirmed,
+            RoleId = user.RoleId,
+            StatusId = user.StatusId
+        };
+    }
 }

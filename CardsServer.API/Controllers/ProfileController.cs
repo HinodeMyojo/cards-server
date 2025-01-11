@@ -29,8 +29,8 @@ public class ProfileController : ControllerBase
               
             Result<GetProfileSimpleAccess> result = await _profileService
                     .GetAccess(requestedUserName, UserId, cancellationToken);
-              
-            return Ok();
+
+            return result.ToActionResult();
        }
 
        /// <summary>

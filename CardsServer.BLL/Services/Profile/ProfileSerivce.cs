@@ -31,7 +31,7 @@ public class ProfileSerivce : IProfileSerivce
         
         if (user.Id == userId)
         {
-            result = (GetProfileSimpleAccess) user;
+            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = true;
             result.IsUserProfile = true;
             result.CanEditUser = true;
@@ -41,7 +41,7 @@ public class ProfileSerivce : IProfileSerivce
 
         else if(user.Id != userId && user.RoleId == (int)Role.Admin || user.RoleId == (int)Role.Moderator)
         {
-            result = (GetProfileSimpleAccess) user;
+            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = true;
             result.IsUserProfile = true;
             result.CanEditUser = true;
@@ -50,7 +50,7 @@ public class ProfileSerivce : IProfileSerivce
         }
         else if(user.Id != userId && user.HasPrivateProfile)
         {
-            result = (GetProfileSimpleAccess) user;
+            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = false;
             result.IsUserProfile = false;
             result.CanEditUser = false;
@@ -59,7 +59,7 @@ public class ProfileSerivce : IProfileSerivce
         }
         else if(user.Id != userId && !user.HasPrivateProfile)
         {
-            result = (GetProfileSimpleAccess) user;
+            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = true;
             result.IsUserProfile = false;
             result.CanEditUser = false;
