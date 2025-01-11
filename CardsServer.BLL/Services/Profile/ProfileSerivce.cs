@@ -28,8 +28,7 @@ public class ProfileSerivce : IProfileSerivce
         }
 
         GetUserSimpleResponse user = userFromService.Value;
-
-        // Если запросивший пользователь - хозяин профиля
+        
         if (user.Id == userId)
         {
             result = (GetProfileSimpleAccess) user;
@@ -40,15 +39,24 @@ public class ProfileSerivce : IProfileSerivce
             return Result<GetProfileSimpleAccess>.Success(result);
         }
 
-        //else if(user.Id != userId && user.RoleId != Role.Admin)
-        //{
-
-        //}
-        result = new GetProfileSimpleAccess()
+        else if(user.Id != userId && user.RoleId == (int)Role.Admin || user.RoleId == (int)Role.Moderator)
         {
-            Avatar = "",
-            UserName = "",
-        };
+            result = (GetProfileSimpleAccess) user;
+            result.CanViewProfile = true;
+            result.IsUserProfile = true;
+            result.CanEditUser = true;
+            result.CanDeleteUser = true;
+            return Result<GetProfileSimpleAccess>.Success(result);
+        }
+        else
+        {
+            result = (GetProfileSimpleAccess) user;
+            result.CanViewProfile = false;
+            result.IsUserProfile = false;
+            result.CanEditUser = false;
+            result.CanDeleteUser = false;
+            return Result<GetProfileSimpleAccess>.Success(result);
+        }
 
         return Result<GetProfileSimpleAccess>.Success(result);
         
