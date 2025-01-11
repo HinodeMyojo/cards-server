@@ -18,7 +18,7 @@ namespace CardsServer.BLL.Services.User
 
         public async Task<Result> EditAvatar(int userId, string newAvatar, CancellationToken cancellationToken)
         {
-             UserEntity? user = await _repository.GetUser(userId, cancellationToken);
+             UserEntity? user = await _repository.GetUser(x => x.Id == userId, cancellationToken);
             if (user == null)
             {
                 return Result.Failure("Пользователь не найден!");
@@ -31,7 +31,7 @@ namespace CardsServer.BLL.Services.User
         public async Task<Result> EditUser(int id, JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
 
-            UserEntity? user = await _repository.GetUser(id, cancellationToken);
+            UserEntity? user = await _repository.GetUser(x => x.Id == id, cancellationToken);
             if (user == null)
             {
                 return Result.Failure(ErrorAdditional.NotFound);
@@ -63,7 +63,7 @@ namespace CardsServer.BLL.Services.User
             }
 
             // Получение пользователя из репозитория
-            UserEntity? user = await _repository.GetUserByUserName(userName, cancellationToken);
+            UserEntity? user = await _repository.GetUser(x => x.UserName == userName, cancellationToken);
 
             // Проверка, что пользователь найден
             if (user == null)
@@ -103,7 +103,7 @@ namespace CardsServer.BLL.Services.User
 
         public async Task<Result<GetUserSimpleResponse>> GetUser(int userId, CancellationToken cancellationToken)
         {
-            UserEntity? res = await _repository.GetUser(userId, cancellationToken);
+            UserEntity? res = await _repository.GetUser(x => x.Id == userId, cancellationToken);
                  if (res == null)
             {
                 return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);

@@ -44,6 +44,7 @@ namespace CardsServer.BLL.Entity
         public List<ModuleEntity> UsedModules { get; set; } = [];
         public List<UserModule> UserModules { get; set; } = [];
         public ProfileEntity Profile { get; set; }
+        public int ProfileId { get; set; }
 
         // Статистика по элементам
         //public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];

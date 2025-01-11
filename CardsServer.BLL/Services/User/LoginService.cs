@@ -134,7 +134,7 @@ namespace CardsServer.BLL.Services.User
             {
                 return Result.Failure("Пользователя с таким Email не существует!");
             }
-            UserEntity? user = await _userRepository.GetUserByEmail(to, cancellationToken);
+            UserEntity? user = await _userRepository.GetUser(user => user.UserName == to, cancellationToken);
 
             int recoveryCode = RandomExtension.GenerateRecoveryCode();
 
@@ -193,7 +193,7 @@ namespace CardsServer.BLL.Services.User
             }
 
             // Получение пользователя из базы данных
-            var user = await _userRepository.GetUser(userId, cancellationToken);
+            var user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
             if (user == null)
             {
                 return Result<TokenApiModel>.Failure("Пользователь не найден.");
@@ -223,10 +223,10 @@ namespace CardsServer.BLL.Services.User
             await _userRepository.EditUser(user, cancellationToken);
 
             // Генерация нового access токена
-            var newAccessToken = _tokenService.GenerateAccessToken(user);
+            string newAccessToken = _tokenService.GenerateAccessToken(user);
 
             // Формирование результата
-            var result = new TokenApiModel
+            TokenApiModel result = new()
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken.Token
@@ -283,7 +283,7 @@ namespace CardsServer.BLL.Services.User
                 }
 
                 // Поиск пользователя
-                UserEntity? user = await _userRepository.GetUserByEmail(email, cancellationToken);
+                UserEntity? user = await _userRepository.GetUser(user => user.Email == email, cancellationToken);
                 if (user == null)
                 {
                     return Result.Failure(new Error("Пользователь с таким email не найден", statusCode: 404));
@@ -307,14 +307,14 @@ namespace CardsServer.BLL.Services.User
 
         private async Task<bool> IsEmailUsedAsync(string email)
         {
-            UserEntity? user = await _userRepository.GetUserByEmail(email, default);
+            UserEntity? user = await _userRepository.GetUser( x => x.Email  == email, default);
             return user != null;
         }
 
 
         private async Task<bool> IsLoginUsedAsync(string userName)
         {
-            UserEntity? user = await _userRepository.GetUserByUserName(userName, default);
+            UserEntity? user = await _userRepository.GetUser(x => x.UserName == userName, default);
             return user != null;
         }
 
