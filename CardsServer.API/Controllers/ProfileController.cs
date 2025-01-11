@@ -25,12 +25,12 @@ public class ProfileController : ControllerBase
        [HttpGet("profile/access")]
        public async Task<IActionResult> GetAccess(string requestedUserName, CancellationToken cancellationToken)
        {
-              int UserId = User.GetId();
+            int UserId = User.GetId();
               
-              Result<GetProfileSimpleAccess> result = await _profileService
-                     .GetAccess(requestedUserName, UserId, cancellationToken);
+            Result<GetProfileSimpleAccess> result = await _profileService
+                    .GetAccess(requestedUserName, UserId, cancellationToken);
               
-              return Ok();
+            return Ok();
        }
 
        /// <summary>
@@ -42,7 +42,7 @@ public class ProfileController : ControllerBase
        [HttpGet("profile/block")]
        public async Task<IActionResult> Block(string userName, CancellationToken cancellationToken)
        {
-              return Ok();
+            return Ok();
        }
 
        /// <summary>
@@ -54,6 +54,6 @@ public class ProfileController : ControllerBase
        [HttpDelete("profile")]
        public async Task<IActionResult> DeleteProfile(string requestedUserName, CancellationToken cancellationToken)
        {
-              return Ok();  
+            return Ok();  
        }
 }

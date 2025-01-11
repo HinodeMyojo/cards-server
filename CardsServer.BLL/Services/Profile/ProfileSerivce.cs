@@ -48,7 +48,7 @@ public class ProfileSerivce : IProfileSerivce
             result.CanDeleteUser = true;
             return Result<GetProfileSimpleAccess>.Success(result);
         }
-        else
+        else if(user.Id != userId && user.HasPrivateProfile)
         {
             result = (GetProfileSimpleAccess) user;
             result.CanViewProfile = false;
@@ -57,9 +57,18 @@ public class ProfileSerivce : IProfileSerivce
             result.CanDeleteUser = false;
             return Result<GetProfileSimpleAccess>.Success(result);
         }
-
-        return Result<GetProfileSimpleAccess>.Success(result);
-        
+        else if(user.Id != userId && !user.HasPrivateProfile)
+        {
+            result = (GetProfileSimpleAccess) user;
+            result.CanViewProfile = true;
+            result.IsUserProfile = false;
+            result.CanEditUser = false;
+            result.CanDeleteUser = false;
+            return Result<GetProfileSimpleAccess>.Success(result);
+        }
+        else
+        {
+            return Result<GetProfileSimpleAccess>.Failure(ErrorAdditional.Forbidden);
+        }
     }
-    
 }

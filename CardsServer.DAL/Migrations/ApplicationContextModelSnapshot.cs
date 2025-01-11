@@ -36,7 +36,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Avatars");
+                    b.ToTable("Avatars", (string)null);
 
                     b.HasData(
                         new
@@ -69,7 +69,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Elements");
+                    b.ToTable("Elements", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ElementImageEntity", b =>
@@ -92,7 +92,7 @@ namespace CardsServer.DAL.Migrations
                     b.HasIndex("ElementId")
                         .IsUnique();
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.LogsEntity", b =>
@@ -116,7 +116,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ModuleEntity", b =>
@@ -153,7 +153,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Modules");
+                    b.ToTable("Modules", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.PermissionEntity", b =>
@@ -206,7 +206,7 @@ namespace CardsServer.DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ProfileEntities");
+                    b.ToTable("ProfileEntities", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
@@ -235,7 +235,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokenEntities");
+                    b.ToTable("RefreshTokenEntities", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RoleEntity", b =>
@@ -313,7 +313,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
 
                     b.HasData(
                         new
@@ -382,7 +382,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.UserModule", b =>

@@ -113,7 +113,11 @@ namespace CardsServer.BLL.Services.User
                 StatusId = (int)Status.Active,
                 UserName = model.UserName,
                 CreatedAt = DateTime.UtcNow,
-                AvatarId = 1 
+                AvatarId = 1,
+                Profile = new ProfileEntity()
+                {
+                    IsPrivate = false,
+                }
             };
 
             await _loginRepository.RegisterUser(user, cancellationToken);

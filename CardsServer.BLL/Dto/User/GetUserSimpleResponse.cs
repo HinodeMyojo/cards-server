@@ -10,20 +10,29 @@ namespace CardsServer.BLL.Dto.User
         public int StatusId { get; set; }
         public int RoleId { get; set; }
         public int AvatarId { get; set; }
+        public bool HasPrivateProfile { get; set; }
         public required string Avatar { get; set; }
 
         public static explicit operator GetUserSimpleResponse(UserEntity user)
         {
-            return new GetUserSimpleResponse
+            try
             {
-                Id = user.Id,
-                UserName = user.UserName,
-                AvatarId = user.AvatarId,
-                IsEmailConfirmed = user.IsEmailConfirmed,
-                RoleId = user.RoleId,
-                StatusId = user.StatusId,
-                Avatar = user.Avatar == null ? "" : Convert.ToBase64String(user.Avatar.Data)
-            };
+                return new GetUserSimpleResponse
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    AvatarId = user.AvatarId,
+                    IsEmailConfirmed = user.IsEmailConfirmed,
+                    RoleId = user.RoleId,
+                    StatusId = user.StatusId,
+                    Avatar = user.Avatar == null ? "" : Convert.ToBase64String(user.Avatar.Data),
+                    HasPrivateProfile = user.Profile.IsPrivate
+                };
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
