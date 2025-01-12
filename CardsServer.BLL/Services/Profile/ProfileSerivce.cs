@@ -15,60 +15,53 @@ public class ProfileSerivce : IProfileSerivce
         _userService = userService;
     }
 
-    public async Task<Result<GetProfileSimpleAccess>> GetAccess(
+    public async Task<Result<GetProfileAccess>> GetAccess(
         string requestedUserName, int userId, CancellationToken cancellationToken)
     {
-        GetProfileSimpleAccess result;
-        
-        Result<GetUserSimpleResponse> userFromService = await _userService.GetByUserName(requestedUserName, cancellationToken);
+        // Получение пользователя
+        Result<GetBaseUserResponse> userFromService = await _userService.GetByUserName(userId, requestedUserName, cancellationToken);
+        Result<GetBaseUserResponse> requestUserResult = await _userService.GetUser(userId, cancellationToken);
 
         if (!userFromService.IsSuccess)
         {
-            return Result<GetProfileSimpleAccess>.Failure(userFromService.Error);
+            return Result<GetProfileAccess>.Failure(userFromService.Error);
         }
 
-        GetUserSimpleResponse user = userFromService.Value;
+        if (!requestUserResult.IsSuccess)
+        {
+            return Result<GetProfileAccess>.Failure(requestUserResult.Error);
+        }
         
-        if (user.Id == userId)
+        if (userFromService.Value is not GetUserSimpleResponse userFromServerSimple ||
+            requestUserResult.Value is not GetUserSimpleResponse requestUserSimple)
         {
-            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
+            throw new Exception("Невозможно привести модель пользователя к GetUserSimpleResponse!");
+        }
+        
+        GetProfileAccess result = new(userFromServerSimple);
+        
+        if (userFromServerSimple.Id == userId)
+        {
             result.CanViewProfile = true;
             result.IsUserProfile = true;
             result.CanEditUser = true;
             result.CanDeleteUser = true;
-            return Result<GetProfileSimpleAccess>.Success(result);
         }
-
-        else if(user.Id != userId && user.RoleId == (int)Role.Admin || user.RoleId == (int)Role.Moderator)
+        else if (requestUserSimple.RoleId == (int)Role.Admin || requestUserSimple.RoleId == (int)Role.Moderator)
         {
-            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = true;
-            result.IsUserProfile = true;
             result.CanEditUser = true;
             result.CanDeleteUser = true;
-            return Result<GetProfileSimpleAccess>.Success(result);
         }
-        else if(user.Id != userId && user.HasPrivateProfile)
+        else if (userFromServerSimple.HasPrivateProfile)
         {
-            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
             result.CanViewProfile = false;
-            result.IsUserProfile = false;
-            result.CanEditUser = false;
-            result.CanDeleteUser = false;
-            return Result<GetProfileSimpleAccess>.Success(result);
-        }
-        else if(user.Id != userId && !user.HasPrivateProfile)
-        {
-            result = GetProfileSimpleAccess.FromGetUserSimpleResponse(userFromService.Value);
-            result.CanViewProfile = true;
-            result.IsUserProfile = false;
-            result.CanEditUser = false;
-            result.CanDeleteUser = false;
-            return Result<GetProfileSimpleAccess>.Success(result);
         }
         else
         {
-            return Result<GetProfileSimpleAccess>.Failure(ErrorAdditional.Forbidden);
+            result.CanViewProfile = true;
         }
+
+        return Result<GetProfileAccess>.Success(result);
     }
 }

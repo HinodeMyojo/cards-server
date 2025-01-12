@@ -1,33 +1,44 @@
 ﻿using CardsServer.BLL.Entity;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CardsServer.BLL.Dto.User
 {
-    public class GetUserSimpleResponse
+    public class GetUserSimpleResponse : GetBaseUserResponse
     {
+        public GetUserSimpleResponse()
+        {
+            
+        }
+        public GetUserSimpleResponse(UserEntity user)
+        {
+            Id = user.Id;
+            UserName = user.UserName;
+            Avatar = user.Avatar == null ? "" : Convert.ToBase64String(user.Avatar.Data);
+            HasPrivateProfile = user.Profile.IsPrivate;
+            RoleId = user.RoleId;
+        }
+        
+        public GetUserSimpleResponse(int id, string userName, string avatar, bool hasPrivateProfile, int roleId)
+        {
+            Id = id;
+            UserName = userName;
+            Avatar = avatar;
+            HasPrivateProfile = hasPrivateProfile;
+            RoleId = roleId;
+        }
+
+
         public int Id { get; set; }
-        public required string UserName { get; set; }
-        public bool IsEmailConfirmed { get; set; }
-        public int StatusId { get; set; }
-        public int RoleId { get; set; }
-        public int AvatarId { get; set; }
+        public string UserName { get; set; }
+        public string Avatar { get; set; }
         public bool HasPrivateProfile { get; set; }
-        public required string Avatar { get; set; }
+        public int RoleId { get; set; }
 
         public static explicit operator GetUserSimpleResponse(UserEntity user)
         {
             try
             {
-                return new GetUserSimpleResponse
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    AvatarId = user.AvatarId,
-                    IsEmailConfirmed = user.IsEmailConfirmed,
-                    RoleId = user.RoleId,
-                    StatusId = user.StatusId,
-                    Avatar = user.Avatar == null ? "" : Convert.ToBase64String(user.Avatar.Data),
-                    HasPrivateProfile = user.Profile.IsPrivate
-                };
+                return new GetUserSimpleResponse(user);
             }
             catch(Exception ex)
             {

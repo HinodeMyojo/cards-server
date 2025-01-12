@@ -1,6 +1,8 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Profile;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +39,7 @@ namespace CardsServer.BLL.Services.User
                 return Result.Failure(ErrorAdditional.NotFound);
             }
 
-            var userToPatch = new PatchUser()
+            PatchUser userToPatch = new()
             {
                 UserName = user.UserName,
                 Email = user.Email,
@@ -54,73 +56,70 @@ namespace CardsServer.BLL.Services.User
             return Result.Success();
         }
 
-        public async Task<Result<GetUserSimpleResponse>> GetByUserName(string userName, CancellationToken cancellationToken)
+        public async Task<Result<GetBaseUserResponse>> GetByUserName(
+            int userId, string userName, CancellationToken cancellationToken)
         {
             // Проверка на пустое имя пользователя
             if (userName.IsNullOrEmpty())
             {
-                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+                return Result<GetBaseUserResponse>.Failure("Логин пользователя должен быть указан!");
             }
 
             // Получение пользователя из репозитория
             UserEntity? user = await _repository.GetUser(x => x.UserName == userName, cancellationToken);
 
             // Проверка, что пользователь найден
+            
             if (user == null)
             {
-                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+                return Result<GetBaseUserResponse>.Failure(ErrorAdditional.NotFound);
             }
-            GetUserSimpleResponse userResponse = (GetUserSimpleResponse)user;
+            GetBaseUserResponse response = await UserAccessHandler(user, userId);
 
-            return Result<GetUserSimpleResponse>.Success(userResponse);
+            return Result<GetBaseUserResponse>.Success(response);
         }
 
-        public async Task<Result<GetUserSimpleResponse>> GetUser(int userId, CancellationToken cancellationToken)
+        public async Task<Result<GetBaseUserResponse>> GetUser(int userId, CancellationToken cancellationToken)
         {
-            UserEntity? res = await _repository.GetUser(x => x.Id == userId, cancellationToken);
-                 if (res == null)
+            UserEntity? user = await _repository.GetUser(x => x.Id == userId, cancellationToken);
+            if (user == null)
             {
-                return Result<GetUserSimpleResponse>.Failure(ErrorAdditional.NotFound);
+                return Result<GetBaseUserResponse>.Failure(ErrorAdditional.NotFound);
+            }
+            
+            GetBaseUserResponse response = await UserAccessHandler(user, userId);
+
+            return Result<GetBaseUserResponse>.Success(response);
+        }
+        
+        /// <summary>
+        /// Вспомогательный метод.
+        /// Если запросил хозяин профиля (или админ или модер)  - отдаем всю инфу, иначе - только часть
+        /// </summary>
+        /// <param name="userFromDatabase"></param>
+        /// <param name="userIdFromRequest"></param>
+        /// <returns></returns>
+        private async Task<GetBaseUserResponse> UserAccessHandler(UserEntity userFromDatabase, int userIdFromRequest)
+        {
+            UserEntity? requester = await _repository.GetUser(x => x.Id == userIdFromRequest, CancellationToken.None);
+            if (requester == null)
+            {
+                throw new Exception("Запрашивающий пользователь не найден!");
             }
 
-            GetUserSimpleResponse result = new()
+            // Если запрашивающий пользователь администратор или модератор
+            if (requester.RoleId is (int)Role.Admin or (int)Role.Moderator)
             {
-                Id = res.Id,
-                StatusId = res.StatusId,
-                AvatarId = res.AvatarId,
-                UserName = res.UserName,
-                IsEmailConfirmed = res.IsEmailConfirmed,
-                RoleId = res.RoleId,
-                Avatar = Convert.ToBase64String(res.Avatar.Data)
-            };
+                return new GetUserFullResponse(userFromDatabase);
+            }
 
-            return Result<GetUserSimpleResponse>.Success(result);
+            // Если пользователь запрашивает свой профиль
+            if (userFromDatabase.Id == userIdFromRequest)
+            {
+                return new GetUserFullResponse(userFromDatabase);
+            }
+            return new GetUserSimpleResponse(userFromDatabase);
         }
 
-
-        // public async Task<Result<GetUserFullResponse>> GetUser(int userId, CancellationToken cancellationToken)
-        // {
-        //     UserEntity? res = await _repository.GetUser(userId, cancellationToken);
-        //     if (res == null)
-        //     {
-        //         return Result<GetUserFullResponse>.Failure(ErrorAdditional.NotFound);
-        //     }
-        //
-        //     GetUserFullResponse result = new()
-        //     {
-        //         Id = res.Id,
-        //         Email = res.Email,
-        //         StatusId = res.StatusId,
-        //         AvatarId = res.AvatarId,
-        //         UserName = res.UserName,
-        //         CreatedAt = res.CreatedAt,
-        //         IsEmailConfirmed = res.IsEmailConfirmed,
-        //         RoleId = res.RoleId,
-        //         Avatar = Convert.ToBase64String(res.Avatar.Data)
-        //     };
-        //
-        //     return Result<GetUserFullResponse>.Success(result);
-        //
-        // }
     }
 }

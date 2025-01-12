@@ -5,5 +5,5 @@ namespace CardsServer.BLL.Services.Profile;
 
 public interface IProfileSerivce
 {
-    Task<Result<GetProfileSimpleAccess>> GetAccess(string requestedUserName, int userId, CancellationToken cancellationToken);
+    Task<Result<GetProfileAccess>> GetAccess(string requestedUserName, int userId, CancellationToken cancellationToken);
 }

@@ -11,7 +11,6 @@ namespace CardsServer.API.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api")]
 public class ProfileController : ControllerBase
 {
        private readonly IProfileSerivce _profileService;
@@ -23,12 +22,12 @@ public class ProfileController : ControllerBase
 
 
        [HttpGet("profile/access")]
-       public async Task<IActionResult> GetAccess(string requestedUserName, CancellationToken cancellationToken)
+       public async Task<IActionResult> GetAccess(string userName, CancellationToken cancellationToken)
        {
-            int UserId = User.GetId();
+            int userId = User.GetId();
               
-            Result<GetProfileSimpleAccess> result = await _profileService
-                    .GetAccess(requestedUserName, UserId, cancellationToken);
+            Result<GetProfileAccess> result = await _profileService
+                    .GetAccess(userName, userId, cancellationToken);
 
             return result.ToActionResult();
        }
