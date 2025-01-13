@@ -105,14 +105,11 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("statistic/year")]
-        public async Task<IActionResult> GetYearStatisic(int year)
+        public async Task<IActionResult> GetYearStatisic(int userId, int year)
         {
-
-            int userId = AuthExtension.GetId(User);
-
             YearStatisticResponse responseFromGrpcService = await _service
-                .GetYearStatisicAsync(new()
-            {
+                .GetYearStatisicAsync(new YearStatisticRequest
+                {
                 UserId = userId,
                 Year = year
             });
