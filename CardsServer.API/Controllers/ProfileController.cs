@@ -20,7 +20,12 @@ public class ProfileController : ControllerBase
               _profileService = profileService;
        }
 
-
+       /// <summary>
+       /// Метод по получению доступа
+       /// </summary>
+       /// <param name="userName"></param>
+       /// <param name="cancellationToken"></param>
+       /// <returns></returns>
        [HttpGet("profile/access")]
        public async Task<IActionResult> GetAccess(string userName, CancellationToken cancellationToken)
        {
