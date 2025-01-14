@@ -107,16 +107,17 @@ namespace CardsServer.API.Controllers
         [HttpGet("statistic/year")]
         public async Task<IActionResult> GetYearStatisic(int userId, int year)
         {
+            YearStatisticRequest request = new YearStatisticRequest { UserId = userId, Year = year };
+            
             YearStatisticResponse responseFromGrpcService = await _service
-                .GetYearStatisicAsync(new YearStatisticRequest
-                {
-                UserId = userId,
-                Year = year
-            });
+                .GetYearStatisicAsync(request);
 
             YearStatisticDto result = new()
             {
                 Year = year,
+                MaximumSeries = responseFromGrpcService.MaximumSeries,
+                ActiveDays = responseFromGrpcService.ActiveDays,
+                NumberOfActions = responseFromGrpcService.NumberOfActions,
                 Colspan = [.. responseFromGrpcService.Colspan],
                 Data = ConvertRepeatedField(responseFromGrpcService.Data)
             };
