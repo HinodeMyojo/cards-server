@@ -32,7 +32,6 @@ namespace CardsServer.BLL.Entity
         /// Роль
         /// </summary>
         public required int RoleId { get; set; }
-        public bool IsPrivate { get; set; }
         public int RecoveryCode {  get; set; }
         public required DateTime CreatedAt { get; set; }
         public RoleEntity? Role { get; set; }
@@ -44,6 +43,7 @@ namespace CardsServer.BLL.Entity
         // Модули, которые использует пользователь
         public List<ModuleEntity> UsedModules { get; set; } = [];
         public List<UserModule> UserModules { get; set; } = [];
+        public required ProfileEntity Profile { get; set; }
 
         // Статистика по элементам
         //public List<ElementStatisticEntity> ElementStatistics { get; set; } = [];

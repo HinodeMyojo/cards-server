@@ -3,6 +3,7 @@ using System;
 using CardsServer.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CardsServer.DAL.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250109145346_addConfForProfileAndUserRelationship")]
+    partial class addConfForProfileAndUserRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Avatars", (string)null);
+                    b.ToTable("Avatars");
 
                     b.HasData(
                         new
@@ -69,7 +72,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Elements", (string)null);
+                    b.ToTable("Elements");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ElementImageEntity", b =>
@@ -92,7 +95,7 @@ namespace CardsServer.DAL.Migrations
                     b.HasIndex("ElementId")
                         .IsUnique();
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.LogsEntity", b =>
@@ -116,7 +119,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs", (string)null);
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.ModuleEntity", b =>
@@ -153,7 +156,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Modules", (string)null);
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.PermissionEntity", b =>
@@ -206,7 +209,7 @@ namespace CardsServer.DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("ProfileEntities", (string)null);
+                    b.ToTable("ProfileEntities");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RefreshTokenEntity", b =>
@@ -235,7 +238,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokenEntities", (string)null);
+                    b.ToTable("RefreshTokenEntities");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.RoleEntity", b =>
@@ -313,7 +316,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses", (string)null);
+                    b.ToTable("Statuses");
 
                     b.HasData(
                         new
@@ -382,7 +385,7 @@ namespace CardsServer.DAL.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("CardsServer.BLL.Entity.UserModule", b =>

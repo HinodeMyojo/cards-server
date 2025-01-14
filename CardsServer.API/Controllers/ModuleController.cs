@@ -50,7 +50,7 @@ namespace CardsServer.API.Controllers
         public async Task<IActionResult> CreateModule(
             CreateModule module, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<int> result = await _service.CreateModule(userId, module, cancellationToken);
 
@@ -66,7 +66,7 @@ namespace CardsServer.API.Controllers
         [HttpGet("module")]
         public async Task<IActionResult> GetModule(int id, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<GetModule> result = await _service.GetModule(userId, id, cancellationToken);
 
@@ -74,7 +74,7 @@ namespace CardsServer.API.Controllers
         }
 
         /// <summary>
-        /// Метод редактирования модулей
+        /// Метод редактирования модулей => TODO
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
@@ -92,7 +92,7 @@ namespace CardsServer.API.Controllers
         [HttpDelete("module")]
         public async Task<IActionResult> DeleteModule(int Id, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result result = await _service.DeleteModule(userId, Id, cancellationToken);
 
@@ -107,7 +107,7 @@ namespace CardsServer.API.Controllers
         [HttpPost("module/used-modules")]
         public async Task<IActionResult> AddModuleToUsed([FromBody]int id, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result result = await _service.AddModuleToUsed(id, userId, cancellationToken);
 
@@ -115,14 +115,14 @@ namespace CardsServer.API.Controllers
         }
 
         /// <summary>
-        /// Метод получения добавленнх пользователем модулей
+        /// Метод получения добавленных пользователем модулей
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("module/used-modules")]
         public async Task<IActionResult> GetUsedModules(string? textSearch, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, textSearch, cancellationToken);
 
@@ -138,7 +138,7 @@ namespace CardsServer.API.Controllers
         [HttpGet("module/used-modules-short")]
         public async Task<IActionResult> GetUsedShortModules(CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<IEnumerable<GetModule>> result = await _service.GetUsedModules(userId, null ,cancellationToken);
 
@@ -170,7 +170,7 @@ namespace CardsServer.API.Controllers
         [HttpGet("module/created-modules")]
         public async Task<IActionResult> GetCreatedModules(CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<IEnumerable<GetModule>> result = await _service.GetCreatedModules(userId, cancellationToken);
 

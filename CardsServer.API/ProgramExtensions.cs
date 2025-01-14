@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using StatisticService.API;
 using System.Text;
+using CardsServer.BLL.Services.Profile;
 
 namespace CardsServer.API
 {
@@ -40,6 +41,7 @@ namespace CardsServer.API
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IElementService, ElementService>();
             services.AddTransient<ILearningService, LearningService>();
+            services.AddTransient<IProfileSerivce, ProfileSerivce>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();

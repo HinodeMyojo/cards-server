@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace CardsServer.DAL.Repository
 {
@@ -13,17 +14,29 @@ namespace CardsServer.DAL.Repository
             _context = context;
         }
 
+        public async Task<UserEntity?> GetUser(Expression<Func<UserEntity, bool>> predicate,
+            CancellationToken cancellationToken)
+        {
+            UserEntity? user = await _context
+                .Users
+                .Include(x => x.UserModules)
+                .Include(x => x.Avatar)
+                .Include(x => x.RefreshTokens)
+                .Include(x => x.Role)
+                .Include(x => x.Avatar)
+                .Include(x => x.Profile)
+                .FirstOrDefaultAsync(predicate, cancellationToken);
+
+            return user;
+        }
+        
         public async Task EditUser(UserEntity user, CancellationToken cancellationToken)
         {
             _context.Users.Update(user);
             await _context.SaveChangesAsync(cancellationToken);
         }
-
-        //public async Task<UserEntity> GetListUser(ICollection<int> UserIds, CancellationToken cancellationToken)
-        //{
-
-        //}
-
+        
+        /*
         public async Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken)
         {
             UserEntity? user = await _context
@@ -64,22 +77,6 @@ namespace CardsServer.DAL.Repository
                 .FirstOrDefaultAsync(x => x.UserName == userName, cancellationToken);
 
             return user;
+        }*/
         }
-
-        //public async Task<HashSet<Pe>> GetUserPermissions(int id)
-        //{
-        //    List<RoleEntity?> roles = await _context.Users
-        //        .AsNoTracking()
-        //        .Include(x => x.Role)
-        //        .ThenInclude(x => x.Permissions)
-        //        .Where(x => x.Id == id)
-        //        .Select(x => x.Role)
-        //        .ToListAsync();
-
-        //    return roles
-        //        .SelectMany(x => x.Permissions)
-        //        .Select(d => d.(Permission)d.Id)
-        //        .ToHashSet();
-        //}
-    }
     }

@@ -4,25 +4,19 @@ namespace CardsServer.BLL.Dto.User
 {
     public class GetUserFullResponse : GetUserSimpleResponse
     {
-        public DateTime CreatedAt {  get; set; }
-        public required string Email { get; set; }
-        public static explicit operator GetUserFullResponse(UserEntity user)
+        public GetUserFullResponse()
         {
-            GetUserSimpleResponse simpleResponse = (GetUserSimpleResponse)user;
-            return new GetUserFullResponse
-            {
-                Id = simpleResponse.Id,
-                UserName = simpleResponse.UserName,
-                IsEmailConfirmed = simpleResponse.IsEmailConfirmed,
-                StatusId = simpleResponse.StatusId,
-                RoleId = simpleResponse.RoleId,
-                AvatarId = simpleResponse.AvatarId,
-                Avatar = simpleResponse.Avatar,
-                IsUserProfile = simpleResponse.IsUserProfile,
-
-                CreatedAt = user.CreatedAt,
-                Email = user.Email
-            };
+            
         }
+
+        public GetUserFullResponse(UserEntity user) : base(user)
+        {
+            IsEmailConfirmed = user.IsEmailConfirmed;
+            StatusId = user.StatusId;
+            AvatarId = user.AvatarId;
+        }
+        public bool IsEmailConfirmed { get; set; }
+        public int StatusId { get; set; }
+        public int AvatarId { get; set; }
     }
 }

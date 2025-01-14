@@ -34,7 +34,7 @@ namespace CardsServer.BLL.Services.Module
             try
             {
 
-                UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+                UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
                 if (user == null)
                 {
                     return Result<int>.Failure("Возникла ошибка при создании модуля. Не удалось идентифицировать пользователя!");
@@ -166,7 +166,7 @@ namespace CardsServer.BLL.Services.Module
         public async Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken)
         {
             ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
-            UserEntity? user = await _userRepository.GetUser(userId, cancellationToken);
+            UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
             if (module == null || user == null)
             {
                 return Result.Failure(ErrorAdditional.NotFound);
@@ -228,8 +228,7 @@ namespace CardsServer.BLL.Services.Module
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
-
-
+                
                 GetModule result = new()
                 {
                     Id = id,

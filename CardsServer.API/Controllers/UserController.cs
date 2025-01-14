@@ -19,7 +19,7 @@ namespace CardsServer.API.Controllers
         {
             _userService = userService;
         }
-
+        
         /// <summary>
         /// Позволяет получить пользователя по его Id
         /// </summary>
@@ -42,7 +42,7 @@ namespace CardsServer.API.Controllers
         {
             int userId = User.GetId();
 
-            Result<GetUserSimpleResponse> result = await _userService.GetByUserName(userName, userId, cancellationToken);
+            Result<GetBaseUserResponse> result = await _userService.GetByUserName(userId, userName, cancellationToken);
 
             return result.ToActionResult();
         }
@@ -66,7 +66,7 @@ namespace CardsServer.API.Controllers
         {
             int userId = AuthExtension.GetId(User);
 
-            Result<GetUserFullResponse> result = await _userService.GetUser(userId, cancellationToken);
+            Result<GetBaseUserResponse> result = await _userService.GetUser(userId, cancellationToken);
 
             return result.ToActionResult();
         }

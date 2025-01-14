@@ -39,7 +39,11 @@ namespace CardsServer.DAL.Configurations
 
             builder.HasMany(x => x.RefreshTokens)
                 .WithOne(x => x.User)
-                .HasForeignKey(x => x.UserId);       
+                .HasForeignKey(x => x.UserId);
+
+            builder.HasOne(x => x.Profile)
+                .WithOne(x => x.User)
+                .HasForeignKey<ProfileEntity>(x => x.UserId);
         }
     }
 }
