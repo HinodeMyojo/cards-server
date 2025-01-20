@@ -12,5 +12,6 @@ namespace CardsServer.BLL.Abstractions
         Task DeleteModule(int id, CancellationToken cancellationToken);
         Task<ModuleEntity?> GetModule(int id, CancellationToken cancellationToken);
         Task<ICollection<ModuleEntity>> GetModules(int userId, Expression<Func<ModuleEntity, bool>> expression, CancellationToken cancellationToken);
+        Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken);
     }
 }

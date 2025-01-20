@@ -214,6 +214,16 @@ namespace CardsServer.BLL.Services.Module
             return Result<IEnumerable<GetModule>>.Success(result);
         }
 
+        public async Task<Result<IEnumerable<GetModule>>> GetModules(int userId, GetModules model, CancellationToken cancellationToken)
+        {
+            IEnumerable<ModuleEntity> responseFromDatabase = await _repository.GetModules(model, cancellationToken);
+
+            IEnumerable<GetModule> result = responseFromDatabase.Select(x => (GetModule)x);
+
+            return Result<IEnumerable<GetModule>>.Success(result);
+
+        }
+
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
             try
@@ -263,7 +273,6 @@ namespace CardsServer.BLL.Services.Module
             }
         }
 
-        
 
         /// <summary>
         /// Метод для маппинга внутренних объектов Модуля
