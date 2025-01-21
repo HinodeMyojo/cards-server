@@ -59,22 +59,27 @@ namespace CardsServer.DAL.Repository
 
         public async Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken)
         {
+            const int DEFAULT_LIMIT = 50;
+            
             switch (model)
             {
                 case { AddElements: true, UserModules: false }:
                     return await _context.Modules
                         .Include(x => x.Elements)
                         .ThenInclude(x => x.Image)
+                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
                         .ToListAsync();
                 case { AddElements: false, UserModules: true }:
                     return await _context.Modules
                         .Include(x => x.UserModules)
+                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
                         .ToListAsync();
                 case { AddElements: true, UserModules: true }:
                     return await _context.Modules
                         .Include(x => x.UserModules)
                         .Include(x => x.Elements)
                         .ThenInclude(x => x.Image)
+                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
                         .ToListAsync();
                 default:
                     return await _context.Modules.ToListAsync();

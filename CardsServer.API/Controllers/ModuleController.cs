@@ -58,7 +58,12 @@ namespace CardsServer.API.Controllers
         }
 
 
-        
+        /// <summary>
+        /// Метод получения списка модулей
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet("modules")]
         public async Task<IActionResult> GetModules(GetModules request ,CancellationToken cancellationToken)
         {
