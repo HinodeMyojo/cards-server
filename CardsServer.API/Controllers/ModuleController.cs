@@ -65,16 +65,14 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("modules")]
-        public async Task<IActionResult> GetModules(GetModules request ,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetModules([FromQuery]GetModules request ,CancellationToken cancellationToken)
         {
             int userId = User.GetId();
 
             Result<IEnumerable<GetModule>> result = await _service.GetModules(userId, request, cancellationToken);
 
             return result.ToActionResult();    
-
         }
-
 
         /// <summary>
         /// Метод получения модулей

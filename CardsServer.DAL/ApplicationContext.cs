@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using DotNetEnv;
 using Google.Protobuf;
+using CardsServer.BLL.Enums;
 
 namespace CardsServer.DAL
 {
@@ -64,5 +65,5 @@ namespace CardsServer.DAL
             modelBuilder.ApplyConfiguration(new ModuleConfiguration());
             modelBuilder.ApplyConfiguration(new ElementConfiguration());
         }
-    }
+    }   
 }

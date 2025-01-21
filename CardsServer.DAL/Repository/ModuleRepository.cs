@@ -1,6 +1,7 @@
 ﻿using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Linq;
@@ -60,10 +61,11 @@ namespace CardsServer.DAL.Repository
         public async Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken)
         {
             const int DEFAULT_LIMIT = 50;
-            
+
             switch (model)
             {
                 case { AddElements: true, UserModules: false }:
+                    
                     return await _context.Modules
                         .Include(x => x.Elements)
                         .ThenInclude(x => x.Image)
