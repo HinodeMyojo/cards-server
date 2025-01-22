@@ -2,15 +2,11 @@
 using CardsServer.DAL.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DotNetEnv;
-using Google.Protobuf;
-using CardsServer.BLL.Enums;
 
 namespace CardsServer.DAL
 {
     public class ApplicationContext : DbContext
     {
-        private readonly IConfiguration _configuration;
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<AvatarEntity> Avatars { get; set; }
         public DbSet<RoleEntity> Roles { get; set; }
@@ -23,33 +19,17 @@ namespace CardsServer.DAL
         public DbSet<LogsEntity> Logs { get; set; }
         public DbSet<ProfileEntity> ProfileEntities { get; set; }
 
-        public ApplicationContext(DbContextOptions options, IConfiguration configuration) : base(options)
-        {
-            _configuration = configuration;
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Загружаем .env (в случае если мы НЕ используем докер)
-            // .env должна лежать в .API
-            try
-            {
-                Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
-                Console.WriteLine("Файл .env загружен успешно.");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Ошибка загрузки .env: {ex.Message}");
-            }
 
             // Проверяем переменную окружения
-            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            string? connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
             if (connectionString == null)
             {
                 var message = "CONNECTION_STRING не найдена в переменных окружения.";
                 throw new Exception(message);
             }
-
+            Console.WriteLine(connectionString);
             optionsBuilder.UseNpgsql(connectionString);
         }
 
