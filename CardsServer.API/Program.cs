@@ -6,6 +6,7 @@ using CardsServer.DAL;
 using CardsServer.DAL.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -51,6 +52,13 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
+
+// Load Env
+if (Environment.GetEnvironmentVariable("CONNECTION_STRING").IsNullOrEmpty())
+{
+    DotNetEnv.Env.Load();
+}
+
 builder.Services.RegisterService();
 builder.Services.AuthService(configuration);
 builder.Services.Configure<JwtOptions>(
@@ -65,8 +73,6 @@ builder.Services.AddLogging(logging =>
             builder.Services.BuildServiceProvider().
             GetRequiredService<ILogRepository>()));
 });
-
-
 
 builder.Services.AddCors(options =>
 {
@@ -83,8 +89,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "redis:6379,password=admin";
 });
-
-
 
 var app = builder.Build();
 

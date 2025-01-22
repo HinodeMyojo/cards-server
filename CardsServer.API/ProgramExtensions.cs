@@ -4,9 +4,9 @@ using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
-using CardsServer.BLL.Services.gRPC;
 using CardsServer.BLL.Services.Learning;
 using CardsServer.BLL.Services.Module;
+using CardsServer.BLL.Services.Profile;
 using CardsServer.BLL.Services.User;
 using CardsServer.DAL;
 using CardsServer.DAL.Repository;
@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using StatisticService.API;
 using System.Text;
-using CardsServer.BLL.Services.Profile;
 
 namespace CardsServer.API
 {
