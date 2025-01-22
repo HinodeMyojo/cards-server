@@ -61,20 +61,20 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}"
-            # echo "Переходим в директорию..."
-            # if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            #   echo "Работаем с веткой dev..."
-            #   cd /var/www/pleiades-server-dev
-            #   docker-compose -f docker-compose-dev.yml down
-            #   docker system prune -f
-            #   echo "Билдим и стартуем новые контейнеры для dev..."
-            #   docker-compose -f docker-compose-dev.yml up -d --build
-            # else
-            #   echo "Работаем с веткой main..."
-            #   cd /var/www/pleiades-server
-            #   docker-compose -f docker-compose-prod.yml down
-            #   docker system prune -f
-            #   echo "Билдим и стартуем новые контейнеры для main..."
-            #   docker-compose -f docker-compose-prod.yml up -d --build
-            # fi
+            echo "Переходим в директорию..."
+            if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+               echo "Работаем с веткой dev..."
+               cd /var/www/pleiades-server-dev
+               docker-compose -f docker-compose-dev.yml down
+               docker system prune -f
+               echo "Билдим и стартуем новые контейнеры для dev..."
+               docker-compose -f docker-compose-dev.yml up -d --build
+            else
+               echo "Работаем с веткой main..."
+               cd /var/www/pleiades-server
+               docker-compose -f docker-compose-prod.yml down
+               docker system prune -f
+               echo "Билдим и стартуем новые контейнеры для main..."
+               export CONNECTION_STRING="${{ secrets.CONNECTION_STRING }}"
+               docker-compose -f docker-compose-prod.yml up -d --build
+            fi
