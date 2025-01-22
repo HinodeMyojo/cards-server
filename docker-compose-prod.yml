@@ -8,7 +8,7 @@ networks:
 services:
   cardsserver.api:
     environment:
-      CONNECTION_STRING: $${{ CONNECTION_STRING }}
+      CONNECTION_STRING: "${CONNECTION_STRING}"
     networks:
       - cards-network
     container_name: main
