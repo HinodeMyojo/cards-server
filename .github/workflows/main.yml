@@ -61,7 +61,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "CONNECTION_STRING: $CONNECTION_STRING"
+            echo "CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}"
             # echo "Переходим в директорию..."
             # if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             #   echo "Работаем с веткой dev..."
