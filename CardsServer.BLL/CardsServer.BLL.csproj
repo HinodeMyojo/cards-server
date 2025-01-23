@@ -38,4 +38,9 @@
 		<Protobuf Include="Protos\statistic.proto" GrpcServices="Client" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Abstractions\Strategy\ModuleLoadingStrategy\" />
+	  <Folder Include="Abstractions\Strategy\ModuleSortStrategy\" />
+	</ItemGroup>
+
 </Project>

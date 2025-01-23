@@ -2,7 +2,7 @@
 
 namespace CardsServer.BLL.Abstractions.Strategy
 {
-    public interface ISortStrategy
+    public interface IModuleSortStrategy
     {
         IQueryable<ModuleEntity> ApplySort(IQueryable<ModuleEntity> query);
     }

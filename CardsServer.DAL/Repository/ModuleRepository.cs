@@ -65,7 +65,7 @@ namespace CardsServer.DAL.Repository
             switch (model)
             {
                 case { AddElements: true, UserModules: false }:
-                    
+
                     return await _context.Modules
                         .Include(x => x.Elements)
                         .ThenInclude(x => x.Image)
@@ -87,6 +87,11 @@ namespace CardsServer.DAL.Repository
                     return await _context.Modules.ToListAsync();
             }
         }
+
+        //public async Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken)
+        //{
+
+        //}
 
         public async Task<IEnumerable<ModuleEntity>> GetModulesShortInfo(int[] moduleIds, CancellationToken cancellationToken)
         {

@@ -216,6 +216,8 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result<IEnumerable<GetModule>>> GetModules(int userId, GetModules model, CancellationToken cancellationToken)
         {
+            // TODO добавить стратегию по выборке и сортировке
+
             IEnumerable<ModuleEntity> responseFromDatabase = await _repository.GetModules(model, cancellationToken);
 
             IEnumerable<GetModule> result = responseFromDatabase.Select(x => (GetModule)x);
