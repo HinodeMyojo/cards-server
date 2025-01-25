@@ -2,6 +2,7 @@
 using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +58,33 @@ namespace CardsServer.API.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("modules/sortOptions")]
+        public async Task<IActionResult> GetSortOptions(CancellationToken cancellationToken)
+        {
+            Dictionary<int, string> sortTime = new()
+            {
+                { (int)SortTimeEnum.Day, "День" },
+                { (int)SortTimeEnum.Week, "Неделя" },
+                { (int)SortTimeEnum.Month, "Месяц" },
+                { (int)SortTimeEnum.HalfAYear, "Полгода" },
+                { (int)SortTimeEnum.Year, "Год" },
+                { (int)SortTimeEnum.AllTime, "Все время" }
+            };
+            
+            Dictionary<int, string> sortOption = new()
+            {
+                { (int)SortOptionEnum.Newest, "Новые" },
+                { (int)SortOptionEnum.Oldest, "Старые" },
+                { (int)SortOptionEnum.Popularity, "Популярные" }
+            };
+
+
+            return Ok(new
+            {
+                sortTime,
+                sortOption
+            });
+        }
 
         /// <summary>
         /// Метод получения списка модулей
