@@ -53,6 +53,8 @@ namespace CardsServer.API.Controllers
         {
             int userId = User.GetId();
 
+            module.CreateAt = DateTime.Now.ToUniversalTime();
+            
             Result<int> result = await _service.CreateModule(userId, module, cancellationToken);
 
             return result.ToActionResult();

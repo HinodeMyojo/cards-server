@@ -1,5 +1,6 @@
 ﻿using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Entity;
+using System.Text.Json.Serialization;
 
 namespace CardsServer.BLL.Dto.Module
 {
@@ -7,6 +8,7 @@ namespace CardsServer.BLL.Dto.Module
     {
         public required string Title { get; set; }
         public string? Description { get; set; }
+        [JsonIgnore]
         public DateTime CreateAt { get; set; }
         public bool Private { get; set; }
         public bool IsDraft { get; set; }

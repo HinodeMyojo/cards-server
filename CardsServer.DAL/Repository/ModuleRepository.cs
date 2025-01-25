@@ -88,38 +88,34 @@ namespace CardsServer.DAL.Repository
                     break;
             }
 
-            switch (model.SortOption)
+            query = model.SortOption switch
             {
-                case SortOptionEnum.Newest:
-                    query = query.OrderByDescending(x => x.CreateAt);
-                    break;
-                case SortOptionEnum.Oldest:
-                    query = query.OrderBy(x => x.CreateAt);
-                    break;
-                case SortOptionEnum.Popularity:
-                    query = query.OrderBy(x => x.UserModules.Count);
-                    break;
-                default:
-                    query = query.OrderByDescending(x => x.CreateAt);
-                    break;
-            }
+                SortOptionEnum.Newest => query.OrderByDescending(x => x.CreateAt),
+                SortOptionEnum.Oldest => query.OrderBy(x => x.CreateAt),
+                SortOptionEnum.Popularity => query.OrderByDescending(x => x.UserModules.Count),
+                _ => query.OrderByDescending(x => x.UserModules.Count)
+            };
 
             switch (model.SortTime)
             {
                 case SortTimeEnum.Day:
-                    query = query.Where(x => x.CreateAt.DayOfYear == DateTime.Today.DayOfYear);
+                    query = query.Where(x => x.CreateAt.Date == DateTime.UtcNow.Date);
                     break;
                 case SortTimeEnum.Month:
-                    query = query.Where(x => x.CreateAt.Month == DateTime.Today.Month);
+                    query = query.Where(x => x.CreateAt.Month == DateTime.UtcNow.Month && x.CreateAt.Year == DateTime.UtcNow.Year);
                     break;  
                 case SortTimeEnum.Year:
                     query = query.Where(x => x.CreateAt.Year == DateTime.Today.Year);
                     break;
                 case SortTimeEnum.Week:
-                    query = query.Where(x => (x.CreateAt.ToUniversalTime() - DateTime.Today.ToUniversalTime()).Days <= DAYS_IN_WEEK);
+                    DateTime weekStart = DateTime.UtcNow.Date.AddDays(-DAYS_IN_WEEK);
+                    query = query.Where(x => x.CreateAt >= weekStart);
                     break;
                 case SortTimeEnum.HalfAYear:
-                    query = query.Where(x => (x.CreateAt.ToUniversalTime() - DateTime.Today.ToUniversalTime()).Days <= HALF_OF_YEAR);
+                    DateTime halfYearStart = DateTime.UtcNow.Date.AddDays(-HALF_OF_YEAR);
+                    query = query.Where(x => x.CreateAt >= halfYearStart);
+                    break;
+                case SortTimeEnum.AllTime:
                     break;
                 default:
                     query = query.Where(x => x.CreateAt.Month == DateTime.Today.Month);
