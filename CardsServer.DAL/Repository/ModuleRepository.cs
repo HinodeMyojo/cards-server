@@ -58,35 +58,26 @@ namespace CardsServer.DAL.Repository
 
         }
 
-        public async Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ModuleEntity>> GetModules(GetModulesRequest model, CancellationToken cancellationToken)
         {
             const int DEFAULT_LIMIT = 50;
             const int DAYS_IN_WEEK = 7;
             const int HALF_OF_YEAR = 182;
 
-            IQueryable<ModuleEntity> query;
+            IQueryable<ModuleEntity> query = _context.Modules;
             
-            switch (model)
-            {
-                case { AddElements: true, UserModules: false }:
-                    query = _context.Modules
-                        .Include(x => x.Elements)
-                        .ThenInclude(x => x.Image);
-                    break; 
-                case { AddElements: false, UserModules: true }:
-                    query = _context.Modules
-                        .Include(x => x.UserModules);
-                    break;  
-                case { AddElements: true, UserModules: true }:
-                    query = _context.Modules
-                        .Include(x => x.UserModules)
-                        .Include(x => x.Elements)
-                        .ThenInclude(x => x.Image);
-                    break;  
-                default:
-                    query = _context.Modules;
-                    break;
-            }
+            if (model.AddElements)
+                query = query.Include(x => x.Elements);
+            
+            if (model.UserModules)
+                query = query.Include(x => x.UserModules);
+
+            if (model.AddCreatorAvatar)
+                query = query.Include(x => x.Creator)
+                    .ThenInclude(c => c.Avatar);
+
+            if (model.AddCreatorUserName)
+                query = query.Include(x => x.Creator);
 
             query = model.SortOption switch
             {

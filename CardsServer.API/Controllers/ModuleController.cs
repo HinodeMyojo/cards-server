@@ -95,12 +95,13 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("modules")]
-        public async Task<IActionResult> GetModules([FromQuery]GetModules request ,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetModules([FromQuery]GetModulesRequest request ,CancellationToken cancellationToken)
         {
             int userId = User.GetId();
 
-            Result<IEnumerable<GetModule>> result = await _service.GetModules(userId, request, cancellationToken);
-
+            // TODO нужно выделить пользователей в отдельный блок, а модули - в другой (чтобы не дублировать image)
+            Result<IEnumerable<GetModuleBase>> result = await _service.GetModules(userId, request, cancellationToken);
+            
             return result.ToActionResult();    
         }
 
