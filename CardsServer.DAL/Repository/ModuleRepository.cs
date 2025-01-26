@@ -58,34 +58,75 @@ namespace CardsServer.DAL.Repository
 
         }
 
-        public async Task<IEnumerable<ModuleEntity>> GetModules(GetModules model, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ModuleEntity>> GetModules(GetModulesRequest model, CancellationToken cancellationToken)
         {
             const int DEFAULT_LIMIT = 50;
+            const int DAYS_IN_WEEK = 7;
+            const int HALF_OF_YEAR = 182;
 
-            switch (model)
+            IQueryable<ModuleEntity> query = _context.Modules;
+            
+            if (model.AddElements)
+                query = query.Include(x => x.Elements);
+            
+            if (model.UserModules)
+                query = query.Include(x => x.UserModules);
+
+            if (model.AddCreatorAvatar)
+                query = query.Include(x => x.Creator)
+                    .ThenInclude(c => c.Avatar);
+
+            if (model.AddCreatorUserName)
+                query = query.Include(x => x.Creator);
+
+            query = model.SortOption switch
             {
-                case { AddElements: true, UserModules: false }:
-                    
-                    return await _context.Modules
-                        .Include(x => x.Elements)
-                        .ThenInclude(x => x.Image)
-                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
-                        .ToListAsync();
-                case { AddElements: false, UserModules: true }:
-                    return await _context.Modules
-                        .Include(x => x.UserModules)
-                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
-                        .ToListAsync();
-                case { AddElements: true, UserModules: true }:
-                    return await _context.Modules
-                        .Include(x => x.UserModules)
-                        .Include(x => x.Elements)
-                        .ThenInclude(x => x.Image)
-                        .Take(model.Limit == 0 ? DEFAULT_LIMIT : model.Limit)
-                        .ToListAsync();
+                SortOptionEnum.Newest => query.OrderByDescending(x => x.CreateAt),
+                SortOptionEnum.Oldest => query.OrderBy(x => x.CreateAt),
+                SortOptionEnum.Popularity => query.OrderByDescending(x => x.UserModules.Count),
+                _ => query.OrderByDescending(x => x.UserModules.Count)
+            };
+
+            switch (model.SortTime)
+            {
+                case SortTimeEnum.Day:
+                    query = query.Where(x => x.CreateAt.Date == DateTime.UtcNow.Date);
+                    break;
+                case SortTimeEnum.Month:
+                    query = query.Where(x => x.CreateAt.Month == DateTime.UtcNow.Month && x.CreateAt.Year == DateTime.UtcNow.Year);
+                    break;  
+                case SortTimeEnum.Year:
+                    query = query.Where(x => x.CreateAt.Year == DateTime.Today.Year);
+                    break;
+                case SortTimeEnum.Week:
+                    DateTime weekStart = DateTime.UtcNow.Date.AddDays(-DAYS_IN_WEEK);
+                    query = query.Where(x => x.CreateAt >= weekStart);
+                    break;
+                case SortTimeEnum.HalfAYear:
+                    DateTime halfYearStart = DateTime.UtcNow.Date.AddDays(-HALF_OF_YEAR);
+                    query = query.Where(x => x.CreateAt >= halfYearStart);
+                    break;
+                case SortTimeEnum.AllTime:
+                    break;
                 default:
-                    return await _context.Modules.ToListAsync();
+                    query = query.Where(x => x.CreateAt.Month == DateTime.Today.Month);
+                    break;
             }
+
+            if (model.Limit != 0)
+            {
+                query = query.Take(model.Limit);
+            }
+            else
+            {
+                query = query.Take(DEFAULT_LIMIT);  
+            }
+            
+            // TODO учесть приватность более подробно
+            query = query.Where(x => x.Private == false);
+            
+            
+            return await query.ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<ModuleEntity>> GetModulesShortInfo(int[] moduleIds, CancellationToken cancellationToken)

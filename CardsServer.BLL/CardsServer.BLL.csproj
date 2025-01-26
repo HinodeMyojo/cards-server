@@ -38,4 +38,8 @@
 		<Protobuf Include="Protos\statistic.proto" GrpcServices="Client" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Abstractions\Factories\" />
+	</ItemGroup>
+
 </Project>

@@ -4,6 +4,7 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using System.Collections;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -214,13 +215,21 @@ namespace CardsServer.BLL.Services.Module
             return Result<IEnumerable<GetModule>>.Success(result);
         }
 
-        public async Task<Result<IEnumerable<GetModule>>> GetModules(int userId, GetModules model, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(int userId, GetModulesRequest model, CancellationToken cancellationToken)
         {
             IEnumerable<ModuleEntity> responseFromDatabase = await _repository.GetModules(model, cancellationToken);
 
-            IEnumerable<GetModule> result = responseFromDatabase.Select(x => (GetModule)x);
+            IEnumerable<GetModuleBase> result;
+            
+            if (model.AddCreatorAvatar || model.AddCreatorUserName || model.AddCommentCount || model.AddTags)
+            {
+                result = responseFromDatabase.Select(x => (GetModuleExpanded)x);
+                return Result<IEnumerable<GetModuleBase>>.Success(result);
+            }
+            
+            result = responseFromDatabase.Select(x => (GetModule)x);
 
-            return Result<IEnumerable<GetModule>>.Success(result);
+            return Result<IEnumerable<GetModuleBase>>.Success(result);
 
         }
 

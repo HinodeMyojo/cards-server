@@ -2,6 +2,7 @@
 using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
@@ -52,11 +53,40 @@ namespace CardsServer.API.Controllers
         {
             int userId = User.GetId();
 
+            module.CreateAt = DateTime.Now.ToUniversalTime();
+            
             Result<int> result = await _service.CreateModule(userId, module, cancellationToken);
 
             return result.ToActionResult();
         }
 
+        [HttpGet("modules/sortOptions")]
+        public async Task<IActionResult> GetSortOptions(CancellationToken cancellationToken)
+        {
+            Dictionary<int, string> sortTime = new()
+            {
+                { (int)SortTimeEnum.Day, "День" },
+                { (int)SortTimeEnum.Week, "Неделя" },
+                { (int)SortTimeEnum.Month, "Месяц" },
+                { (int)SortTimeEnum.HalfAYear, "Полгода" },
+                { (int)SortTimeEnum.Year, "Год" },
+                { (int)SortTimeEnum.AllTime, "Все время" }
+            };
+            
+            Dictionary<int, string> sortOption = new()
+            {
+                { (int)SortOptionEnum.Newest, "Новые" },
+                { (int)SortOptionEnum.Oldest, "Старые" },
+                { (int)SortOptionEnum.Popularity, "Популярные" }
+            };
+
+
+            return Ok(new
+            {
+                sortTime,
+                sortOption
+            });
+        }
 
         /// <summary>
         /// Метод получения списка модулей
@@ -65,12 +95,13 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("modules")]
-        public async Task<IActionResult> GetModules([FromQuery]GetModules request ,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetModules([FromQuery]GetModulesRequest request ,CancellationToken cancellationToken)
         {
             int userId = User.GetId();
 
-            Result<IEnumerable<GetModule>> result = await _service.GetModules(userId, request, cancellationToken);
-
+            // TODO нужно выделить пользователей в отдельный блок, а модули - в другой (чтобы не дублировать image)
+            Result<IEnumerable<GetModuleBase>> result = await _service.GetModules(userId, request, cancellationToken);
+            
             return result.ToActionResult();    
         }
 
