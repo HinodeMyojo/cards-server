@@ -65,12 +65,12 @@ namespace CardsServer.API.Controllers
         {
             Dictionary<int, string> sortTime = new()
             {
-                { (int)SortTimeEnum.Day, "День" },
-                { (int)SortTimeEnum.Week, "Неделя" },
-                { (int)SortTimeEnum.Month, "Месяц" },
-                { (int)SortTimeEnum.HalfAYear, "Полгода" },
-                { (int)SortTimeEnum.Year, "Год" },
-                { (int)SortTimeEnum.AllTime, "Все время" }
+                { (int)SortTimeEnum.Day, "За день" },
+                { (int)SortTimeEnum.Week, "За неделю" },
+                { (int)SortTimeEnum.Month, "За месяц" },
+                { (int)SortTimeEnum.HalfAYear, "За полгода" },
+                { (int)SortTimeEnum.Year, "За год" },
+                { (int)SortTimeEnum.AllTime, "За все время" }
             };
             
             Dictionary<int, string> sortOption = new()
@@ -79,7 +79,6 @@ namespace CardsServer.API.Controllers
                 { (int)SortOptionEnum.Oldest, "Старые" },
                 { (int)SortOptionEnum.Popularity, "Популярные" }
             };
-
 
             return Ok(new
             {
