@@ -26,9 +26,11 @@ namespace CardsServer.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("user/get")]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetUser(int id, CancellationToken cancellationToken)
         {
-            return Ok();
+           Result<GetBaseUserResponse> response = await _userService.GetUser(id, cancellationToken);
+
+           return response.ToActionResult();
         }
 
         /// <summary>
