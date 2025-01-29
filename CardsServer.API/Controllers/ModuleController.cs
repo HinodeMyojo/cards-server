@@ -61,6 +61,7 @@ namespace CardsServer.API.Controllers
         }
 
         [HttpGet("modules/sortOptions")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSortOptions(CancellationToken cancellationToken)
         {
             Dictionary<int, string> sortTime = new()
