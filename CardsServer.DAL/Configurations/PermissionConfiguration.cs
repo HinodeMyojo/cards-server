@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Auth.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,7 +14,7 @@ namespace CardsServer.DAL.Configurations
             builder.HasKey(x => x.Id);
 
             IEnumerable<PermissionEntity> permissions = Enum
-                .GetValues<Permission>()
+                .GetValues<PermissionEnum>()
                 .Select(p => new PermissionEntity
                 {
                     Id = (int)p,
