@@ -46,15 +46,5 @@ namespace CardsServer.DAL.Configurations
                 PermissionId = (int)permission
             };
         }
-
-        private static RolePermissionEntity Create(
-            Role role, Permission permission)
-        {
-            return new RolePermissionEntity
-            {
-                RoleId = (int)role,
-                PermissionId = (int)permission
-            };
-        }
     }
 }

@@ -5,6 +5,6 @@
         Admin = 1,
         Moderator = 2,
         User = 3,
-        UserNotVerified = 4
+        NotVerifiedUser = 4
     }
 }
