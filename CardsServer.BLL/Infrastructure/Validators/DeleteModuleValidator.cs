@@ -1,6 +1,6 @@
 namespace CardsServer.BLL.Infrastructure.Validators
 {
-    public class DeleteModuleValidator<T> : IValidate<T>
+    public class DeleteModuleValidator<T> : IValidator<T>
     {
         public Result.Result Validate(T entity)
         {

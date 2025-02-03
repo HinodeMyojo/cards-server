@@ -32,6 +32,7 @@ namespace CardsServer.BLL.Infrastructure.Result
         }
 
         public static Result<T> Success(T value) => new(value, true, Error.None);
+        public static Result<T> Success() => new(default, true, Error.None);
         public static new Result<T> Failure(Error error) => new(default!, false, error);
         public static new Result<T> Failure(string message) => new(default!, false, new Error(message, HttpStatusCode.BadRequest));
 

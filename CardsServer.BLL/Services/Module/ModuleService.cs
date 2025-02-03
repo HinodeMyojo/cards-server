@@ -2,6 +2,7 @@
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
 using System.Collections;
@@ -14,24 +15,29 @@ namespace CardsServer.BLL.Services.Module
         private readonly IModuleRepository _repository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
+        private readonly IValidatorFactory _validatorFactory;
 
         public ModuleService(
-            IModuleRepository repository, 
-            IUserRepository userRepository, 
-            IImageService imageService, 
-            IElementRepostory elementRepostory)
+            IModuleRepository repository,
+            IUserRepository userRepository,
+            IImageService imageService,
+            IElementRepostory elementRepostory,
+            IValidatorFactory validatorFactory)
         {
             _repository = repository;
             _userRepository = userRepository;
             _imageService = imageService;
             _elementRepostory = elementRepostory;
+            _validatorFactory = validatorFactory;
         }
 
         public async Task<Result<int>> CreateModule(int userId, CreateModule module, CancellationToken cancellationToken)
         {
-            (bool isValid, string errorMessage) check = CheckTitle(module.Title);
-            if (!check.isValid)
-                return Result<int>.Failure(check.errorMessage);
+            //(bool isValid, string errorMessage) check = CheckTitle(module.Title);
+
+            //if (!check.isValid)
+            //    return Result<int>.Failure(check.errorMessage);
+
             try
             {
 
@@ -337,32 +343,6 @@ namespace CardsServer.BLL.Services.Module
 
                 await Task.CompletedTask;
             });
-        }
-
-        private (bool isValid, string errorMessage) CheckTitle(string title, int minLength = 2, int maxLength = 256)
-        {
-            // Проверка на null или пустую строку
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                return (false, "Название не должно быть пустым или состоять только из пробелов.");
-            }
-
-            if (title.Length < minLength)
-            {
-                return (false, $"Название должно содержать не менее {minLength} символов.");
-            }
-
-            if (title.Length > maxLength)
-            {
-                return (false, $"Название должно содержать не более {maxLength} символов.");
-            }
-
-            //if (!title.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)))
-            //{
-            //    return (false, "Название содержит недопустимые символы.");
-            //}
-
-            return (true, "");
         }
     }
 }

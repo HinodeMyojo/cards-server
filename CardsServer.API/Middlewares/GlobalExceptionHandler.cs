@@ -48,6 +48,10 @@ namespace CardsServer.API.Middlewares
                     statusCode = StatusCodes.Status400BadRequest;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
                     break;
+                case NotSelectedValidatorException ex:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     problemDetails = CreateProblemDetails(httpContext, exception, statusCode);
