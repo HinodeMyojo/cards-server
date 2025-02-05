@@ -4,9 +4,9 @@ using CardsServer.BLL.Infrastructure.Validators;
 
 namespace CardsServer.BLL.Infrastructure.Factories
 {
-    public class ValidatorFactory : IValidatorFactory
+    public class ValidatorFactory<T> : IValidatorFactory<T>
     {
-        public IValidator<T> CreateValidator<T>(ValidateModesEnum validateModes) where T : class
+        public IValidator<T> CreateValidator(ValidateModesEnum validateModes)
         {
             IValidator<T> validator = null;
 
