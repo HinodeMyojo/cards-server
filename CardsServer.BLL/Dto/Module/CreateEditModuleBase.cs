@@ -1,8 +1,9 @@
-﻿using CardsServer.BLL.Dto.Element;
+﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Dto.Element;
 
 namespace CardsServer.BLL.Dto.Module
 {
-    public class CreateEditModuleBase
+    public class CreateEditModuleBase : IHasTitle
     {
         public required string Title { get; set; }
         public string? Description { get; set; }
