@@ -129,9 +129,10 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPut("module")]
-        public async Task<IActionResult> EditModule(CancellationToken cancellationToken)
+        public async Task<IActionResult> EditModule(EditModule module, CancellationToken cancellationToken)
         {
-            return Ok();
+            Result result = await _service.EditModule(module, cancellationToken);
+            return result.ToActionResult();
         }
 
         /// <summary>

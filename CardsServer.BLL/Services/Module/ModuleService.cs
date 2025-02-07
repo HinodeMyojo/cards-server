@@ -15,22 +15,32 @@ namespace CardsServer.BLL.Services.Module
         private readonly IModuleRepository _repository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
-        private readonly IValidatorFactory _validatorFactory;
 
         public ModuleService(
             IModuleRepository repository,
             IUserRepository userRepository,
             IImageService imageService,
-            IElementRepostory elementRepostory,
-            IValidatorFactory validatorFactory)
+            IElementRepostory elementRepostory)
         {
             _repository = repository;
             _userRepository = userRepository;
             _imageService = imageService;
             _elementRepostory = elementRepostory;
-            _validatorFactory = validatorFactory;
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<Result> EditModule(EditModule module, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        
         public async Task<Result<int>> CreateModule(int userId, CreateModule module, CancellationToken cancellationToken)
         {
             //(bool isValid, string errorMessage) check = CheckTitle(module.Title);

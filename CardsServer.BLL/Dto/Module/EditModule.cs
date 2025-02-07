@@ -1,4 +1,6 @@
-﻿namespace CardsServer.BLL.Dto.Module
+﻿using System.Text.Json.Serialization;
+
+namespace CardsServer.BLL.Dto.Module
 {
     public class EditModule : CreateEditModuleBase
     {

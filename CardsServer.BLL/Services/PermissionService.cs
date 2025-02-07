@@ -5,12 +5,19 @@ namespace CardsServer.BLL.Services
 {
     internal class PermissionService : IPermissionService
     {
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="module"></param>
+        /// <returns></returns>
         bool IPermissionService.CanCreateModule(UserEntity user, ModuleEntity module)
         {
             if (module.CreatorId == user.Id)
             {
                 return true;
             }
+            return false;
         }
 
         bool IPermissionService.CanDeleteModule(UserEntity user, ModuleEntity module)
