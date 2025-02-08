@@ -2,6 +2,7 @@
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
@@ -15,6 +16,7 @@ namespace CardsServer.BLL.Services.Module
         private readonly IModuleRepository _repository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
+        
 
         public ModuleService(
             IModuleRepository repository,
@@ -35,8 +37,19 @@ namespace CardsServer.BLL.Services.Module
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<Result> EditModule(EditModule module, CancellationToken cancellationToken)
+        public async Task<Result> EditModule(EditModule module, CancellationToken cancellationToken)
         {
+            
+            //Вот тут должна быть логика 
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            
             throw new NotImplementedException();
         }
 

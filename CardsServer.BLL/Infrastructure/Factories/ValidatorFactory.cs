@@ -6,20 +6,21 @@ namespace CardsServer.BLL.Infrastructure.Factories
 {
     public class ValidatorFactory<T> : IValidatorFactory<T>
     {
+        IValidator<T> _validator;
         public IValidator<T> CreateValidator(ValidateModesEnum validateModes)
         {
-            IValidator<T> validator = null;
+            
 
             switch (validateModes)
             {
                 case ValidateModesEnum.EditModuleByUser:
-                    validator = new EditModuleValidator<T>();
+                    _validator = new EditModuleValidator();
                     break;
                 default:
                     throw new NotSelectedValidatorException("Не выбран тип валидации!");
             }
 
-            return validator;
+            return _validator;
         }
     }
 }

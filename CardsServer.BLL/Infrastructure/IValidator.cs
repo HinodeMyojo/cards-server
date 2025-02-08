@@ -5,8 +5,8 @@ namespace CardsServer.BLL.Infrastructure
     /// <summary>
     /// Общий интерфейс для методов валидации
     /// </summary>
-    public interface IValidator<T>
+    public interface IValidator
     {
-        public Result<string> Validate (T obj);
+        public Result<string> Validate<T> (T obj);
     }
 }
