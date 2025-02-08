@@ -1,16 +1,15 @@
-﻿using CardsServer.BLL.Enums;
+﻿using CardsServer.BLL.Dto.Module;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Validators;
 
 namespace CardsServer.BLL.Infrastructure.Factories
 {
-    public class ValidatorFactory<T> : IValidatorFactory<T>
+    public class ValidatorFactory : IValidatorFactory
     {
-        IValidator<T> _validator;
-        public IValidator<T> CreateValidator(ValidateModesEnum validateModes)
+        IValidator _validator;
+        public IValidator CreateValidator(ValidateModesEnum validateModes)
         {
-            
-
             switch (validateModes)
             {
                 case ValidateModesEnum.EditModuleByUser:

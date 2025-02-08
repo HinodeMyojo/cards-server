@@ -2,8 +2,8 @@
 
 namespace CardsServer.BLL.Infrastructure.Factories
 {
-    public interface IValidatorFactory<T>
+    public interface IValidatorFactory
     {
-        public IValidator<T> CreateValidator (ValidateModesEnum validateModes);
+        public IValidator CreateValidator (ValidateModesEnum validateModes);
     }
 }

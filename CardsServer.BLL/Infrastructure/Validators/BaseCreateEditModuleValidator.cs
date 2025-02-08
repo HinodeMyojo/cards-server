@@ -1,7 +1,5 @@
-﻿using CardsServer.BLL.Abstractions;
-using CardsServer.BLL.Dto.Module;
+﻿using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Infrastructure.Result;
-using System.ComponentModel.DataAnnotations;
 
 namespace CardsServer.BLL.Infrastructure.Validators
 {
@@ -11,33 +9,26 @@ namespace CardsServer.BLL.Infrastructure.Validators
     /// <typeparam name="T"></typeparam>
     public class BaseCreateEditModuleValidator : IValidator
     {
-        
-        // public virtual Result<string> Validate<CreateEditModuleBase>(CreateEditModuleBase obj)
-        // {
-        //     try
-        //     {
-        //         Result<string> resultFromCheckTitle = CheckTitle(obj.Title);
-        //         var check = ResultHandler(resultFromCheckTitle);
-        //         if (check.Item1)
-        //         {
-        //             return Result<string>.Success();
-        //         }
-        //         else
-        //         {
-        //             return Result<string>.Failure(check.Item2!.Error);
-        //         }
-        //     }
-        //     catch(Exception ex)
-        //     {
-        //         throw new ValidationException("Возникла ошибка при валидации", ex);
-        //     }
-        // }
-        
-        public Result<string> Validate<T>(T obj)
+        public virtual Result<string> Validate(object obj)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Result<string> resultFromCheckTitle = CheckTitle(obj.Title);
+                var check = ResultHandler(resultFromCheckTitle);
+                if (check.Item1)
+                {
+                    return Result<string>.Success();
+                }
+                else
+                {
+                    return Result<string>.Failure(check.Item2!.Error);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new ValidationException("Возникла ошибка при валидации", ex);
+            }
         }
-        
         protected static Result<string> CheckTitle(string title)
         {
             int MIN_LENGTH_OF_MODULE_TITLE = 2;
@@ -72,7 +63,5 @@ namespace CardsServer.BLL.Infrastructure.Validators
             }
             return (true, null);
         }
-
-        
     }
 }

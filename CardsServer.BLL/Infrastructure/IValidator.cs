@@ -3,10 +3,10 @@ using CardsServer.BLL.Infrastructure.Result;
 namespace CardsServer.BLL.Infrastructure
 {
     /// <summary>
-    /// Общий интерфейс для методов валидации
+    /// Р‘Р°Р·РѕРІС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ РґР»СЏ РІР°Р»РёРґР°С‚РѕСЂР°
     /// </summary>
     public interface IValidator
     {
-        public Result<string> Validate<T> (T obj);
+        public Result<string> Validate (object obj);
     }
 }
