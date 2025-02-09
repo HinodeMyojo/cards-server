@@ -1,4 +1,5 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Abstractions.Specifications;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
@@ -16,18 +17,24 @@ namespace CardsServer.BLL.Services.Module
         private readonly IModuleRepository _repository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
+        private readonly IValidatorFactory _validatorFactory;
+        private readonly IPermissionService _permissionService;
         
 
         public ModuleService(
             IModuleRepository repository,
             IUserRepository userRepository,
             IImageService imageService,
-            IElementRepostory elementRepostory)
+            IElementRepostory elementRepostory, 
+            IValidatorFactory validatorFactory, 
+            IPermissionService permissionService)
         {
             _repository = repository;
             _userRepository = userRepository;
             _imageService = imageService;
             _elementRepostory = elementRepostory;
+            _validatorFactory = validatorFactory;
+            _permissionService = permissionService;
         }
 
         /// <summary>
@@ -43,7 +50,7 @@ namespace CardsServer.BLL.Services.Module
             //Вот тут должна быть логика 
             try
             {
-
+        
             }
             catch (Exception ex)
             {

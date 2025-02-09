@@ -1,38 +1,30 @@
-﻿using CardsServer.BLL.Abstractions.Specifications;
+using CardsServer.BLL.Abstractions.Specifications;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 
 namespace CardsServer.BLL.Services
 {
-    internal class PermissionService : IPermissionService
+    public class PermissionService : IPermissionService
     {
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="module"></param>
-        /// <returns></returns>
-        bool IPermissionService.CanCreateModule(UserEntity user, ModuleEntity module)
+        public PermissionEnum GetEditPermissions(UserEntity user, ModuleEntity module)
         {
-            if (module.CreatorId == user.Id)
+            if (HasPermission(user, PermissionEnum.CanEditAnyModule))
             {
-                return true;
+                return PermissionEnum.CanEditAnyModule;
             }
-            return false;
+            if (HasPermission(user, PermissionEnum.CanEditOwnModule) && module.CreatorId == user.Id)
+            {
+                return PermissionEnum.CanEditOwnModule;
+            }
+            
+            throw new 
         }
 
-        bool IPermissionService.CanDeleteModule(UserEntity user, ModuleEntity module)
+        private bool HasPermission(UserEntity user, PermissionEnum permission)
         {
-            throw new NotImplementedException();
-        }
-
-        bool IPermissionService.CanEditModule(UserEntity user, ModuleEntity module)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IPermissionService.CanGetModule(UserEntity user, ModuleEntity module)
-        {
-            throw new NotImplementedException();
+            if (user.Role == null || user.Role.Permissions == null)
+                return false;
+            return user.Role.Permissions.Any(p => p.Id == (int)permission);
         }
     }
 }

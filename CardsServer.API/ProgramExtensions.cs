@@ -1,7 +1,9 @@
 ﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Abstractions.Specifications;
 using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Auth.Roles;
+using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Services;
 using CardsServer.BLL.Services.Learning;
@@ -41,6 +43,9 @@ namespace CardsServer.API
             services.AddTransient<IElementService, ElementService>();
             services.AddTransient<ILearningService, LearningService>();
             services.AddTransient<IProfileSerivce, ProfileSerivce>();
+            services.AddTransient<IPermissionService, PermissionService>();
+            
+            services.AddTransient<IValidatorFactory, ValidatorFactory>();
 
             services.AddTransient<ILoginRepository, LoginRepository>();
             services.AddTransient<IUserRepository, UserRepository>();

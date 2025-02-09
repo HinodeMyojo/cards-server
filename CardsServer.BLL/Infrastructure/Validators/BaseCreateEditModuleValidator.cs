@@ -4,32 +4,29 @@ using CardsServer.BLL.Infrastructure.Result;
 namespace CardsServer.BLL.Infrastructure.Validators
 {
     /// <summary>
-    /// Базовый валидатор для методов Create, Edit Модулей
+    /// Базовый метод для валидации
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class BaseCreateEditModuleValidator : IValidator
     {
         public virtual Result<string> Validate(object obj)
         {
             try
             {
-                Result<string> resultFromCheckTitle = CheckTitle(obj.Title);
-                var check = ResultHandler(resultFromCheckTitle);
-                if (check.Item1)
+                if (obj is not CreateEditModuleBase module)
                 {
-                    return Result<string>.Success();
+                    return Result<string>.Failure("Invalid object type");
                 }
-                else
-                {
-                    return Result<string>.Failure(check.Item2!.Error);
-                }
+                
+                Result<string> resultFromCheckTitle = CheckTitle(module.Title);
+                (bool, Result<string>?) check = ResultHandler(resultFromCheckTitle);
+                return check.Item1 ? Result<string>.Success() : Result<string>.Failure(check.Item2!.Error);
             }
-            catch(Exception ex)
+            catch
             {
-                throw new ValidationException("Возникла ошибка при валидации", ex);
+                throw;
             }
         }
-        protected static Result<string> CheckTitle(string title)
+        private static Result<string> CheckTitle(string title)
         {
             int MIN_LENGTH_OF_MODULE_TITLE = 2;
             int MAX_LENGTH_OF_MODULE_TITLE = 256;
@@ -52,7 +49,7 @@ namespace CardsServer.BLL.Infrastructure.Validators
             return Result<string>.Success();
         }
 
-        public static (bool, Result<string>?) ResultHandler(params Result<string>[] results)
+        private static (bool, Result<string>?) ResultHandler(params Result<string>[] results)
         {
             foreach (Result<string> item in results)
             {

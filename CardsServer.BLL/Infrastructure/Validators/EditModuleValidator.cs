@@ -6,7 +6,14 @@ namespace CardsServer.BLL.Infrastructure.Validators
     {
         public override Result<string> Validate(object obj)
         {
-            return base.Validate(obj);
+            Result<string> result = base.Validate(obj);
+            if (!result.IsSuccess)
+            {
+                return result;
+            }
+
+            return Result<string>.Success(result.Value);
+
         }
     }
 }

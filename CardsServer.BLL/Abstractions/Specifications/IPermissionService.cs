@@ -1,11 +1,10 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
+
 namespace CardsServer.BLL.Abstractions.Specifications
 {
-    internal interface IPermissionService
+    public interface IPermissionService
     {
-        internal bool CanCreateModule(UserEntity user, ModuleEntity module);
-        internal bool CanEditModule(UserEntity user, ModuleEntity module);
-        internal bool CanDeleteModule(UserEntity user, ModuleEntity module);
-        internal bool CanGetModule(UserEntity user, ModuleEntity module);
+        public PermissionEnum GetEditPermissions(UserEntity user, ModuleEntity module);
     }
 }
