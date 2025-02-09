@@ -45,6 +45,10 @@ namespace CardsServer.API.Middlewares
                     statusCode = StatusCodes.Status404NotFound;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
                     break;
+                case PermissionNotFoundException ex:
+                    statusCode = StatusCodes.Status403Forbidden;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
                 case RpcException ex:
                     statusCode = StatusCodes.Status400BadRequest;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);

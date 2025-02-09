@@ -1,4 +1,4 @@
-namespace CardsServer.BLL.Abstractions.Specification
+namespace CardsServer.BLL.Abstractions
 {
     // TODO
     public interface IQueryableFilter<T>

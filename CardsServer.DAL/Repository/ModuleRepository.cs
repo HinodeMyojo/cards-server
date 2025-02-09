@@ -44,6 +44,11 @@ namespace CardsServer.DAL.Repository
 
         }
 
+        public Task EditModule(ModuleEntity entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<ICollection<ModuleEntity>> GetModules(
             int userId, 
             Expression<Func<ModuleEntity, bool>> expression, 

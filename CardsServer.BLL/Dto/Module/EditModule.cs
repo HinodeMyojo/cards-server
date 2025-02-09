@@ -6,5 +6,9 @@ namespace CardsServer.BLL.Dto.Module
     {
         [JsonIgnore]
         public DateTime UpdateAt { get; set; }
+        
+        [JsonIgnore]
+        public int EditorId { get; set; }
+        public int Id { get; set; }
     }
 }

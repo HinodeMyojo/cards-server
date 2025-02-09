@@ -11,6 +11,9 @@ namespace CardsServer.BLL.Infrastructure.Factories
         {
             switch (validateModes)
             {
+                case ValidateModesEnum.EditModuleByAdmin:
+                    _validator = new EditModuleValidator();
+                    break;
                 case ValidateModesEnum.EditModuleByUser:
                     _validator = new EditModuleValidator();
                     break;

@@ -1,9 +1,10 @@
 ﻿using CardsServer.BLL.Abstractions;
-using CardsServer.BLL.Abstractions.Specifications;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Enums;
+using CardsServer.BLL.Infrastructure;
+using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
@@ -14,50 +15,70 @@ namespace CardsServer.BLL.Services.Module
     public sealed class ModuleService : IModuleService
     {
         private readonly IElementRepostory _elementRepostory;
-        private readonly IModuleRepository _repository;
+        private readonly IModuleRepository _moduleRepository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
         private readonly IValidatorFactory _validatorFactory;
-        private readonly IPermissionService _permissionService;
         
 
         public ModuleService(
-            IModuleRepository repository,
+            IModuleRepository moduleRepository,
             IUserRepository userRepository,
             IImageService imageService,
             IElementRepostory elementRepostory, 
-            IValidatorFactory validatorFactory, 
-            IPermissionService permissionService)
+            IValidatorFactory validatorFactory)
         {
-            _repository = repository;
+            _moduleRepository = moduleRepository;
             _userRepository = userRepository;
             _imageService = imageService;
             _elementRepostory = elementRepostory;
             _validatorFactory = validatorFactory;
-            _permissionService = permissionService;
         }
 
         /// <summary>
         /// TODO
         /// </summary>
         /// <param name="module"></param>
+        /// <param name="userId"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<Result> EditModule(EditModule module, CancellationToken cancellationToken)
-        {
-            
-            //Вот тут должна быть логика 
+        public async Task<Result> EditModule(EditModule module, int userId, CancellationToken cancellationToken)
+        { 
             try
             {
+                UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
+                if (user == null)
+                {
+                    return Result<int>.Failure("User not found.");
+                }
+                
+                module.EditorId = userId;
+
+                // Определяем режим валидации на основе прав пользователя
+                ValidateModesEnum variant = user.Role?.Permissions switch
+                {
+                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditAnyModule) 
+                        => ValidateModesEnum.EditModuleByAdmin,
+            
+                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditOwnModule) 
+                        => ValidateModesEnum.EditModuleByUser,
+            
+                    _ => throw new PermissionNotFoundException("Permission not found.")
+                };
+
+                // Создаём валидатор
+                IValidator factory = _validatorFactory.CreateValidator(variant);
+                Result<string> result = factory.Validate(module);
         
+                await _moduleRepository.EditModule(existingModule, cancellationToken);
+
+                return Result.Success("Module updated successfully.");
             }
             catch (Exception ex)
             {
-                
+                return Result.Failure($"An error occurred: {ex.Message}");
             }
-            
-            throw new NotImplementedException();
         }
 
         
@@ -74,7 +95,7 @@ namespace CardsServer.BLL.Services.Module
                 UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
                 if (user == null)
                 {
-                    return Result<int>.Failure("Возникла ошибка при создании модуля. Не удалось идентифицировать пользователя!");
+                    return Result<int>.Failure("User not found.");
                 }
 
                 ModuleEntity entity = new()
@@ -119,7 +140,7 @@ namespace CardsServer.BLL.Services.Module
                     });
                 }
 
-                int moduleId = await _repository.CreateModule(entity, cancellationToken);
+                int moduleId = await _moduleRepository.CreateModule(entity, cancellationToken);
                 return Result<int>.Success(moduleId);
             }
             catch (Exception ex)
@@ -132,7 +153,7 @@ namespace CardsServer.BLL.Services.Module
         {
             try
             {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                ICollection<ModuleEntity> listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.CreatorId == userId,
                     cancellationToken);
@@ -161,14 +182,14 @@ namespace CardsServer.BLL.Services.Module
 
                 if (textSearch == null)
                 {
-                    listOfOriginModules = await _repository.GetModules(
+                    listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId),
                     cancellationToken);
                 }
                 else
                 {
-                    listOfOriginModules = await _repository.GetModules(
+                    listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId) && x.Title.StartsWith(textSearch),
                     cancellationToken);
@@ -202,7 +223,7 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken)
         {
-            ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
+            ModuleEntity? module = await _moduleRepository.GetModule(moduleId, cancellationToken);
             UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
             if (module == null || user == null)
             {
@@ -211,7 +232,7 @@ namespace CardsServer.BLL.Services.Module
 
             user.UserModules.Add(new UserModule() { Module = module });
 
-            await _repository.AddModuleToUsed(user, cancellationToken);
+            await _moduleRepository.AddModuleToUsed(user, cancellationToken);
 
             return Result.Success();
         }
@@ -229,14 +250,14 @@ namespace CardsServer.BLL.Services.Module
                 return Result.Failure(ErrorAdditional.Forbidden);
             }
 
-            await _repository.DeleteModule(id, cancellationToken);
+            await _moduleRepository.DeleteModule(id, cancellationToken);
 
             return Result.Success();
         }
 
         public async Task<Result<IEnumerable<GetModule>>> GetModulesShortInfo(int[] moduleId, int userId, CancellationToken cancellationToken)
         {
-            IEnumerable<ModuleEntity> resultFromDB = await _repository.GetModulesShortInfo(moduleId, cancellationToken);
+            IEnumerable<ModuleEntity> resultFromDB = await _moduleRepository.GetModulesShortInfo(moduleId, cancellationToken);
 
             IEnumerable<GetModule> result = resultFromDB.Select(x => new GetModule()
             {
@@ -253,7 +274,7 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(int userId, GetModulesRequest model, CancellationToken cancellationToken)
         {
-            IEnumerable<ModuleEntity> responseFromDatabase = await _repository.GetModules(model, cancellationToken);
+            IEnumerable<ModuleEntity> responseFromDatabase = await _moduleRepository.GetModules(model, cancellationToken);
 
             IEnumerable<GetModuleBase> result;
             
@@ -273,7 +294,7 @@ namespace CardsServer.BLL.Services.Module
         {
             try
             {
-                ModuleEntity? res = await _repository.GetModule(id, cancellationToken);
+                ModuleEntity? res = await _moduleRepository.GetModule(id, cancellationToken);
 
                 if (res == null)
                 {

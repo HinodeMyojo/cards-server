@@ -1,3 +1,4 @@
+using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Infrastructure.Result;
 
 namespace CardsServer.BLL.Infrastructure.Validators
@@ -6,14 +7,22 @@ namespace CardsServer.BLL.Infrastructure.Validators
     {
         public override Result<string> Validate(object obj)
         {
-            Result<string> result = base.Validate(obj);
-            if (!result.IsSuccess)
+            try
             {
-                return result;
+                Result<string> result = base.Validate(obj);
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+                if (obj is not EditModule module)
+                {
+                    throw new InvalidCastException("Object is not a EditModule");
+                }
             }
-
-            return Result<string>.Success(result.Value);
-
+            catch
+            {
+                throw;
+            }
         }
     }
 }

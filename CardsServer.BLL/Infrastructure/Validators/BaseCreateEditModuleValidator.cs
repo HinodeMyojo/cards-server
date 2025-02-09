@@ -14,7 +14,7 @@ namespace CardsServer.BLL.Infrastructure.Validators
             {
                 if (obj is not CreateEditModuleBase module)
                 {
-                    return Result<string>.Failure("Invalid object type");
+                    throw new InvalidCastException("Object is not a CreateEditModuleBase");
                 }
                 
                 Result<string> resultFromCheckTitle = CheckTitle(module.Title);

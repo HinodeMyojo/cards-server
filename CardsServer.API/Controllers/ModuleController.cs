@@ -131,7 +131,8 @@ namespace CardsServer.API.Controllers
         [HttpPut("module")]
         public async Task<IActionResult> EditModule(EditModule module, CancellationToken cancellationToken)
         {
-            Result result = await _service.EditModule(module, cancellationToken);
+            int userId = User.GetId();
+            Result result = await _service.EditModule(module, userId, cancellationToken);
             return result.ToActionResult();
         }
 
