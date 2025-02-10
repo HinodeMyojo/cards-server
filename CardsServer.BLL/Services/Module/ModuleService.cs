@@ -4,11 +4,9 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure;
-using CardsServer.BLL.Infrastructure.CustomExceptions;
-using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Collections;
+using System.Net;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -19,6 +17,7 @@ namespace CardsServer.BLL.Services.Module
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
         private readonly IValidatorFactory _validatorFactory;
+        private IValidator _validator;
         
 
         public ModuleService(
@@ -38,12 +37,12 @@ namespace CardsServer.BLL.Services.Module
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="module"></param>
+        /// <param name="moduleForEdit"></param>
         /// <param name="userId"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<Result> EditModule(EditModule module, int userId, CancellationToken cancellationToken)
+        public async Task<Result> EditModule(EditModule moduleForEdit, int userId, CancellationToken cancellationToken)
         { 
             try
             {
@@ -52,26 +51,51 @@ namespace CardsServer.BLL.Services.Module
                 {
                     return Result<int>.Failure("User not found.");
                 }
-                
-                module.EditorId = userId;
 
-                // Определяем режим валидации на основе прав пользователя
-                ValidateModesEnum variant = user.Role?.Permissions switch
+                ModuleEntity? module = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
+
+                if (module == null)
                 {
-                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditAnyModule) 
-                        => ValidateModesEnum.EditModuleByAdmin,
-            
-                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditOwnModule) 
-                        => ValidateModesEnum.EditModuleByUser,
-            
-                    _ => throw new PermissionNotFoundException("Permission not found.")
-                };
+                    return Result<int>.Failure("Module not found.");
+                }
 
-                // Создаём валидатор
-                IValidator factory = _validatorFactory.CreateValidator(variant);
-                Result<string> result = factory.Validate(module);
-        
-                await _moduleRepository.EditModule(existingModule, cancellationToken);
+                RoleEntity? userRole = user.Role;
+                if (userRole == null)
+                {
+                    throw new ArgumentNullException(nameof(userRole));
+                }
+
+                List<PermissionEnum> userPermissions = userRole.Permissions.Select(x => (PermissionEnum)x.Id).ToList();
+
+                if (userPermissions.Contains(PermissionEnum.CanEditAnyModule))
+                {
+                    _validator = _validatorFactory.CreateValidator(ValidateModesEnum.EditModuleByAdmin);
+                }
+                else if(userPermissions.Contains(PermissionEnum.CanEditOwnModule) && module.CreatorId == user.Id)
+                {
+                    _validator = _validatorFactory.CreateValidator(ValidateModesEnum.EditModuleByUser);  
+                }
+                else
+                {
+                    return Result<int>.Failure("You don't have rights to edit this module", HttpStatusCode.Forbidden);
+                }
+
+                Result<string> validatorResult = _validator.Validate(moduleForEdit);
+
+                if (!validatorResult.IsSuccess)
+                {
+                    return validatorResult;
+                }
+
+                module.Title = moduleForEdit.Title;
+                module.Private = moduleForEdit.Private;
+                module.IsDraft = moduleForEdit.IsDraft;
+                module.Description = moduleForEdit.Description;
+                module.UpdateAt = DateTime.Now;
+                // TODO
+                //module.Elements = moduleForEdit.Elements;
+
+                await _moduleRepository.EditModule(module, cancellationToken);
 
                 return Result.Success("Module updated successfully.");
             }
