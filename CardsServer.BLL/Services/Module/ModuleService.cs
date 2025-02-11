@@ -1,13 +1,12 @@
-﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure;
-using CardsServer.BLL.Infrastructure.CustomExceptions;
-using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using System.Net;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -18,6 +17,7 @@ namespace CardsServer.BLL.Services.Module
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
         private readonly IValidatorFactory _validatorFactory;
+        private IValidator _validator;
         
 
         public ModuleService(
@@ -37,12 +37,12 @@ namespace CardsServer.BLL.Services.Module
         /// <summary>
         /// TODO
         /// </summary>
-        /// <param name="module"></param>
+        /// <param name="moduleForEdit"></param>
         /// <param name="userId"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<Result> EditModule(EditModule module, int userId, CancellationToken cancellationToken)
+        public async Task<Result> EditModule(EditModule moduleForEdit, int userId, CancellationToken cancellationToken)
         { 
             try
             {
@@ -61,17 +61,12 @@ namespace CardsServer.BLL.Services.Module
 
                 module.EditorId = userId;
 
-                // Определяем режим валидации на основе прав пользователя
-                ValidateModesEnum variant = user.Role?.Permissions switch
+                ModuleEntity? module = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
+
+                if (module == null)
                 {
-                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditAnyModule) 
-                        => ValidateModesEnum.EditModuleByAdmin,
-            
-                    var perms when perms.Any(x => x.Id == (int)PermissionEnum.CanEditOwnModule) 
-                        => ValidateModesEnum.EditModuleByUser,
-            
-                    _ => throw new PermissionNotFoundException("Permission not found.")
-                };
+                    return Result<int>.Failure("Module not found.");
+                }
 
                 // Создаём валидатор
                 IValidator factory = _validatorFactory.CreateValidator(variant);

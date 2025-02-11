@@ -14,6 +14,7 @@ namespace CardsServer.BLL.Infrastructure.Validators
                 {
                     return result;
                 }
+                // TODO
                 if (obj is not EditModule module)
                 {
                     throw new InvalidCastException("Object is not a EditModule");
