@@ -8,7 +8,6 @@ using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Factories;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Collections;
 
 namespace CardsServer.BLL.Services.Module
 {
@@ -50,9 +49,16 @@ namespace CardsServer.BLL.Services.Module
                 UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
                 if (user == null)
                 {
-                    return Result<int>.Failure("User not found.");
+                    return Result<int>.Failure("User not found!");
                 }
-                
+                ModuleEntity? moduleFromDb = await _moduleRepository.GetModule(module.Id, cancellationToken);
+
+                if (moduleFromDb == null)
+                {
+                    return Result.Failure("Module not found!");
+                }
+
+
                 module.EditorId = userId;
 
                 // Определяем режим валидации на основе прав пользователя
@@ -70,8 +76,22 @@ namespace CardsServer.BLL.Services.Module
                 // Создаём валидатор
                 IValidator factory = _validatorFactory.CreateValidator(variant);
                 Result<string> result = factory.Validate(module);
-        
-                await _moduleRepository.EditModule(existingModule, cancellationToken);
+
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+
+
+                moduleFromDb.Title = module.Title;
+                moduleFromDb.Description = module.Description;
+                moduleFromDb.IsDraft = module.IsDraft;
+                moduleFromDb.IsDraft = module.Private;
+                // TODO
+                //moduleFromDb.Elements
+
+
+                await _moduleRepository.EditModule(moduleFromDb, cancellationToken);
 
                 return Result.Success("Module updated successfully.");
             }

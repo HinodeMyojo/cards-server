@@ -18,6 +18,7 @@ namespace CardsServer.BLL.Infrastructure.Validators
                 {
                     throw new InvalidCastException("Object is not a EditModule");
                 }
+                return result;
             }
             catch
             {
