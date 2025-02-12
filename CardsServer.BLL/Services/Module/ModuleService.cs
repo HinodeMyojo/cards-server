@@ -7,8 +7,6 @@ using CardsServer.BLL.Infrastructure;
 using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using Microsoft.IdentityModel.Tokens;
-using System.Net;
 
 namespace CardsServer.BLL.Services.Module
 {

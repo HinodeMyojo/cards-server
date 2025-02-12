@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardsServer.DAL", "CardsSer
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{282D2976-9678-401A-A104-7CEB8ABA7736}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardsServer.API.Tests", "CardsServer.API.Tests\CardsServer.API.Tests.csproj", "{E1C53773-A0C4-4832-B27E-8297A8B3431F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardsServer.BLL.Tests", "CardsServer.API.Tests\CardsServer.BLL.Tests.csproj", "{E1C53773-A0C4-4832-B27E-8297A8B3431F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
