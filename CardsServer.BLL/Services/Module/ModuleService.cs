@@ -4,8 +4,10 @@ using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure;
+using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 
 namespace CardsServer.BLL.Services.Module
@@ -51,15 +53,12 @@ namespace CardsServer.BLL.Services.Module
                 {
                     return Result<int>.Failure("User not found!");
                 }
-                ModuleEntity? moduleFromDb = await _moduleRepository.GetModule(module.Id, cancellationToken);
+                ModuleEntity? moduleFromDb = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
 
                 if (moduleFromDb == null)
                 {
                     return Result.Failure("Module not found!");
                 }
-
-
-                module.EditorId = userId;
 
                 ModuleEntity? module = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
 
@@ -68,8 +67,26 @@ namespace CardsServer.BLL.Services.Module
                     return Result<int>.Failure("Module not found.");
                 }
 
+                // TODO вынести в отдельный класс
+
+                ValidateModesEnum mode;
+
+                IEnumerable<PermissionEntity> userPermissions = await _userRepository.GetUserPermissions(userId, cancellationToken);
+                if (userPermissions.Any(x => x.Id == (int)PermissionEnum.CanEditAnyModule))
+                {
+                    mode = ValidateModesEnum.EditModuleByAdmin;
+                }
+                else if(userPermissions.Any(x => x.Id == (int)PermissionEnum.CanEditOwnModule && module.CreatorId == userId))
+                {
+                    mode = ValidateModesEnum.EditModuleByUser;
+                }
+                else
+                {
+                    throw new PermissionNotFoundException("Permission not found!");
+                }
+
                 // Создаём валидатор
-                IValidator factory = _validatorFactory.CreateValidator(variant);
+                IValidator factory = _validatorFactory.CreateValidator(mode);
                 Result<string> result = factory.Validate(module);
 
                 if (!result.IsSuccess)
@@ -90,9 +107,9 @@ namespace CardsServer.BLL.Services.Module
 
                 return Result.Success("Module updated successfully.");
             }
-            catch (Exception ex)
+            catch
             {
-                return Result.Failure($"An error occurred: {ex.Message}");
+                throw;
             }
         }
 
