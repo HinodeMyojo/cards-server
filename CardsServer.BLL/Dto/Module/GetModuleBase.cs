@@ -12,7 +12,7 @@ namespace CardsServer.BLL.Dto.Module
         /// Когда пользователь добавил модуль. 
         /// В случае если пользователь создатель - идентично с CreatedAt
         /// </summary>
-        public DateTime AddedAt {  get; set; }
+        public DateTime? AddedAt {  get; set; }
         public DateTime? UpdateAt { get; set; }
         public bool IsDraft { get; set; }
         public int CreatorId { get; set; }

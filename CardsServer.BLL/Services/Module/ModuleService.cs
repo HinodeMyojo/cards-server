@@ -302,7 +302,7 @@ namespace CardsServer.BLL.Services.Module
             return Result<IEnumerable<GetModule>>.Success(result);
         }
 
-        public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(int userId, GetModulesRequest model, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(GetModulesRequest model, CancellationToken cancellationToken)
         {
             IEnumerable<ModuleEntity> responseFromDatabase = await _moduleRepository.GetModules(model, cancellationToken);
 
@@ -322,24 +322,30 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
+            IEnumerable<PermissionEntity> user = await _userRepository.GetUserPermissions(userId, cancellationToken);
+            
             try
             {
                 ModuleEntity? res = await _moduleRepository.GetModule(id, cancellationToken);
 
                 if (res == null)
                 {
-                    return Result<GetModule>.Failure(ErrorAdditional.NotFound);
+                    return Result<GetModule>.Failure(ErrorAdditional.BadRequest);
                 }
-                if (res.CreatorId != userId && res.Private)
+                
+                if (res.CreatorId != userId && res.Private && user.All(x => x.Id != (int)PermissionEnum.CanViewAnyModule))
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
+
+                DateTime? test = res.UserModules.Where(x => x.ModuleId == id).Select(x => x.AddedAt).SingleOrDefault();
                 
                 GetModule result = new()
                 {
                     Id = id,
                     Title = res.Title,
                     CreateAt = res.CreateAt,
+                    AddedAt = test,
                     Description = res.Description,
                     CreatorId = res.CreatorId,
                     IsDraft = res.IsDraft,
@@ -358,8 +364,7 @@ namespace CardsServer.BLL.Services.Module
                         });
                     }
                 }
-
-
+                
                 return Result<GetModule>.Success(result);
 
             }

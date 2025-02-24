@@ -43,7 +43,7 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = JwtBearerDefaults.AuthenticationScheme
-                },
+                }, 
             },
             Array.Empty<string>()
         }
