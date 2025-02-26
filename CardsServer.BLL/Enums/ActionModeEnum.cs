@@ -5,6 +5,7 @@ namespace CardsServer.BLL.Enums
         Anonim = 0,
         Owner = 1,
         Subscriber = 2,
-        SuperUser = 3,
+        User = 3,
+        SuperUser = 4,
     }
 }

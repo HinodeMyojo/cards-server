@@ -322,38 +322,63 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
-            IEnumerable<PermissionEntity> user = await _userRepository.GetUserPermissions(userId, cancellationToken);
+            ActionModeEnum mode = userId == 0 ? ActionModeEnum.Anonim : ActionModeEnum.User;
+
+            IEnumerable<PermissionEntity>? user = null;
+            
+            if (!mode.Equals(ActionModeEnum.Anonim))
+            {
+                user = await _userRepository.GetUserPermissions(userId, cancellationToken);
+            }
             
             try
             {
-                ModuleEntity? res = await _moduleRepository.GetModule(id, cancellationToken);
+                ModuleEntity? module = await _moduleRepository.GetModule(id, cancellationToken);
 
-                if (res == null)
+                if (module == null)
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.BadRequest);
                 }
+
+                if (mode != ActionModeEnum.Anonim && user != null)
+                {
+                    if (module.UserModules.Any(x => x.UserId == userId))
+                    {
+                        mode = ActionModeEnum.Subscriber;
+                    }
                 
-                if (res.CreatorId != userId && res.Private && user.All(x => x.Id != (int)PermissionEnum.CanViewAnyModule))
+                    if (module.CreatorId == userId)
+                    {
+                        mode = ActionModeEnum.Owner;
+                    }
+                
+                    if (user.All(x => x.Id != (int)PermissionEnum.CanViewAnyModule))
+                    {
+                        mode = ActionModeEnum.SuperUser;
+                    }
+                }
+
+                if (mode == ActionModeEnum.User && (module.Private || module.IsDraft))
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
-
-                DateTime? test = res.UserModules.Where(x => x.ModuleId == id).Select(x => x.AddedAt).SingleOrDefault();
+                
+                DateTime? addedAt = module.UserModules.Where(x => x.ModuleId == id).Select(x => x.AddedAt).FirstOrDefault();
                 
                 GetModule result = new()
                 {
                     Id = id,
-                    Title = res.Title,
-                    CreateAt = res.CreateAt,
-                    AddedAt = test,
-                    Description = res.Description,
-                    CreatorId = res.CreatorId,
-                    IsDraft = res.IsDraft,
-                    UpdateAt = res.UpdateAt,
+                    Title = module.Title,
+                    CreateAt = module.CreateAt,
+                    AddedAt = addedAt,
+                    Description = module.Description,
+                    CreatorId = module.CreatorId,
+                    IsDraft = module.IsDraft,
+                    UpdateAt = module.UpdateAt,
                 };
-                if (res.Elements.Any())
+                if (module.Elements.Count != 0)
                 {
-                    foreach (ElementEntity item in res.Elements)
+                    foreach (ElementEntity item in module.Elements)
                     {
                         result.Elements.Add(new GetElement()
                         {
