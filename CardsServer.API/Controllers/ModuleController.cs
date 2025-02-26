@@ -29,6 +29,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("module/header")]
         public IActionResult GetHeaders(CancellationToken cancellationToken)
         {
