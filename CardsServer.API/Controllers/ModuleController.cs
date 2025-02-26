@@ -110,6 +110,7 @@ namespace CardsServer.API.Controllers
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("module")]
         public async Task<IActionResult> GetModule(int id, CancellationToken cancellationToken)
         {

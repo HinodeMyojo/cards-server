@@ -9,10 +9,16 @@ public static class AuthExtension
     {
         string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        // Проверка на null или значение "0"
+        // // Проверка на null или значение "0"
+        // if (string.IsNullOrEmpty(userId) || userId == "0")
+        // {
+        //     throw new Exception("Не удалось получить пользователя из токена");
+        // }
+        
+        // Для поддержки анонимных пользователей
         if (string.IsNullOrEmpty(userId) || userId == "0")
         {
-            throw new Exception("Не удалось получить пользователя из токена");
+            return 0;
         }
 
         return Convert.ToInt32(userId);
