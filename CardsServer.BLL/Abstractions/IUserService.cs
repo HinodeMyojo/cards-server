@@ -12,5 +12,6 @@ namespace CardsServer.BLL.Abstractions
             CancellationToken cancellationToken);
         // Task<Result<GetUserFullResponse>> GetUser(int userId, CancellationToken cancellationToken);
         Task<Result<GetBaseUserResponse>> GetUser(int userId, CancellationToken cancellationToken);
+        Task<Result<GetBaseUserResponse>> GetUser(int id, int userRequestedId, CancellationToken cancellationToken);
     }
 }

@@ -19,16 +19,19 @@ namespace CardsServer.API.Controllers
         {
             _userService = userService;
         }
-        
+
         /// <summary>
         /// Позволяет получить пользователя по его Id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("user/get")]
         public async Task<IActionResult> GetUser(int id, CancellationToken cancellationToken)
         {
-           Result<GetBaseUserResponse> response = await _userService.GetUser(id, cancellationToken);
+           int userRequestedId = User.GetId();
+
+           Result<GetBaseUserResponse> response = await _userService.GetUser(id, userRequestedId,  cancellationToken);
 
            return response.ToActionResult();
         }
