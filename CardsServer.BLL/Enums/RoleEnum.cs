@@ -1,6 +1,6 @@
-﻿namespace CardsServer.BLL.Infrastructure.Auth.Enums
+﻿namespace CardsServer.BLL.Enums
 {
-    public enum Role
+    public enum RoleEnum
     {
         Admin = 1,
         Moderator = 2,

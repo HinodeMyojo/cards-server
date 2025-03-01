@@ -55,7 +55,7 @@ namespace CardsServer.API.Controllers
         [HttpPut("user/avatar")]
         public async Task<IActionResult> EditAvatar([FromBody]string newAvatar, CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result result = await _userService.EditAvatar(userId, newAvatar, cancellationToken);
 
@@ -69,7 +69,7 @@ namespace CardsServer.API.Controllers
         [HttpGet("user/whoami")]
         public async Task<IActionResult> Whoami(CancellationToken cancellationToken)
         {
-            int userId = AuthExtension.GetId(User);
+            int userId = User.GetId();
 
             Result<GetBaseUserResponse> result = await _userService.GetUser(userId, cancellationToken);
 
@@ -102,7 +102,7 @@ namespace CardsServer.API.Controllers
         [HttpPatch("user/edit/{id}")]
         public async Task<IActionResult> EditUser(int id, [FromBody] JsonPatchDocument<PatchUser> patchDoc, CancellationToken cancellationToken)
         {
-            int userFromTokenId = AuthExtension.GetId(User);
+            int userFromTokenId = User.GetId();
 
             if (patchDoc == null)
             {

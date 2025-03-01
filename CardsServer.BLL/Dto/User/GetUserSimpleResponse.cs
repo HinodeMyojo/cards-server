@@ -1,11 +1,12 @@
 ﻿using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CardsServer.BLL.Dto.User
 {
     public class GetUserSimpleResponse : GetBaseUserResponse
     {
-        public GetUserSimpleResponse()
+        protected GetUserSimpleResponse()
         {
             
         }
@@ -17,8 +18,8 @@ namespace CardsServer.BLL.Dto.User
             HasPrivateProfile = user.Profile.IsPrivate;
             RoleId = user.RoleId;
         }
-        
-        public GetUserSimpleResponse(int id, string userName, string avatar, bool hasPrivateProfile, int roleId)
+
+        protected GetUserSimpleResponse(int id, string userName, string avatar, bool hasPrivateProfile, int roleId)
         {
             Id = id;
             UserName = userName;

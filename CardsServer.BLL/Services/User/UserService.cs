@@ -2,7 +2,7 @@
 using CardsServer.BLL.Dto.Profile;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
@@ -126,7 +126,7 @@ namespace CardsServer.BLL.Services.User
             }
 
             // Если запрашивающий пользователь администратор или модератор
-            if (requester.RoleId is (int)Role.Admin or (int)Role.Moderator)
+            if (requester.RoleId is (int)RoleEnum.Admin or (int)RoleEnum.Moderator)
             {
                 return new GetUserFullResponse(userFromDatabase);
             }

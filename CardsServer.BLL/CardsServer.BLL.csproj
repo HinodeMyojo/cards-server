@@ -39,4 +39,8 @@
 		<Protobuf Include="Protos\statistic.proto" GrpcServices="Client" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Infrastructure\Auth\Enums\" />
+	</ItemGroup>
+
 </Project>
