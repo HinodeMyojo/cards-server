@@ -1,5 +1,5 @@
 ﻿using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +9,7 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<RoleEntity> builder)
         {
-            builder.ToTable(TableNames.Roles.ToString());
+            builder.ToTable(TableNamesEnum.Roles.ToString());
 
             builder.HasKey(x => x.Id);
 
@@ -28,11 +28,11 @@ namespace CardsServer.DAL.Configurations
                 j =>
                 {
                     j.HasKey(t => new { t.RoleId, t.PermissionId });
-                    j.ToTable(TableNames.RolePermissions.ToString());
+                    j.ToTable(TableNamesEnum.RolePermissions.ToString());
                 });
 
             IEnumerable<RoleEntity> roles = Enum
-                .GetValues<Role>()
+                .GetValues<RoleEnum>()
                 .Select(p => new RoleEntity
                 {
                     Id = (int)p,

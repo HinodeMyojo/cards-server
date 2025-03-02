@@ -12,6 +12,7 @@ namespace CardsServer.BLL.Abstractions
         Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken);
         Task<Result<IEnumerable<GetModule>>> GetUsedModules(int userId, string? textSearch, CancellationToken cancellationToken);
         Task<Result<IEnumerable<GetModule>>> GetModulesShortInfo(int[] moduleId, int userId, CancellationToken cancellationToken);
-        Task<Result<IEnumerable<GetModuleBase>>> GetModules(int userId, GetModulesRequest model, CancellationToken cancellationToken);
+        Task<Result<IEnumerable<GetModuleBase>>> GetModules(GetModulesRequest model, CancellationToken cancellationToken);
+        Task<Result> EditModule(EditModule module, int userId, CancellationToken cancellationToken);
     }
 }

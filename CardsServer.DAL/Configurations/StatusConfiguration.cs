@@ -1,5 +1,5 @@
 ﻿using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +16,7 @@ namespace CardsServer.DAL.Configurations
                 .IsRequired();
 
             IEnumerable<StatusEntity> roles = Enum
-                .GetValues<Status>()
+                .GetValues<StatusEnum>()
                 .Select(p => new StatusEntity
                 {
                     Id = (int)p,

@@ -2,6 +2,7 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -44,7 +45,19 @@ namespace CardsServer.API.Middlewares
                     statusCode = StatusCodes.Status404NotFound;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
                     break;
+                case PermissionNotFoundException ex:
+                    statusCode = StatusCodes.Status403Forbidden;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
                 case RpcException ex:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
+                case NotSelectedValidatorException ex:
+                    statusCode = StatusCodes.Status400BadRequest;
+                    problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
+                    break;
+                case ValidationException ex:
                     statusCode = StatusCodes.Status400BadRequest;
                     problemDetails = CreateProblemDetails(httpContext, ex, statusCode);
                     break;

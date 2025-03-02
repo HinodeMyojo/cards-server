@@ -1,7 +1,7 @@
 using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Profile;
 using CardsServer.BLL.Dto.User;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 
 namespace CardsServer.BLL.Services.Profile;
@@ -47,7 +47,7 @@ public class ProfileSerivce : IProfileSerivce
             result.CanEditUser = true;
             result.CanDeleteUser = true;
         }
-        else if (requestUserSimple.RoleId == (int)Role.Admin || requestUserSimple.RoleId == (int)Role.Moderator)
+        else if (requestUserSimple.RoleId == (int)RoleEnum.Admin || requestUserSimple.RoleId == (int)RoleEnum.Moderator)
         {
             result.CanViewProfile = true;
             result.CanEditUser = true;

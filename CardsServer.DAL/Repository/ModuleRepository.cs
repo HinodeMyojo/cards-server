@@ -40,8 +40,18 @@ namespace CardsServer.DAL.Repository
 
         public async Task<ModuleEntity?> GetModule(int id, CancellationToken cancellationToken)
         {
-            return await _context.Modules.Include(x => x.Creator).Include(x => x.Elements).ThenInclude(x => x.Image).FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Modules
+                .Include(x => x.Creator)
+                .Include(x => x.UserModules)
+                .Include(x => x.Elements)
+                .ThenInclude(x => x.Image)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+        }
+
+        public Task EditModule(ModuleEntity entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ICollection<ModuleEntity>> GetModules(

@@ -1,44 +1,131 @@
-﻿using CardsServer.BLL.Abstractions;
+using CardsServer.BLL.Abstractions;
 using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Dto.Module;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
+using CardsServer.BLL.Infrastructure;
+using CardsServer.BLL.Infrastructure.CustomExceptions;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
-using System.Collections;
 
 namespace CardsServer.BLL.Services.Module
 {
     public sealed class ModuleService : IModuleService
     {
         private readonly IElementRepostory _elementRepostory;
-        private readonly IModuleRepository _repository;
+        private readonly IModuleRepository _moduleRepository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
+        private readonly IValidatorFactory _validatorFactory;
+        private IValidator _validator;
+        
 
         public ModuleService(
-            IModuleRepository repository, 
-            IUserRepository userRepository, 
-            IImageService imageService, 
-            IElementRepostory elementRepostory)
+            IModuleRepository moduleRepository,
+            IUserRepository userRepository,
+            IImageService imageService,
+            IElementRepostory elementRepostory, 
+            IValidatorFactory validatorFactory)
         {
-            _repository = repository;
+            _moduleRepository = moduleRepository;
             _userRepository = userRepository;
             _imageService = imageService;
             _elementRepostory = elementRepostory;
+            _validatorFactory = validatorFactory;
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="moduleForEdit"></param>
+        /// <param name="userId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<Result> EditModule(EditModule moduleForEdit, int userId, CancellationToken cancellationToken)
+        { 
+            try
+            {
+                UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
+                if (user == null)
+                {
+                    return Result<int>.Failure("User not found!");
+                }
+                ModuleEntity? moduleFromDb = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
+
+                if (moduleFromDb == null)
+                {
+                    return Result.Failure("Module not found!");
+                }
+
+                ModuleEntity? module = await _moduleRepository.GetModule(moduleForEdit.Id, cancellationToken);
+
+                if (module == null)
+                {
+                    return Result<int>.Failure("Module not found.");
+                }
+
+                // TODO вынести в отдельный класс
+
+                ValidateModesEnum mode;
+
+                IEnumerable<PermissionEntity> userPermissions = await _userRepository.GetUserPermissions(userId, cancellationToken);
+                if (userPermissions.Any(x => x.Id == (int)PermissionEnum.CanEditAnyModule))
+                {
+                    mode = ValidateModesEnum.EditModuleByAdmin;
+                }
+                else if(userPermissions.Any(x => x.Id == (int)PermissionEnum.CanEditOwnModule && module.CreatorId == userId))
+                {
+                    mode = ValidateModesEnum.EditModuleByUser;
+                }
+                else
+                {
+                    throw new PermissionNotFoundException("Permission not found!");
+                }
+
+                // Создаём валидатор
+                IValidator factory = _validatorFactory.CreateValidator(mode);
+                Result<string> result = factory.Validate(module);
+
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+
+
+                moduleFromDb.Title = module.Title;
+                moduleFromDb.Description = module.Description;
+                moduleFromDb.IsDraft = module.IsDraft;
+                moduleFromDb.IsDraft = module.Private;
+                // TODO
+                //moduleFromDb.Elements
+
+
+                await _moduleRepository.EditModule(moduleFromDb, cancellationToken);
+
+                return Result.Success("Module updated successfully.");
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        
         public async Task<Result<int>> CreateModule(int userId, CreateModule module, CancellationToken cancellationToken)
         {
-            (bool isValid, string errorMessage) check = CheckTitle(module.Title);
-            if (!check.isValid)
-                return Result<int>.Failure(check.errorMessage);
+            //(bool isValid, string errorMessage) check = CheckTitle(module.Title);
+
+            //if (!check.isValid)
+            //    return Result<int>.Failure(check.errorMessage);
+
             try
             {
 
                 UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
                 if (user == null)
                 {
-                    return Result<int>.Failure("Возникла ошибка при создании модуля. Не удалось идентифицировать пользователя!");
+                    return Result<int>.Failure("User not found.");
                 }
 
                 ModuleEntity entity = new()
@@ -83,7 +170,7 @@ namespace CardsServer.BLL.Services.Module
                     });
                 }
 
-                int moduleId = await _repository.CreateModule(entity, cancellationToken);
+                int moduleId = await _moduleRepository.CreateModule(entity, cancellationToken);
                 return Result<int>.Success(moduleId);
             }
             catch (Exception ex)
@@ -96,7 +183,7 @@ namespace CardsServer.BLL.Services.Module
         {
             try
             {
-                ICollection<ModuleEntity> listOfOriginModules = await _repository.GetModules(
+                ICollection<ModuleEntity> listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.CreatorId == userId,
                     cancellationToken);
@@ -125,14 +212,14 @@ namespace CardsServer.BLL.Services.Module
 
                 if (textSearch == null)
                 {
-                    listOfOriginModules = await _repository.GetModules(
+                    listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId),
                     cancellationToken);
                 }
                 else
                 {
-                    listOfOriginModules = await _repository.GetModules(
+                    listOfOriginModules = await _moduleRepository.GetModules(
                     userId,
                     x => x.UsedUsers.Any(x => x.Id == userId) && x.Title.StartsWith(textSearch),
                     cancellationToken);
@@ -166,7 +253,7 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result> AddModuleToUsed(int moduleId, int userId, CancellationToken cancellationToken)
         {
-            ModuleEntity? module = await _repository.GetModule(moduleId, cancellationToken);
+            ModuleEntity? module = await _moduleRepository.GetModule(moduleId, cancellationToken);
             UserEntity? user = await _userRepository.GetUser(x => x.Id == userId, cancellationToken);
             if (module == null || user == null)
             {
@@ -175,7 +262,7 @@ namespace CardsServer.BLL.Services.Module
 
             user.UserModules.Add(new UserModule() { Module = module });
 
-            await _repository.AddModuleToUsed(user, cancellationToken);
+            await _moduleRepository.AddModuleToUsed(user, cancellationToken);
 
             return Result.Success();
         }
@@ -193,14 +280,14 @@ namespace CardsServer.BLL.Services.Module
                 return Result.Failure(ErrorAdditional.Forbidden);
             }
 
-            await _repository.DeleteModule(id, cancellationToken);
+            await _moduleRepository.DeleteModule(id, cancellationToken);
 
             return Result.Success();
         }
 
         public async Task<Result<IEnumerable<GetModule>>> GetModulesShortInfo(int[] moduleId, int userId, CancellationToken cancellationToken)
         {
-            IEnumerable<ModuleEntity> resultFromDB = await _repository.GetModulesShortInfo(moduleId, cancellationToken);
+            IEnumerable<ModuleEntity> resultFromDB = await _moduleRepository.GetModulesShortInfo(moduleId, cancellationToken);
 
             IEnumerable<GetModule> result = resultFromDB.Select(x => new GetModule()
             {
@@ -215,9 +302,9 @@ namespace CardsServer.BLL.Services.Module
             return Result<IEnumerable<GetModule>>.Success(result);
         }
 
-        public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(int userId, GetModulesRequest model, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetModuleBase>>> GetModules(GetModulesRequest model, CancellationToken cancellationToken)
         {
-            IEnumerable<ModuleEntity> responseFromDatabase = await _repository.GetModules(model, cancellationToken);
+            IEnumerable<ModuleEntity> responseFromDatabase = await _moduleRepository.GetModules(model, cancellationToken);
 
             IEnumerable<GetModuleBase> result;
             
@@ -235,32 +322,63 @@ namespace CardsServer.BLL.Services.Module
 
         public async Task<Result<GetModule>> GetModule(int userId, int id, CancellationToken cancellationToken)
         {
+            ActionModeEnum mode = userId == 0 ? ActionModeEnum.Anonim : ActionModeEnum.User;
+
+            IEnumerable<PermissionEntity>? user = null;
+            
+            if (!mode.Equals(ActionModeEnum.Anonim))
+            {
+                user = await _userRepository.GetUserPermissions(userId, cancellationToken);
+            }
+            
             try
             {
-                ModuleEntity? res = await _repository.GetModule(id, cancellationToken);
+                ModuleEntity? module = await _moduleRepository.GetModule(id, cancellationToken);
 
-                if (res == null)
+                if (module == null)
                 {
-                    return Result<GetModule>.Failure(ErrorAdditional.NotFound);
+                    return Result<GetModule>.Failure(ErrorAdditional.BadRequest);
                 }
-                if (res.CreatorId != userId && res.Private)
+
+                if (mode != ActionModeEnum.Anonim && user != null)
+                {
+                    if (module.UserModules.Any(x => x.UserId == userId))
+                    {
+                        mode = ActionModeEnum.Subscriber;
+                    }
+                
+                    if (module.CreatorId == userId)
+                    {
+                        mode = ActionModeEnum.Owner;
+                    }
+                
+                    if (user.All(x => x.Id != (int)PermissionEnum.CanViewAnyModule))
+                    {
+                        mode = ActionModeEnum.SuperUser;
+                    }
+                }
+
+                if (mode == ActionModeEnum.User && (module.Private || module.IsDraft))
                 {
                     return Result<GetModule>.Failure(ErrorAdditional.Forbidden);
                 }
                 
+                DateTime? addedAt = module.UserModules.Where(x => x.ModuleId == id).Select(x => x.AddedAt).FirstOrDefault();
+                
                 GetModule result = new()
                 {
                     Id = id,
-                    Title = res.Title,
-                    CreateAt = res.CreateAt,
-                    Description = res.Description,
-                    CreatorId = res.CreatorId,
-                    IsDraft = res.IsDraft,
-                    UpdateAt = res.UpdateAt,
+                    Title = module.Title,
+                    CreateAt = module.CreateAt,
+                    AddedAt = addedAt,
+                    Description = module.Description,
+                    CreatorId = module.CreatorId,
+                    IsDraft = module.IsDraft,
+                    UpdateAt = module.UpdateAt,
                 };
-                if (res.Elements.Any())
+                if (module.Elements.Count != 0)
                 {
-                    foreach (ElementEntity item in res.Elements)
+                    foreach (ElementEntity item in module.Elements)
                     {
                         result.Elements.Add(new GetElement()
                         {
@@ -271,8 +389,7 @@ namespace CardsServer.BLL.Services.Module
                         });
                     }
                 }
-
-
+                
                 return Result<GetModule>.Success(result);
 
             }
@@ -337,32 +454,6 @@ namespace CardsServer.BLL.Services.Module
 
                 await Task.CompletedTask;
             });
-        }
-
-        private (bool isValid, string errorMessage) CheckTitle(string title, int minLength = 2, int maxLength = 256)
-        {
-            // Проверка на null или пустую строку
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                return (false, "Название не должно быть пустым или состоять только из пробелов.");
-            }
-
-            if (title.Length < minLength)
-            {
-                return (false, $"Название должно содержать не менее {minLength} символов.");
-            }
-
-            if (title.Length > maxLength)
-            {
-                return (false, $"Название должно содержать не более {maxLength} символов.");
-            }
-
-            //if (!title.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)))
-            //{
-            //    return (false, "Название содержит недопустимые символы.");
-            //}
-
-            return (true, "");
         }
     }
 }

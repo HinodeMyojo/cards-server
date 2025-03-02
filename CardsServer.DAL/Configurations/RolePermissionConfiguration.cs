@@ -1,5 +1,5 @@
 ﻿using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,20 +9,39 @@ namespace CardsServer.DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<RolePermissionEntity> builder)
         {
+            // Устанавливаем составной первичный ключ
             builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });
 
+            // Заполняем данные
             builder.HasData(
-                Create(Role.User, Permission.ReadObjects),
-                Create(Role.User, Permission.CreateObjects)
-                );
-        }
+                // Роль User
+                Create(RoleEnum.User, PermissionEnum.CanViewModule),
+                Create(RoleEnum.User, PermissionEnum.CanStudyModule),
+                Create(RoleEnum.User, PermissionEnum.CanEditOwnModule),
+                Create(RoleEnum.User, PermissionEnum.CanDeleteOwnModule),
+                Create(RoleEnum.User, PermissionEnum.CanEditOwnProfile),
+                Create(RoleEnum.User, PermissionEnum.CanViewOwnProfile),
 
-        private static RolePermissionEntity Create(
-            Role role, Permission permission)
+                // Роль Moderator
+                Create(RoleEnum.Moderator, PermissionEnum.CanViewAnyModule),
+                Create(RoleEnum.Moderator, PermissionEnum.CanBlockModule),
+                Create(RoleEnum.Moderator, PermissionEnum.CanBlockUser),
+
+                // Роль Admin
+                Create(RoleEnum.Admin, PermissionEnum.CanAddModule),
+                Create(RoleEnum.Admin, PermissionEnum.CanCreateModule),
+                Create(RoleEnum.Admin, PermissionEnum.CanEditAnyModule),
+                Create(RoleEnum.Admin, PermissionEnum.CanDeleteAnyModule),
+                Create(RoleEnum.Admin, PermissionEnum.CanDeleteUser),
+                Create(RoleEnum.Admin, PermissionEnum.CanEditAnyProfile),
+                Create(RoleEnum.Admin, PermissionEnum.CanViewAnyProfile)
+            );
+        }
+        private static RolePermissionEntity Create(RoleEnum roleEnum, PermissionEnum permission)
         {
             return new RolePermissionEntity
             {
-                RoleId = (int)role,
+                RoleId = (int)roleEnum,
                 PermissionId = (int)permission
             };
         }

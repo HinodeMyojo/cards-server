@@ -2,8 +2,8 @@
 using CardsServer.BLL.Dto;
 using CardsServer.BLL.Dto.Login;
 using CardsServer.BLL.Entity;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
 using CardsServer.BLL.Infrastructure.RabbitMq;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Mvc;
@@ -109,8 +109,8 @@ namespace CardsServer.BLL.Services.User
                 Email = model.Email,
                 Password = PasswordExtension.HashPassword(model.Password),
                 IsEmailConfirmed = false,
-                RoleId = (int)Infrastructure.Auth.Enums.Role.User,
-                StatusId = (int)Status.Active,
+                RoleId = (int)RoleEnum.User,
+                StatusId = (int)StatusEnum.Active,
                 UserName = model.UserName,
                 CreatedAt = DateTime.UtcNow,
                 AvatarId = 1,

@@ -2,7 +2,7 @@
 using CardsServer.BLL.Dto.Profile;
 using CardsServer.BLL.Dto.User;
 using CardsServer.BLL.Entity;
-using CardsServer.BLL.Infrastructure.Auth.Enums;
+using CardsServer.BLL.Enums;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
@@ -91,7 +91,20 @@ namespace CardsServer.BLL.Services.User
 
             return Result<GetBaseUserResponse>.Success(response);
         }
-        
+
+        public async Task<Result<GetBaseUserResponse>> GetUser(int userId, int userRequestedId, CancellationToken cancellationToken)
+        {
+            UserEntity? user = await _repository.GetUser(x => x.Id == userId, cancellationToken);
+            if (user == null)
+            {
+                return Result<GetBaseUserResponse>.Failure(ErrorAdditional.NotFound);
+            }
+
+            GetBaseUserResponse response = await UserAccessHandler(user, userRequestedId);
+
+            return Result<GetBaseUserResponse>.Success(response);
+        }
+
         /// <summary>
         /// Вспомогательный метод.
         /// Если запросил хозяин профиля (или админ или модер)  - отдаем всю инфу, иначе - только часть
@@ -101,6 +114,11 @@ namespace CardsServer.BLL.Services.User
         /// <returns></returns>
         private async Task<GetBaseUserResponse> UserAccessHandler(UserEntity userFromDatabase, int userIdFromRequest)
         {
+            if (userIdFromRequest == 0)
+            {
+                return new GetUserSimpleResponse(userFromDatabase);
+            }
+
             UserEntity? requester = await _repository.GetUser(x => x.Id == userIdFromRequest, CancellationToken.None);
             if (requester == null)
             {
@@ -108,7 +126,7 @@ namespace CardsServer.BLL.Services.User
             }
 
             // Если запрашивающий пользователь администратор или модератор
-            if (requester.RoleId is (int)Role.Admin or (int)Role.Moderator)
+            if (requester.RoleId is (int)RoleEnum.Admin or (int)RoleEnum.Moderator)
             {
                 return new GetUserFullResponse(userFromDatabase);
             }
@@ -122,4 +140,5 @@ namespace CardsServer.BLL.Services.User
         }
 
     }
+
 }

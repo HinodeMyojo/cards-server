@@ -29,6 +29,7 @@ namespace CardsServer.API.Controllers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("module/header")]
         public IActionResult GetHeaders(CancellationToken cancellationToken)
         {
@@ -98,11 +99,8 @@ namespace CardsServer.API.Controllers
         [HttpGet("modules")]
         public async Task<IActionResult> GetModules([FromQuery]GetModulesRequest request ,CancellationToken cancellationToken)
         {
-            // TODO
-            int userId = 0;
-
             // TODO нужно выделить пользователей в отдельный блок, а модули - в другой (чтобы не дублировать image)
-            Result<IEnumerable<GetModuleBase>> result = await _service.GetModules(userId, request, cancellationToken);
+            Result<IEnumerable<GetModuleBase>> result = await _service.GetModules(request, cancellationToken);
             
             return result.ToActionResult();    
         }
@@ -113,6 +111,7 @@ namespace CardsServer.API.Controllers
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("module")]
         public async Task<IActionResult> GetModule(int id, CancellationToken cancellationToken)
         {
@@ -129,9 +128,11 @@ namespace CardsServer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPut("module")]
-        public async Task<IActionResult> EditModule(CancellationToken cancellationToken)
+        public async Task<IActionResult> EditModule(EditModule module, CancellationToken cancellationToken)
         {
-            return Ok();
+            int userId = User.GetId();
+            Result result = await _service.EditModule(module, userId, cancellationToken);
+            return result.ToActionResult();
         }
 
         /// <summary>

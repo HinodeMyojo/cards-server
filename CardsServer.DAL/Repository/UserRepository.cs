@@ -14,6 +14,12 @@ namespace CardsServer.DAL.Repository
             _context = context;
         }
 
+        /// <summary>
+        /// Depreciated
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<UserEntity?> GetUser(Expression<Func<UserEntity, bool>> predicate,
             CancellationToken cancellationToken)
         {
@@ -29,12 +35,43 @@ namespace CardsServer.DAL.Repository
 
             return user;
         }
+
+        /// <summary>
+        /// Метод для получения пользователя. Использовать впред этот.
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="includes"></param>
+        /// <returns></returns>
+        public async Task<UserEntity?> GetUserAsync(
+            Expression<Func<UserEntity, bool>> predicate,
+            CancellationToken cancellationToken,
+            params Expression<Func<UserEntity, object>>[] includes)
+        {
+            IQueryable<UserEntity> query = _context.Users;
+
+            foreach (Expression<Func<UserEntity, object>> include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(predicate,cancellationToken);
+        }
+
         
         public async Task EditUser(UserEntity user, CancellationToken cancellationToken)
         {
             _context.Users.Update(user);
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<IEnumerable<PermissionEntity>> GetUserPermissions(int userId, CancellationToken cancellationToken)
+        {
+            return await _context.Permissions
+            .Where(p => p.Roles.Any(x => x.Users.Any(x => x.Id == userId)))
+            .ToListAsync(cancellationToken);
+        }
+
         
         /*
         public async Task<UserEntity?> GetUser(int userId, CancellationToken cancellationToken)
