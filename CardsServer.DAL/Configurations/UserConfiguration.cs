@@ -19,6 +19,9 @@ namespace CardsServer.DAL.Configurations
                 .HasForeignKey(x => x.CreatorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(x => x.UserPermissions)
+                .WithOne(x => x.User);
+                
 
             builder.HasMany(x => x.UsedModules)
                 .WithMany(x => x.UsedUsers)

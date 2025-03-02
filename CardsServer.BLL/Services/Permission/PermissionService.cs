@@ -5,7 +5,7 @@ namespace CardsServer.BLL.Services.Permission
 {
     public class PermissionService : IPermissionService
     {
-        private readonly IPermissionReposotory _permissionRepository;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly IUserRepository _userRepository;
         public async Task<IEnumerable<string>> GetPermissions(int userId, CancellationToken cancellationToken)
         {
