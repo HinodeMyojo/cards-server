@@ -56,7 +56,7 @@ namespace CardsServer.API
             services.AddTransient<ILearningRepository, LearningRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<DbLoggerProvider>();
-            services.AddTransient<PermissionRepository, PermissionRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
 
             services.AddTransient<IRedisCaching, RedisCaching>();
 
