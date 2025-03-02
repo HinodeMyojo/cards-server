@@ -11,5 +11,6 @@ namespace CardsServer.BLL.Abstractions
         Task<Result> EditElement(EditElementModel model, int userId, CancellationToken cancellationToken);
         Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken);
         Task<Result<GetElement>> GetElementById(int id, int userId, CancellationToken cancellationToken);
+        Task<Result<IEnumerable<GetElement>>> GetElementsByModuleId(int moduleId, CancellationToken cancellationToken);
     }
 }

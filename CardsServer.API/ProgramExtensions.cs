@@ -52,7 +52,7 @@ namespace CardsServer.API
             services.AddTransient<IPolicyRepository, PolicyRepository>();
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IImageRepository, ImageRepository>();
-            services.AddTransient<IElementRepostory, ElementRepository>();
+            services.AddTransient<IElementRepository, ElementRepository>();
             services.AddTransient<ILearningRepository, LearningRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<DbLoggerProvider>();

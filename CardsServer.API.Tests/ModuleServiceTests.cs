@@ -15,7 +15,7 @@ namespace CardsServer.API.Tests
         private readonly Mock<IModuleRepository> _moduleRepositoryMock = new();
         private readonly Mock<IUserRepository> _userRepositoryMock = new();
         private readonly Mock<IImageService> _imageServiceMock = new();
-        private readonly Mock<IElementRepostory> _elementRepositoryMock = new();
+        private readonly Mock<IElementRepository> _elementRepositoryMock = new();
         private readonly Mock<IValidatorFactory> _validatorFactoryMock = new();
         private readonly Mock<IValidator> _validatorMock = new();
 

@@ -12,7 +12,7 @@ namespace CardsServer.BLL.Services.Module
 {
     public sealed class ModuleService : IModuleService
     {
-        private readonly IElementRepostory _elementRepostory;
+        private readonly IElementRepository _iElementRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IImageService _imageService;
         private readonly IUserRepository _userRepository;
@@ -24,13 +24,13 @@ namespace CardsServer.BLL.Services.Module
             IModuleRepository moduleRepository,
             IUserRepository userRepository,
             IImageService imageService,
-            IElementRepostory elementRepostory, 
+            IElementRepository iElementRepository, 
             IValidatorFactory validatorFactory)
         {
             _moduleRepository = moduleRepository;
             _userRepository = userRepository;
             _imageService = imageService;
-            _elementRepostory = elementRepostory;
+            _iElementRepository = iElementRepository;
             _validatorFactory = validatorFactory;
         }
 

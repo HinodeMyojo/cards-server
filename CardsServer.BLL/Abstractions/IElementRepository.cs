@@ -1,9 +1,9 @@
 ﻿using CardsServer.BLL.Entity;
 using System.Linq.Expressions;
 
-namespace CardsServer.DAL.Repository
+namespace CardsServer.BLL.Abstractions
 {
-    public interface IElementRepostory
+    public interface IElementRepository
     {
         Task<int> AddElement(ElementEntity entity, CancellationToken cancellationToken);
         Task<ElementEntity?> GetElement(int id, CancellationToken cancellationToken);
