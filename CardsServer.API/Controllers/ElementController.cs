@@ -3,6 +3,7 @@ using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Infrastructure.Auth;
 using CardsServer.BLL.Infrastructure.Result;
 using Microsoft.AspNetCore.Mvc;
+using System.Web.Http;
 
 namespace CardsServer.API.Controllers
 {
@@ -21,8 +22,8 @@ namespace CardsServer.API.Controllers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPost("element")]
-        public async Task<IActionResult> AddElement([FromBody] AddElementModel model, CancellationToken cancellationToken)
+        [Microsoft.AspNetCore.Mvc.HttpPost("element")]
+        public async Task<IActionResult> AddElement([Microsoft.AspNetCore.Mvc.FromBody] AddElementModel model, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
@@ -34,13 +35,28 @@ namespace CardsServer.API.Controllers
         }
 
         /// <summary>
+        /// Позволяет получить список элементов модуля по moduleId
+        /// </summary>
+        /// <param name="moduleId">Id модуля</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [Microsoft.AspNetCore.Mvc.HttpGet("elements/{moduleId:int}")]
+        public async Task<IActionResult> GetElementsByModuleId([FromRoute] int moduleId, CancellationToken cancellationToken)
+        {
+            Result<IEnumerable<GetElement>> elements = await _service.GetElementsByModuleId(moduleId, cancellationToken);
+            
+            return elements.ToActionResult();
+        }
+        
+        /// <summary>
         /// Позволяет изменить существующий элемент
         /// </summary>
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpPut("element")]
-        public async Task<IActionResult> EditElement([FromBody] EditElementModel model, CancellationToken cancellationToken)
+        [Microsoft.AspNetCore.Mvc.HttpPut("element")]
+        public async Task<IActionResult> EditElement([Microsoft.AspNetCore.Mvc.FromBody] EditElementModel model, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
@@ -57,7 +73,7 @@ namespace CardsServer.API.Controllers
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpGet("element/{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("element/{id}")]
         public async Task<IActionResult> GetElementById(int id, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -74,7 +90,7 @@ namespace CardsServer.API.Controllers
         /// <param name="Id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpDelete("element/{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpDelete("element/{id}")]
         public async Task<IActionResult> DeleteElementById(int Id, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);
@@ -90,7 +106,7 @@ namespace CardsServer.API.Controllers
         /// <param name="Ids"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [HttpDelete("element")]
+        [Microsoft.AspNetCore.Mvc.HttpDelete("element")]
         public async Task<IActionResult> DeleteElements(int[] Ids, CancellationToken cancellationToken)
         {
             int userId = AuthExtension.GetId(User);

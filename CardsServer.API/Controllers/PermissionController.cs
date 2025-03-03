@@ -6,17 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CardsServer.API.Controllers
 {
+    /// <summary>
+    /// Апи для получения разрешений
+    /// </summary>
+    /// <param name="permissionService"></param>
     [ApiController]
     [Authorize]
-    public class PermissionController : ControllerBase
+    public class PermissionController(IPermissionService permissionService) : ControllerBase
     {
-        private readonly IPermissionService _permissionService;
         [HttpGet("permission/get")]
         public async Task<IActionResult> GetPermissions(CancellationToken cancellationToken)
         {
             int userId = User.GetId();
             
-            IEnumerable<string> result = await _permissionService.GetPermissions(userId, cancellationToken);
+            IEnumerable<string> result = await permissionService.GetPermissions(userId, cancellationToken);
             
             return Ok(result);
         }

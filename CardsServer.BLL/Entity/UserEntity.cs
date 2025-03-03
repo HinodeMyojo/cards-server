@@ -35,6 +35,7 @@ namespace CardsServer.BLL.Entity
         public int RecoveryCode {  get; set; }
         public required DateTime CreatedAt { get; set; }
         public RoleEntity? Role { get; set; }
+        public List<UserPermissionEntity> UserPermissions { get; set; } = [];
         public int AvatarId { get; set; }
         public AvatarEntity? Avatar { get; set; }
         // Модули, созданные пользователем

@@ -3,21 +3,23 @@ using CardsServer.BLL.Dto.Element;
 using CardsServer.BLL.Entity;
 using CardsServer.BLL.Infrastructure.Result;
 using CardsServer.DAL.Repository;
+using System.Collections;
+
 namespace CardsServer.BLL.Services
 {
     public sealed class ElementService : IElementService
     {
-        private readonly IElementRepostory _elementRepository;
+        private readonly IElementRepository _iElementRepository;
         private readonly IImageRepository _imageRepository;
         private readonly IModuleRepository _moduleRepository;
 
         public ElementService(
             IImageRepository imageRepository, 
-            IElementRepostory elementRepository, 
+            IElementRepository iElementRepository, 
             IModuleRepository moduleRepository)
         {
             _imageRepository = imageRepository;
-            _elementRepository = elementRepository;
+            _iElementRepository = iElementRepository;
             _moduleRepository = moduleRepository;
         }
 
@@ -36,7 +38,7 @@ namespace CardsServer.BLL.Services
             };
             try
             {
-                await _elementRepository.AddElement(newElement, cancellationToken);
+                await _iElementRepository.AddElement(newElement, cancellationToken);
                 return Result.Success();
             }
             catch (Exception)
@@ -52,7 +54,7 @@ namespace CardsServer.BLL.Services
             {
                 try
                 {
-                    await _elementRepository.DeleteElementById(check.Value, cancellationToken);
+                    await _iElementRepository.DeleteElementById(check.Value, cancellationToken);
                     return Result.Success();
                 }
                 catch (Exception)
@@ -75,7 +77,7 @@ namespace CardsServer.BLL.Services
                 return Result.Failure("Не найден модуль, для которого редактируется элемент!");
             if (module.Creator!.Id != userId)
                 return Result.Failure(ErrorAdditional.Forbidden);
-            ElementEntity element = await _elementRepository.GetElement(model.ElementId, cancellationToken);
+            ElementEntity element = await _iElementRepository.GetElement(model.ElementId, cancellationToken);
             if (element == null)
             {
                 return Result.Failure("Редактируемый элемент не найден");
@@ -86,7 +88,7 @@ namespace CardsServer.BLL.Services
 
             try
             {
-                await _elementRepository.EditElement(element, cancellationToken);
+                await _iElementRepository.EditElement(element, cancellationToken);
                 return Result.Success();
             }
             catch (Exception)
@@ -97,7 +99,7 @@ namespace CardsServer.BLL.Services
 
         public async Task<GetElement?> GetElement(int moduleId, CancellationToken cancellationToken)
         {
-            ElementEntity? el = await _elementRepository.GetElementByModuleId(moduleId, cancellationToken);
+            ElementEntity? el = await _iElementRepository.GetElementByModuleId(moduleId, cancellationToken);
             if (el != null)
             {
                 return new GetElement()
@@ -112,7 +114,7 @@ namespace CardsServer.BLL.Services
 
         public async Task<Result<GetElement>> GetElementById(int id, int userId, CancellationToken cancellationToken)
         {
-            ElementEntity? element = await _elementRepository.GetElementCreatorId(x => x.Id == id, cancellationToken);
+            ElementEntity? element = await _iElementRepository.GetElementCreatorId(x => x.Id == id, cancellationToken);
             if (element != null && element.Module!.Creator!.Id == userId)
             {
                 GetElement result = new()
@@ -126,10 +128,23 @@ namespace CardsServer.BLL.Services
             return Result<GetElement>.Failure("Не удалось получить элемент!");
         }
 
+        public async Task<Result<IEnumerable<GetElement>>> GetElementsByModuleId(int moduleId, CancellationToken cancellationToken)
+        {
+            IEnumerable<ElementEntity> elements =
+                await _iElementRepository.GetElementsByModuleId(moduleId, cancellationToken);
+
+            return Result<IEnumerable<GetElement>>.Success(elements.Select(x => new GetElement()
+            {
+                Key = x.Key, Value = x.Value, Id = x.Id,
+                // TODO
+                // Image = x.Image.,
+            }));
+        }
+
 
         private async Task<Result<ElementEntity>> CheckElementAvailabityAndUserCorrect(int elementId, int userId, CancellationToken cancellationToken)
         {
-            ElementEntity? element = await _elementRepository.GetElementCreatorId(x => x.Id == elementId, cancellationToken);
+            ElementEntity? element = await _iElementRepository.GetElementCreatorId(x => x.Id == elementId, cancellationToken);
             if (element != null && element.Module!.Creator!.Id == userId)
             {
                 return Result<ElementEntity>.Success(element);
